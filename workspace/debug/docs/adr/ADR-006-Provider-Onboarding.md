@@ -1,4 +1,4 @@
-# ADR-004: API-Key-Provider-Onboarding über WebView2
+# ADR-006: API-Key-Provider-Onboarding über WebView2
 
 ## Status
 

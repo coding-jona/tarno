@@ -1,4 +1,4 @@
-# ADR-004: Pegboard- und Multi-Monitor-UI
+# ADR-005: Pegboard- und Multi-Monitor-UI
 
 **Status:** Entschieden / Umgesetzt
 

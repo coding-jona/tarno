@@ -64,6 +64,11 @@ workspace/future/multiscreen-backup/
 *.wav
 !tests/**/*.wav
 
+# --- Runtime-generated config (written by ovos_engine.py._install_persona()
+# from config/persona/tarno.json; regenerated on every TARNO start, so the
+# checked-in copy just goes stale and gets out of sync with the real source) ---
+config/ovos_persona/tarno.json
+
 # --- Editor / OS ---
 .vscode/
 .idea/
