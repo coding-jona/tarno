@@ -37,7 +37,7 @@ pvporcupine==1.9.5
 edge-tts==7.2.8
 gTTS==2.5.4
 piper-tts==1.6.0
-neutts==1.4.1
+neutts
 pygame==2.6.1
 PyAudio==0.2.14
 
