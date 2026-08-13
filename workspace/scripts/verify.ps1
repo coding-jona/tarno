@@ -4,7 +4,7 @@
 .DESCRIPTION
     Führt sequentiell aus:
       1. dotnet build src/TARNO.UI/TARNO.UI.csproj
-      2. python -m unittest discover -s debug/tests
+      2. python -m unittest discover -s workspace/debug/tests
     Bei einem Fehler wird sofort abgebrochen.
 #>
 [CmdletBinding()]
@@ -14,7 +14,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
+# Dieses Skript liegt unter workspace/scripts/, also zwei Ebenen unterm Repo-Root.
+$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
 function Step-Build {
     Write-Host "`n[1/2] dotnet build TARNO.UI ..." -ForegroundColor Cyan
@@ -27,7 +28,7 @@ function Step-Build {
 function Step-Tests {
     Write-Host "`n[2/2] Python unit tests ..." -ForegroundColor Cyan
     $env:PYTHONPATH = Join-Path $root 'src'
-    python -m unittest discover -s (Join-Path (Join-Path $root 'debug') 'tests') -v
+    python -m unittest discover -s (Join-Path (Join-Path (Join-Path $root 'workspace') 'debug') 'tests') -v
     if ($LASTEXITCODE -ne 0) { throw "Tests failed with exit code $LASTEXITCODE" }
     Write-Host "Tests OK." -ForegroundColor Green
 }

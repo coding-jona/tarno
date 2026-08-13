@@ -25,7 +25,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
+# Dieses Skript liegt unter workspace/scripts/, also zwei Ebenen unterm Repo-Root.
+$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
 # KERNFIX: 'python' zeigte auf das System-Python (aktuell 3.14), nicht auf
 # das Projekt-venv (.venv, Python 3.12) - genau die Python-Version, wegen der
@@ -73,7 +74,7 @@ $pyinstallerOutput = Join-Path $distDir 'tarno_backend'
 function Step-Tests {
     Write-Host "`n[1/5] Python-Tests ..." -ForegroundColor Cyan
     $env:PYTHONPATH = Join-Path $root 'src'
-    & $python -m unittest discover -s (Join-Path (Join-Path $root 'debug') 'tests') -v
+    & $python -m unittest discover -s (Join-Path (Join-Path (Join-Path $root 'workspace') 'debug') 'tests') -v
     if ($LASTEXITCODE -ne 0) { throw "Python tests failed with exit code $LASTEXITCODE" }
     Write-Host "Tests OK." -ForegroundColor Green
 }
