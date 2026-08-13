@@ -55,7 +55,7 @@ class RouterScenarioTests(unittest.TestCase):
         router = MeshRouter(
             heartbeat=heartbeat,
             embedded_broker=broker,
-            wiko_bridge=bridge,
+            hub_bridge=bridge,
             on_transition=transitions.append,
         )
         return router, heartbeat, transitions
@@ -140,7 +140,16 @@ class MeshObserverTests(unittest.TestCase):
         draft = observer.check()
         self.assertIsNotNone(draft)
         self.assertEqual(draft.source, "mesh")
-        self.assertIn("Hub-Rolle", draft.message)
+        # persona.py's comment() picks randomly between multiple phrasings
+        # per event type (see its module docstring) - "Hub-Rolle" only
+        # appears in the HUB_FULL_MESH variants, not HUB_FALLBACK_PC (the
+        # scenario actually triggered here). Assert against both possible
+        # HUB_FALLBACK_PC phrasings instead of one specific, wrong string.
+        self.assertTrue(
+            "Hub-Handy nicht erreichbar" in draft.message
+            or "Hub-Node offline" in draft.message,
+            f"unexpected mesh fallback message: {draft.message!r}",
+        )
 
     def test_draft_consumed_only_once(self):
         bus = EventBus()
