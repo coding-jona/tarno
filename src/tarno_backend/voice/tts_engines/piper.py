@@ -33,7 +33,24 @@ class PiperEngine(BaseTTSEngine):
 
     def __init__(self, config: dict[str, Any]) -> None:
         super().__init__(config)
-        self._voice = str(config.get("voice", _DEFAULT_REPO))
+        # The configured voice may be a Microsoft edge-tts neural voice name
+        # (e.g. "de-DE-ConradNeural"), which Piper cannot use as a HuggingFace
+        # repo id - this happens when synthesizer._init_engines() threads the
+        # same tts_config through both the preferred engine and its
+        # fallbacks. Mirror edge.py's symmetric check for the opposite case
+        # and fall back to the default Piper voice instead of attempting a
+        # doomed HF download for a repo id that was never a repo id.
+        configured_voice = str(config.get("voice", ""))
+        if configured_voice and "-" in configured_voice and "Neural" in configured_voice:
+            log.warning(
+                "Konfigurierte Stimme '%s' sieht nach einer edge-tts-Stimme "
+                "aus, nicht nach einer Piper-HuggingFace-Repo-ID - verwende "
+                "stattdessen die Piper-Standardstimme '%s'.",
+                configured_voice, _DEFAULT_REPO,
+            )
+            self._voice = _DEFAULT_REPO
+        else:
+            self._voice = configured_voice or _DEFAULT_REPO
         self._model_path, self._config_path = self._resolve_model_files()
         self._voice_obj = self._load_voice()
 
