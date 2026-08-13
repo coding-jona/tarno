@@ -13,13 +13,13 @@
 # original file's exact package set wasn't available at restructuring time.
 
 # --- Core / gRPC bridge ---
-grpcio==1.83.0
-protobuf==7.35.1
-PyYAML==6.0.2
+grpcio
+protobuf
+PyYAML
 
 # --- AI providers ---
-anthropic==0.121.0
-requests==2.34.2
+anthropic
+requests
 huggingface-hub==1.13.0
 
 # --- Voice pipeline: STT ---
@@ -38,7 +38,7 @@ edge-tts==7.2.8
 gTTS==2.5.4
 piper-tts==1.6.0
 neutts
-pygame==2.6.1
+pygame
 PyAudio==0.2.14
 
 # --- Memory / embeddings ---
