@@ -54,10 +54,10 @@ xc_out.txt
 xc_err.txt
 xc17_out.txt
 
-# --- Nested legacy/unrelated trees (not TARNO source) ---
-openWakeWord-0.6.0/
-extracted website code/
-multiscreen-backup/
+# --- Parked/unrealized ideas, not part of the current product (not TARNO source) ---
+# workspace/future/multiscreen-backup/: an earlier multi-monitor UI direction
+# that was rewound; kept for reference but intentionally left untracked.
+workspace/future/multiscreen-backup/
 
 # --- Local data / secrets / model caches ---
 .data/
