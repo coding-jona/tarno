@@ -12,7 +12,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # windows-only: TARNO's WinUI3 frontend + pywin32/comtypes/pycaw COM
+        # integration make it a Windows-only product. vosk (requirements.txt)
+        # also ships no macOS wheels for the pinned version, and PyAudio has
+        # no Linux wheels at all (would need portaudio19-dev + a build step),
+        # so testing on ubuntu-latest/macos-latest wasn't meaningfully
+        # covering anything real anyway.
+        os: [windows-latest]
         python-version: ["3.11", "3.12"]
 
     steps:
