@@ -31,10 +31,10 @@ jobs:
       - name: Lint with ruff
         run: |
           pip install ruff
-          ruff check tarno tests || true
+          ruff check tarno debug/tests || true
 
       - name: Run unit tests
-        run: python -m unittest discover -s tests
+        run: python -m unittest discover -s debug/tests
 
       - name: Compile package
         run: python -m py_compile tarno/**/*.py
