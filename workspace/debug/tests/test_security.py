@@ -117,7 +117,14 @@ class ApiKeyLeakPreventionTests(unittest.TestCase):
         self.assertNotIn("key", data.get("ovos-solver-openai-plugin", {}))
 
     def test_install_persona_removes_key_field(self):
-        from tarno_backend.core.ovos_engine import TarnoOvosEngine
+        try:
+            from tarno_backend.core.ovos_engine import TarnoOvosEngine
+        except ImportError:
+            # ovos_bus_client is intentionally not in requirements.txt
+            # (ADR-002 / TD-007) - ovos_engine imports it at module level.
+            self.skipTest(
+                "ovos_bus_client not installed (optional, see requirements-ovos.txt)"
+            )
 
         secret = "test_secret_sk_12345678901234567890"
         with tempfile.TemporaryDirectory() as tmp:
