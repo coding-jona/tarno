@@ -55,7 +55,7 @@ $pyinstallerOutput = Join-Path $distDir 'tarno_backend'
 
 function Step-Tests {
     Write-Host "`n[1/5] Python-Tests ..." -ForegroundColor Cyan
-    $env:PYTHONPATH = $root
+    $env:PYTHONPATH = Join-Path $root 'src'
     & $python -m unittest discover -s (Join-Path (Join-Path $root 'debug') 'tests') -v
     if ($LASTEXITCODE -ne 0) { throw "Python tests failed with exit code $LASTEXITCODE" }
     Write-Host "Tests OK." -ForegroundColor Green
@@ -63,7 +63,7 @@ function Step-Tests {
 
 function Step-SecretScan {
     Write-Host "`n[2/6] Secret-Scan ..." -ForegroundColor Cyan
-    $env:PYTHONPATH = $root
+    $env:PYTHONPATH = Join-Path $root 'src'
     & $python -c "from tarno.security.build_secret_scan import verify_no_secrets; from pathlib import Path; verify_no_secrets(Path(r'$root'))"
     if ($LASTEXITCODE -ne 0) { throw "Secret scan failed with exit code $LASTEXITCODE - moeglicher API-Key-Leak im Quellcode" }
     Write-Host "Secret-Scan OK." -ForegroundColor Green

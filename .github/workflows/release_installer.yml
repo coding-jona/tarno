@@ -33,6 +33,8 @@ jobs:
           pip install pyinstaller
 
       - name: Run core tests
+        env:
+          PYTHONPATH: src
         run: python -m unittest discover -s debug/tests
 
       - name: Run installer tests

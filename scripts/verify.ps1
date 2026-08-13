@@ -26,7 +26,7 @@ function Step-Build {
 
 function Step-Tests {
     Write-Host "`n[2/2] Python unit tests ..." -ForegroundColor Cyan
-    $env:PYTHONPATH = $root
+    $env:PYTHONPATH = Join-Path $root 'src'
     python -m unittest discover -s (Join-Path (Join-Path $root 'debug') 'tests') -v
     if ($LASTEXITCODE -ne 0) { throw "Tests failed with exit code $LASTEXITCODE" }
     Write-Host "Tests OK." -ForegroundColor Green

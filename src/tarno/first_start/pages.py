@@ -162,7 +162,7 @@ class ProviderPage(QWizardPage):
     def _open_help(self) -> None:
         from pathlib import Path
 
-        doc = Path(__file__).resolve().parent.parent.parent.parent / "docs" / "api-keys.md"
+        doc = Path(__file__).resolve().parent.parent.parent.parent / "debug" / "docs" / "api-keys.md"
         QDesktopServices.openUrl(QUrl.fromLocalFile(str(doc)))
 
     def _test_key(self) -> None:
