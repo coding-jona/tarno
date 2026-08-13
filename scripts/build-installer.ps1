@@ -43,7 +43,24 @@ if (-not (Test-Path $venvPython)) {
 }
 $python = $venvPython
 $dotnet = 'dotnet'
-$nsis = 'C:\Program Files (x86)\NSIS\makensis.exe'
+
+# Nicht hardcoden - NSIS kann auf jeder Maschine woanders liegen. Erst PATH
+# pruefen, dann die ueblichen Program-Files-Installationsorte ueber
+# Umgebungsvariablen (nicht als Literal-Pfad) statt eines fixen Laufwerks-
+# buchstabens/Verzeichnisses.
+$nsisCmd = Get-Command 'makensis.exe' -ErrorAction SilentlyContinue
+if ($nsisCmd) {
+    $nsis = $nsisCmd.Source
+} else {
+    $nsisCandidates = @(
+        (Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'),
+        (Join-Path $env:ProgramFiles 'NSIS\makensis.exe')
+    )
+    $nsis = $nsisCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if (-not $nsis) {
+        throw "makensis.exe nicht gefunden (weder im PATH noch unter '%ProgramFiles%\NSIS' oder '%ProgramFiles(x86)%\NSIS'). NSIS installieren oder PATH ergaenzen: https://nsis.sourceforge.io/"
+    }
+}
 
 $csproj = Join-Path $root (Join-Path 'src' (Join-Path 'TARNO.UI' 'TARNO.UI.csproj'))
 $spec = Join-Path $root 'tarno.spec'
