@@ -47,3 +47,5 @@ and the guardrails around persona and response quality.
 - Provider/config decisions: [`workspace/debug/docs/adr/ADR-002-OVOS-Dependency.md`](../../../workspace/debug/docs/adr/ADR-002-OVOS-Dependency.md)
 - Known issues/history: [`workspace/debug/docs/technical-debt-catalog.md`](../../../workspace/debug/docs/technical-debt-catalog.md) (TD-004: API-key handling, TD-014: no token counting)
 - API keys are resolved via `tarno_backend/security/secrets.py` (`SecretsVault`), never read directly from `os.environ` in the clients themselves (TD-004).
+- Tools registered into `tool_registry.py` by other subsystems: `tarno_backend/browser/` (see `browser_README.md`), `tarno_backend/desktop/` (see `desktop_README.md`), `tarno_backend/plugins/` (see `plugins_README.md`) and the concrete integrations under `tarno_backend/integrations/` (see `integrations_README.md`).
+- Background thread that actually calls providers from the voice loop: `tarno_backend/workers/llm_worker.py` (see `workers_README.md`)

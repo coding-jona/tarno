@@ -48,3 +48,6 @@ the command-execution/permission machinery that everything else plugs into.
 - Architecture decisions: [`workspace/debug/docs/adr/`](../../../workspace/debug/docs/adr/)
 - Known issues/history: [`workspace/debug/docs/technical-debt-catalog.md`](../../../workspace/debug/docs/technical-debt-catalog.md) (most TD-00x entries touch this folder)
 - gRPC bridge that exposes this engine to the WinUI frontend: `tarno_backend/grpc/` (see `grpc_README.md`)
+- Background threads `engine.py` coordinates: `tarno_backend/workers/` (see `workers_README.md`)
+- Autonomous layer built on top of the engine (do not fold into `engine.py` itself): `tarno_backend/extensions/` (see `extensions_README.md`)
+- Path resolution used by `config.py`: `tarno_backend/utils/paths.py` (see `utils_README.md`) — note `ovos_engine.py`'s `_BUNDLE_ROOT` deliberately does *not* use it (PyInstaller-bundle compatibility)

@@ -1,4 +1,4 @@
-"""Logging setup facade that delegates to tarno.telemetry.logging."""
+"""Logging setup facade that delegates to tarno_backend.telemetry.logging."""
 
 from __future__ import annotations
 
