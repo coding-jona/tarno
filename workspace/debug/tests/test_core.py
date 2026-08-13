@@ -12,7 +12,15 @@ from collections import deque
 from pathlib import Path
 from unittest.mock import patch
 
-from ovos_bus_client.message import Message
+try:
+    from ovos_bus_client.message import Message
+except ImportError:
+    # ovos_bus_client is intentionally not in requirements.txt (ADR-002 /
+    # TD-007: OVOS deps live in requirements-ovos.txt, only needed for
+    # --no-gui mode) - skip this module instead of failing CI over it.
+    raise unittest.SkipTest(
+        "ovos_bus_client not installed (optional, see requirements-ovos.txt)"
+    )
 
 from tarno_backend.ai.conversation import ConversationManager
 from tarno_backend.ai.fallback_provider import FallbackProvider
