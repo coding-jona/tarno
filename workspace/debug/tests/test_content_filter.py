@@ -9,7 +9,7 @@ from __future__ import annotations
 import base64
 import unittest
 
-from tarno.security.content_filter import TarnoSecurity, Verdict
+from tarno_backend.security.content_filter import TarnoSecurity, Verdict
 
 
 # The literal batch loop from tarno_unaufhaltsam_neu.bat / _jetzt.bat.

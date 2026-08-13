@@ -7,9 +7,9 @@ import unittest
 from dataclasses import dataclass, field
 from unittest.mock import MagicMock
 
-from tarno.ai.pool.models import PoolAgentSpec, PoolConfig, PoolMessage
-from tarno.ai.pool.orchestrator import PoolOrchestrator, _parse_subtasks
-from tarno.ai.pool.worker import PoolWorker
+from tarno_backend.ai.pool.models import PoolAgentSpec, PoolConfig, PoolMessage
+from tarno_backend.ai.pool.orchestrator import PoolOrchestrator, _parse_subtasks
+from tarno_backend.ai.pool.worker import PoolWorker
 
 
 class _FakeResponse:

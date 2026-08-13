@@ -15,13 +15,13 @@ import threading
 import time
 import unittest
 
-from tarno.ai.tool_registry import ToolRegistry
-from tarno.core.command_engine import RiskLevel
-from tarno.core.config import TarnoConfig
-from tarno.core.events import EventBus
-from tarno.core.permission_service import PermissionType
-from tarno.grpc import tarno_pb2
-from tarno.grpc.server import TarnoGrpcBridge
+from tarno_backend.ai.tool_registry import ToolRegistry
+from tarno_backend.core.command_engine import RiskLevel
+from tarno_backend.core.config import TarnoConfig
+from tarno_backend.core.events import EventBus
+from tarno_backend.core.permission_service import PermissionType
+from tarno_backend.grpc import tarno_pb2
+from tarno_backend.grpc.server import TarnoGrpcBridge
 
 
 class _FakeEngine:

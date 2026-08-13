@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pyaudio
 
-from tarno.core.config import AudioConfig, WakeWordConfig
+from tarno_backend.core.config import AudioConfig, WakeWordConfig
 
 
 class AudioStreamTests(unittest.TestCase):
@@ -22,10 +22,10 @@ class AudioStreamTests(unittest.TestCase):
             chunk_size=1280,
         )
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_flush_input_buffer_reads_and_discards_chunks(self, mock_pa):
         """flush_input_buffer must consume configured chunks without failing."""
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_stream = MagicMock()
         mock_stream.is_active.return_value = True
@@ -64,7 +64,7 @@ class WakeWordDetectorTests(unittest.TestCase):
         """pvporcupine.create must be called with the sensitivity config, not threshold."""
         from unittest.mock import patch
 
-        from tarno.voice.wakeword import WakeWordDetector
+        from tarno_backend.voice.wakeword import WakeWordDetector
 
         mock_porcupine = MagicMock()
         mock_porcupine.frame_length = 512
@@ -91,7 +91,7 @@ class WakeWordDetectorTests(unittest.TestCase):
 
     def test_openwakeword_jarvis_model_uses_hey_jarvis_onnx(self) -> None:
         """model_name 'jarvis' must resolve to the bundled hey_jarvis_v0.1.onnx model."""
-        from tarno.voice import wakeword
+        from tarno_backend.voice import wakeword
 
         self.assertEqual(
             wakeword._OWW_MODEL_MAP.get("jarvis"), "hey_jarvis_v0.1.onnx"
@@ -104,7 +104,7 @@ class WakeWordDetectorTests(unittest.TestCase):
         """Wake word detection must work again after reset() simulating post-query recovery."""
         from unittest.mock import patch
 
-        from tarno.voice.wakeword import WakeWordDetector
+        from tarno_backend.voice.wakeword import WakeWordDetector
 
         mock_model = MagicMock()
         # First detection, then reset, then detection again.
@@ -114,7 +114,7 @@ class WakeWordDetectorTests(unittest.TestCase):
         ]
         mock_model.predict.side_effect = predict_responses
 
-        from tarno.core.config import AGCConfig
+        from tarno_backend.core.config import AGCConfig
 
         config = WakeWordConfig(
             model_name="hey_jarvis",
@@ -157,7 +157,7 @@ def _make_detector_for_agc(config: WakeWordConfig, agc_config=None):
     _init_openwakeword path they're actually meant to isolate."""
     import dataclasses
 
-    from tarno.voice.wakeword import WakeWordDetector
+    from tarno_backend.voice.wakeword import WakeWordDetector
 
     config = dataclasses.replace(config, backend="openwakeword")
     with patch.object(WakeWordDetector, "_init_openwakeword", autospec=True):
@@ -172,8 +172,8 @@ class WakeWordAGCTests(unittest.TestCase):
     word to clear openWakeWord's score threshold."""
 
     def test_agc_can_be_disabled_via_config(self) -> None:
-        from tarno.core.config import AGCConfig
-        from tarno.voice.wakeword import WakeWordDetector
+        from tarno_backend.core.config import AGCConfig
+        from tarno_backend.voice.wakeword import WakeWordDetector
 
         config = WakeWordConfig(backend="openwakeword", threshold=0.5, patience=1, debounce_time=0.0)
         agc_config = AGCConfig(enabled=False)
@@ -228,9 +228,9 @@ class AudioStreamDeviceResolutionTests(unittest.TestCase):
             microphone_device=microphone_device,
         )
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_resolves_wasapi_default_input_device_when_target_is_default(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_instance = mock_pa.return_value
         mock_instance.get_host_api_info_by_type.return_value = {"defaultInputDevice": 3}
@@ -238,9 +238,9 @@ class AudioStreamDeviceResolutionTests(unittest.TestCase):
         stream = AudioStream(self._make_config("default"))
         self.assertEqual(stream._device_index, 3)
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_falls_back_to_none_when_wasapi_unavailable(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_instance = mock_pa.return_value
         mock_instance.get_host_api_info_by_type.side_effect = OSError("no WASAPI")
@@ -248,9 +248,9 @@ class AudioStreamDeviceResolutionTests(unittest.TestCase):
         stream = AudioStream(self._make_config("default"))
         self.assertIsNone(stream._device_index)
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_falls_back_to_none_when_wasapi_reports_no_default_input_device(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_instance = mock_pa.return_value
         mock_instance.get_host_api_info_by_type.return_value = {"defaultInputDevice": -1}
@@ -258,9 +258,9 @@ class AudioStreamDeviceResolutionTests(unittest.TestCase):
         stream = AudioStream(self._make_config("default"))
         self.assertIsNone(stream._device_index)
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_explicit_device_index_bypasses_wasapi_resolution(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_instance = mock_pa.return_value
 
@@ -268,9 +268,9 @@ class AudioStreamDeviceResolutionTests(unittest.TestCase):
         self.assertEqual(stream._device_index, 2)
         mock_instance.get_host_api_info_by_type.assert_not_called()
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_open_stream_still_falls_back_on_wasapi_device_open_failure(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_instance = mock_pa.return_value
         mock_instance.get_host_api_info_by_type.return_value = {"defaultInputDevice": 3}
@@ -291,13 +291,13 @@ class AudioStreamDeviceResolutionTests(unittest.TestCase):
 
         self.assertNotEqual(stream._device_index, 3)
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_explicit_name_search_prefers_wasapi_over_mme_match(self, mock_pa) -> None:
         """Regression test: the same physical mic often appears multiple
         times across host APIs (MME/DirectSound/WASAPI) - matching by name
         must prefer the WASAPI entry over a lower-quality MME/DirectSound
         one for the same device."""
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_instance = mock_pa.return_value
         mock_instance.get_device_count.return_value = 2
@@ -312,9 +312,9 @@ class AudioStreamDeviceResolutionTests(unittest.TestCase):
         stream = AudioStream(self._make_config("USB Microphone"))
         self.assertEqual(stream._device_index, 1)
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_explicit_name_search_falls_back_to_mme_if_no_wasapi_match(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_instance = mock_pa.return_value
         mock_instance.get_device_count.return_value = 1
@@ -338,9 +338,9 @@ class SampleRateFallbackTests(unittest.TestCase):
             sample_rate=16000, channels=1, chunk_size=1280, microphone_device="2",
         )
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_retries_same_device_at_native_rate_on_invalid_sample_rate(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_stream = MagicMock()
         mock_instance = mock_pa.return_value
@@ -361,9 +361,9 @@ class SampleRateFallbackTests(unittest.TestCase):
         self.assertEqual(stream._capture_rate, 48000)
         stream.stop()
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_falls_back_to_other_device_if_native_rate_also_fails(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_stream = MagicMock()
         mock_instance = mock_pa.return_value
@@ -386,13 +386,13 @@ class SampleRateFallbackTests(unittest.TestCase):
         self.assertNotEqual(stream._device_index, 2)
         stream.stop()
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_read_frames_resamples_to_exact_configured_length(self, mock_pa) -> None:
         """When capture_rate != configured rate, read_frames must still
         return exactly num_frames * sample_width bytes, regardless of the
         resampling ratio, so downstream consumers never see a different
         chunk size."""
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         config = self._make_config()
         mock_instance = mock_pa.return_value
@@ -416,9 +416,9 @@ class SampleRateFallbackTests(unittest.TestCase):
 class ListInputDevicesTests(unittest.TestCase):
     """Tests for the Settings microphone picker's device enumeration."""
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_returns_input_devices_with_default_and_builtin_labels(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import list_input_devices
+        from tarno_backend.voice.audio_stream import list_input_devices
 
         mock_instance = mock_pa.return_value
         mock_instance.get_host_api_info_by_type.return_value = {"defaultInputDevice": 1}
@@ -440,9 +440,9 @@ class ListInputDevicesTests(unittest.TestCase):
         self.assertTrue(result[1]["is_default"])
         self.assertEqual(result[1]["host_api"], "Windows WASAPI")
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_excludes_output_only_devices(self, mock_pa) -> None:
-        from tarno.voice.audio_stream import list_input_devices
+        from tarno_backend.voice.audio_stream import list_input_devices
 
         mock_instance = mock_pa.return_value
         mock_instance.get_host_api_info_by_type.return_value = {"defaultInputDevice": -1}
@@ -465,10 +465,10 @@ class SpeechSynthesizerTests(unittest.TestCase):
             tts_cache_dir="~/.tarno/cache/tts",
         )
 
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_play_sound_uses_pygame_sound(self, mock_pygame: MagicMock) -> None:
         """play_sound must use pygame.mixer.Sound and return immediately (non-blocking)."""
-        from tarno.voice.synthesizer import SpeechSynthesizer
+        from tarno_backend.voice.synthesizer import SpeechSynthesizer
 
         mock_sound = MagicMock()
         mock_channel = MagicMock()
@@ -485,9 +485,9 @@ class SpeechSynthesizerTests(unittest.TestCase):
         mock_pygame.mixer.Sound.assert_called_once()
         mock_sound.play.assert_called_once()
 
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_set_output_device_reinits_mixer_with_devicename(self, mock_pygame: MagicMock) -> None:
-        from tarno.voice.synthesizer import SpeechSynthesizer
+        from tarno_backend.voice.synthesizer import SpeechSynthesizer
 
         mock_pygame.mixer.get_init.return_value = True
         config = self._make_config()
@@ -501,9 +501,9 @@ class SpeechSynthesizerTests(unittest.TestCase):
         mock_pygame.mixer.init.assert_called_with(devicename="USB Speakers")
         self.assertEqual(synth._output_device, "USB Speakers")
 
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_set_output_device_default_normalizes_to_none(self, mock_pygame: MagicMock) -> None:
-        from tarno.voice.synthesizer import SpeechSynthesizer
+        from tarno_backend.voice.synthesizer import SpeechSynthesizer
 
         mock_pygame.mixer.get_init.return_value = True
         config = self._make_config()
@@ -515,11 +515,11 @@ class SpeechSynthesizerTests(unittest.TestCase):
         mock_pygame.mixer.init.assert_called_with(devicename=None)
 
     @patch("pygame._sdl2.audio.get_audio_device_names")
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_list_output_devices_returns_labeled_devices(
         self, mock_pygame: MagicMock, mock_get_names: MagicMock
     ) -> None:
-        from tarno.voice.synthesizer import list_output_devices
+        from tarno_backend.voice.synthesizer import list_output_devices
 
         mock_pygame.get_init.return_value = True
         mock_get_names.return_value = ["Lautsprecher Array (Realtek)", "USB Speakers"]
@@ -531,10 +531,10 @@ class SpeechSynthesizerTests(unittest.TestCase):
         self.assertTrue(result[0]["is_builtin"])
         self.assertFalse(result[1]["is_builtin"])
 
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_stop_stops_music_and_sound_channels(self, mock_pygame: MagicMock) -> None:
         """stop() must stop both music and any active Sound channels."""
-        from tarno.voice.synthesizer import SpeechSynthesizer
+        from tarno_backend.voice.synthesizer import SpeechSynthesizer
 
         mock_pygame.mixer.Sound.return_value = MagicMock()
         mock_pygame.mixer.get_init.return_value = True
@@ -547,10 +547,10 @@ class SpeechSynthesizerTests(unittest.TestCase):
         mock_pygame.mixer.music.stop.assert_called_once()
         mock_pygame.mixer.stop.assert_called_once()
 
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_play_sound_warns_when_asset_missing(self, mock_pygame: MagicMock) -> None:
         """If the confirmation WAV cannot be loaded, play_sound should warn and return."""
-        from tarno.voice.synthesizer import SpeechSynthesizer
+        from tarno_backend.voice.synthesizer import SpeechSynthesizer
 
         mock_pygame.mixer.Sound.side_effect = FileNotFoundError("not found")
         mock_pygame.mixer.get_init.return_value = True
@@ -562,10 +562,10 @@ class SpeechSynthesizerTests(unittest.TestCase):
         # play_sound should return without raising when no sound is loaded.
         synth.play_sound()
 
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_play_sound_reinitializes_mixer_when_needed(self, mock_pygame: MagicMock) -> None:
         """play_sound must re-init pygame.mixer if it was terminated."""
-        from tarno.voice.synthesizer import SpeechSynthesizer
+        from tarno_backend.voice.synthesizer import SpeechSynthesizer
 
         mock_sound = MagicMock()
         mock_channel = MagicMock()
@@ -583,8 +583,8 @@ class SpeechSynthesizerTests(unittest.TestCase):
 
         mock_pygame.mixer.init.assert_called()
 
-    @patch("tarno.voice.synthesizer.time.sleep")
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.time.sleep")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_speak_does_not_hang_forever_if_get_busy_never_clears(
         self, mock_pygame: MagicMock, mock_sleep: MagicMock
     ) -> None:
@@ -592,7 +592,7 @@ class SpeechSynthesizerTests(unittest.TestCase):
         returns False must not wedge speak() (and thus the caller's thread)
         forever - it must time out, stop playback and still fire
         on_tts_finished so the engine can continue processing."""
-        from tarno.voice.synthesizer import SpeechSynthesizer
+        from tarno_backend.voice.synthesizer import SpeechSynthesizer
 
         mock_pygame.mixer.get_init.return_value = True
         mock_pygame.mixer.music.get_busy.return_value = True  # never clears
@@ -618,14 +618,14 @@ class SpeechSynthesizerTests(unittest.TestCase):
         mock_pygame.mixer.music.stop.assert_called()
         finished.assert_called_once()
 
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_compute_speech_envelope_normalizes_and_reports_duration(
         self, mock_pygame: MagicMock
     ) -> None:
         """The envelope must be normalized against its own loudest window
         (peak == 1.0) and report the real decoded duration, since this is
         what the Orb's whole-body resonance animation is timed against."""
-        from tarno.voice.synthesizer import _ENVELOPE_WINDOW_MS, _compute_speech_envelope
+        from tarno_backend.voice.synthesizer import _ENVELOPE_WINDOW_MS, _compute_speech_envelope
 
         freq = 1000
         mock_pygame.mixer.get_init.return_value = (freq, -16, 1)
@@ -646,13 +646,13 @@ class SpeechSynthesizerTests(unittest.TestCase):
         self.assertAlmostEqual(levels[0], 1.0)
         self.assertLess(levels[1], levels[0])
 
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_compute_speech_envelope_returns_empty_on_decode_failure(
         self, mock_pygame: MagicMock
     ) -> None:
         """A corrupt/unreadable cache file must degrade gracefully (no
         envelope, no crash) rather than blocking speech playback."""
-        from tarno.voice.synthesizer import _compute_speech_envelope
+        from tarno_backend.voice.synthesizer import _compute_speech_envelope
 
         mock_pygame.mixer.Sound.side_effect = Exception("boom")
 
@@ -661,8 +661,8 @@ class SpeechSynthesizerTests(unittest.TestCase):
         self.assertEqual(levels, [])
         self.assertEqual(duration, 0.0)
 
-    @patch("tarno.voice.synthesizer._compute_speech_envelope")
-    @patch("tarno.voice.synthesizer.pygame")
+    @patch("tarno_backend.voice.synthesizer._compute_speech_envelope")
+    @patch("tarno_backend.voice.synthesizer.pygame")
     def test_speak_calls_on_tts_started_with_envelope_and_duration(
         self, mock_pygame: MagicMock, mock_envelope: MagicMock
     ) -> None:
@@ -670,7 +670,7 @@ class SpeechSynthesizerTests(unittest.TestCase):
         cached audio file and pass it to on_tts_started - this is what lets
         the Orb play a resonance animation genuinely synced to what TARNO is
         saying, instead of a generic procedural loop."""
-        from tarno.voice.synthesizer import SpeechSynthesizer
+        from tarno_backend.voice.synthesizer import SpeechSynthesizer
 
         mock_pygame.mixer.get_init.return_value = True
         mock_pygame.mixer.music.get_busy.return_value = False
@@ -700,7 +700,7 @@ class AssetResolutionTests(unittest.TestCase):
     """Tests for confirmation asset path resolution."""
 
     def test_asset_path_points_to_tarno_assets(self):
-        from tarno.voice.synthesizer import SpeechSynthesizer
+        from tarno_backend.voice.synthesizer import SpeechSynthesizer
 
         path = SpeechSynthesizer._resolve_asset_path("confirmation.wav")
         self.assertTrue("jarvis" in str(path).lower() or "assets" in str(path).lower())

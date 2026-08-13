@@ -15,10 +15,10 @@ from pathlib import Path
 
 import numpy as np
 
-from tarno.ai.persona_guard import PersonaGuard
-from tarno.memory.embeddings import blob_to_vector, cosine_similarity, vector_to_blob
-from tarno.memory.fact_extractor import FactExtractor
-from tarno.memory.store import MemoryStore
+from tarno_backend.ai.persona_guard import PersonaGuard
+from tarno_backend.memory.embeddings import blob_to_vector, cosine_similarity, vector_to_blob
+from tarno_backend.memory.fact_extractor import FactExtractor
+from tarno_backend.memory.store import MemoryStore
 
 
 class VectorBlobTests(unittest.TestCase):
@@ -234,7 +234,7 @@ class EmbeddingSemanticSanityTest(unittest.TestCase):
     similarity (not just structurally valid vectors)."""
 
     def test_semantically_similar_sentences_score_higher_than_unrelated(self) -> None:
-        from tarno.memory.embeddings import get_default_provider
+        from tarno_backend.memory.embeddings import get_default_provider
 
         provider = get_default_provider()
         if not provider.available:

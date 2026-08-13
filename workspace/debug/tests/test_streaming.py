@@ -5,9 +5,9 @@ from __future__ import annotations
 import unittest
 from typing import Any
 
-from tarno.ai.fallback_provider import FallbackProvider
-from tarno.ai.provider import LLMProvider, LLMResponse, ProviderCapabilities, StreamingDelta
-from tarno.ai.streaming import accumulate_streaming_response, streaming_to_llm_response
+from tarno_backend.ai.fallback_provider import FallbackProvider
+from tarno_backend.ai.provider import LLMProvider, LLMResponse, ProviderCapabilities, StreamingDelta
+from tarno_backend.ai.streaming import accumulate_streaming_response, streaming_to_llm_response
 
 
 class FakeStreamingProvider(LLMProvider):

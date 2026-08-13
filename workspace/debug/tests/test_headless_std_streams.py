@@ -6,7 +6,7 @@ import sys
 import unittest
 from unittest.mock import patch
 
-from tarno.__main__ import _ensure_headless_std_streams
+from tarno_backend.__main__ import _ensure_headless_std_streams
 
 
 class HeadlessStdStreamTests(unittest.TestCase):

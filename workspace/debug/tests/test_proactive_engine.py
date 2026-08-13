@@ -12,8 +12,8 @@ import unittest
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
-from tarno.core.calendar_service import CalendarEvent
-from tarno.core.proactive_engine import (
+from tarno_backend.core.calendar_service import CalendarEvent
+from tarno_backend.core.proactive_engine import (
     IdleCuriosityObserver,
     ProactiveDraft,
     ProactiveEngine,
@@ -123,7 +123,7 @@ class UserBehaviorObserverTests(unittest.TestCase):
     def test_no_draft_when_not_distracted(self) -> None:
         observer = self._make_observer()
         with patch(
-            "tarno.desktop.window_manager.get_active_window",
+            "tarno_backend.desktop.window_manager.get_active_window",
             return_value={"title": "Visual Studio Code"},
         ):
             self.assertIsNone(observer.check())
@@ -131,7 +131,7 @@ class UserBehaviorObserverTests(unittest.TestCase):
     def test_baseline_nudge_without_imminent_event(self) -> None:
         observer = self._make_observer()
         with patch(
-            "tarno.desktop.window_manager.get_active_window",
+            "tarno_backend.desktop.window_manager.get_active_window",
             return_value={"title": "YouTube - Chrome"},
         ):
             first = observer.check()  # establishes distraction_since
@@ -146,7 +146,7 @@ class UserBehaviorObserverTests(unittest.TestCase):
         calendar = _FakeCalendar([CalendarEvent(summary="Meeting", start=soon)])
         observer = self._make_observer(calendar_service=calendar, close_distraction_window=True)
         with patch(
-            "tarno.desktop.window_manager.get_active_window",
+            "tarno_backend.desktop.window_manager.get_active_window",
             return_value={"title": "YouTube - Chrome"},
         ):
             observer.check()  # establishes distraction_since

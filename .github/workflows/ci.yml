@@ -31,7 +31,7 @@ jobs:
       - name: Lint with ruff
         run: |
           pip install ruff
-          ruff check src/tarno workspace/debug/tests || true
+          ruff check src/tarno_backend workspace/debug/tests || true
 
       - name: Run unit tests
         env:
@@ -39,5 +39,5 @@ jobs:
         run: python -m unittest discover -s workspace/debug/tests
 
       - name: Compile package
-        run: python -m py_compile src/tarno/**/*.py
+        run: python -m py_compile src/tarno_backend/**/*.py
         shell: bash

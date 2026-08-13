@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from tarno.ai.context.output_compressor import (
+from tarno_backend.ai.context.output_compressor import (
     CompressorConfig,
     compress_tool_output,
     compress_tool_output_detailed,

@@ -9,15 +9,16 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from unittest import mock
 
-from tarno.ai.tool_registry import ToolRegistry
-from tarno.integrations.calendar_email.client import CalendarClient
-from tarno.integrations.discord.client import DiscordClientConfig, DiscordClientModule
-from tarno.integrations.git.client import GitClient
-from tarno.integrations.minecraft.client import MinecraftVoiceConfig, MinecraftVoiceModule
-from tarno.integrations.smart_home.client import HomeAssistantBackend, SmartHomeClient
-from tarno.plugins.manager import PluginManager
+from tarno_backend.ai.tool_registry import ToolRegistry
+from tarno_backend.integrations.calendar_email.client import CalendarClient
+from tarno_backend.integrations.discord.client import DiscordClientConfig, DiscordClientModule
+from tarno_backend.integrations.git.client import GitClient
+from tarno_backend.integrations.minecraft.client import MinecraftVoiceConfig, MinecraftVoiceModule
+from tarno_backend.integrations.smart_home.client import HomeAssistantBackend, SmartHomeClient
+from tarno_backend.plugins.manager import PluginManager
+from tarno_backend.utils.paths import SRC_DIR
 
-_INTEGRATIONS_DIR = Path(__file__).resolve().parent.parent / "tarno" / "integrations"
+_INTEGRATIONS_DIR = SRC_DIR / "tarno_backend" / "integrations"
 
 
 class MinecraftClientTests(unittest.TestCase):

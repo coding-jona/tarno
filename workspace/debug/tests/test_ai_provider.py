@@ -11,8 +11,8 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from tarno.ai.mistral_client import _REASONING_CAPABLE_MODELS, MistralProvider
-from tarno.ai.provider import extract_reasoning
+from tarno_backend.ai.mistral_client import _REASONING_CAPABLE_MODELS, MistralProvider
+from tarno_backend.ai.provider import extract_reasoning
 
 
 class ExtractReasoningTests(unittest.TestCase):

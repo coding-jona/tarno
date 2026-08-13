@@ -9,11 +9,11 @@ from pathlib import Path
 
 import numpy as np
 
-from tarno.core.command_engine import RiskLevel
-from tarno.core.exceptions import PermissionDeniedError
-from tarno.voice.audio_manager import AudioManager, AudioState, OutputDeviceType
-from tarno.voice.echo_protection import EchoProtection
-from tarno.voice.permission_manager import (
+from tarno_backend.core.command_engine import RiskLevel
+from tarno_backend.core.exceptions import PermissionDeniedError
+from tarno_backend.voice.audio_manager import AudioManager, AudioState, OutputDeviceType
+from tarno_backend.voice.echo_protection import EchoProtection
+from tarno_backend.voice.permission_manager import (
     VoicePermissionManager,
     VoicePermissionType,
 )

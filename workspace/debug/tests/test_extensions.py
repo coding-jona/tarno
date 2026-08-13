@@ -6,11 +6,11 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta
 
-from tarno.core.action_result import ActionResult
-from tarno.extensions.reminder import ReminderEngine
-from tarno.extensions.routines import Routine, RoutineRunner, RoutineStep
-from tarno.extensions.scheduler import TarnoScheduler, ScheduledTask
-from tarno.extensions.task_planner import PlannedTask, TaskPlanner, TaskStatus
+from tarno_backend.core.action_result import ActionResult
+from tarno_backend.extensions.reminder import ReminderEngine
+from tarno_backend.extensions.routines import Routine, RoutineRunner, RoutineStep
+from tarno_backend.extensions.scheduler import TarnoScheduler, ScheduledTask
+from tarno_backend.extensions.task_planner import PlannedTask, TaskPlanner, TaskStatus
 
 
 class SchedulerTests(unittest.TestCase):

@@ -7,8 +7,8 @@ import unittest
 
 import numpy as np
 
-from tarno.core.config import AGCConfig
-from tarno.voice.audio_utils import AutomaticGainControl
+from tarno_backend.core.config import AGCConfig
+from tarno_backend.voice.audio_utils import AutomaticGainControl
 
 
 def _quiet_chunk(rms: float, length: int = 1280) -> np.ndarray:

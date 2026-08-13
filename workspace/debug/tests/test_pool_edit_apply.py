@@ -5,9 +5,9 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from tarno.ai.pool.edit_apply import apply_merged_instruction
-from tarno.ai.pool.models import PoolAgentSpec
-from tarno.core.config import TarnoConfig
+from tarno_backend.ai.pool.edit_apply import apply_merged_instruction
+from tarno_backend.ai.pool.models import PoolAgentSpec
+from tarno_backend.core.config import TarnoConfig
 
 
 class ApplyMergedInstructionTests(unittest.TestCase):
@@ -27,7 +27,7 @@ class ApplyMergedInstructionTests(unittest.TestCase):
             def run(self, prompt, workspace, fnames, read_only, on_output=None):
                 yield from ()
 
-        with patch("tarno.ai.pool.edit_apply.AiderBackend", _FakeBackend):
+        with patch("tarno_backend.ai.pool.edit_apply.AiderBackend", _FakeBackend):
             list(apply_merged_instruction(lead, config, "tu etwas", {}, [], False))
 
         self.assertEqual(len(captured_configs), 1)

@@ -6,11 +6,11 @@ import sys
 import unittest
 from datetime import timedelta
 
-from tarno.core.action_result import ActionResult
-from tarno.core.command_engine import CommandEngine, RiskLevel
-from tarno.core.exceptions import CommandBlockedError, PermissionDeniedError
-from tarno.core.executor import ShellExecutor
-from tarno.core.permission_service import AutonomyMode, PermissionService
+from tarno_backend.core.action_result import ActionResult
+from tarno_backend.core.command_engine import CommandEngine, RiskLevel
+from tarno_backend.core.exceptions import CommandBlockedError, PermissionDeniedError
+from tarno_backend.core.executor import ShellExecutor
+from tarno_backend.core.permission_service import AutonomyMode, PermissionService
 
 
 class CommandEngineTests(unittest.TestCase):
@@ -173,7 +173,7 @@ class ConfirmationDialogSelectionTests(unittest.TestCase):
 
     def test_headless_mode_uses_console_confirmation(self):
         """Without a QApplication the console fallback must be selected."""
-        from tarno.ui.confirmation_dialog import create_default_confirmation
+        from tarno_backend.ui.confirmation_dialog import create_default_confirmation
 
         dialog = create_default_confirmation(prefer_qt=True)
         self.assertEqual(dialog.__name__, "show_console_confirmation")
@@ -182,7 +182,7 @@ class ConfirmationDialogSelectionTests(unittest.TestCase):
         """With a QApplication the Qt presenter must be selected."""
         from unittest.mock import patch
 
-        from tarno.ui import confirmation_dialog
+        from tarno_backend.ui import confirmation_dialog
 
         fake_app = object()
         with patch.object(
@@ -193,7 +193,7 @@ class ConfirmationDialogSelectionTests(unittest.TestCase):
                 "QtConfirmationPresenter",
                 autospec=True,
             ) as mock_presenter:
-                from tarno.ui.confirmation_dialog import create_default_confirmation
+                from tarno_backend.ui.confirmation_dialog import create_default_confirmation
 
                 dialog = create_default_confirmation(prefer_qt=True)
                 mock_presenter.assert_called_once()

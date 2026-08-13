@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from tarno.core.config import TarnoConfig, _load_yaml
+from tarno_backend.core.config import TarnoConfig, _load_yaml
 
 
 class AtomicConfigWriteTests(unittest.TestCase):

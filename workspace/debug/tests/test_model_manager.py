@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from tarno.model_manager import ModelInfo, ModelManager
+from tarno_backend.model_manager import ModelInfo, ModelManager
 
 
 class ModelManagerTests(unittest.TestCase):

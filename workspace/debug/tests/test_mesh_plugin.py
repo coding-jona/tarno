@@ -9,13 +9,13 @@ from __future__ import annotations
 import time
 import unittest
 
-from tarno.core.events import EventBus, MeshScenarioChangedEvent
-from tarno.integrations.mesh.broker import EmbeddedMqttBroker
-from tarno.integrations.mesh.heartbeat import ESP32, WIKO, ZTE, HeartbeatMonitor
-from tarno.integrations.mesh.mqtt_bridge import MqttBridge
-from tarno.integrations.mesh.observer import MeshObserver
-from tarno.integrations.mesh.payload import MeshEvent
-from tarno.integrations.mesh.router import FULL_MESH, PC_FALLBACK, SOLO_PC, MeshRouter
+from tarno_backend.core.events import EventBus, MeshScenarioChangedEvent
+from tarno_backend.integrations.mesh.broker import EmbeddedMqttBroker
+from tarno_backend.integrations.mesh.heartbeat import ESP32, WIKO, ZTE, HeartbeatMonitor
+from tarno_backend.integrations.mesh.mqtt_bridge import MqttBridge
+from tarno_backend.integrations.mesh.observer import MeshObserver
+from tarno_backend.integrations.mesh.payload import MeshEvent
+from tarno_backend.integrations.mesh.router import FULL_MESH, PC_FALLBACK, SOLO_PC, MeshRouter
 
 
 class PayloadTests(unittest.TestCase):

@@ -17,7 +17,7 @@ German UI/persona, English code.
 
 TARNO consists of:
 
-- Python backend: tarno/
+- Python backend: src/tarno_backend/ (import name `tarno_backend`, needs `src/` on PYTHONPATH)
 - WinUI 3 frontend: src/TARNO.UI/
 - Communication: gRPC
 
@@ -28,10 +28,12 @@ Core execution:
 
 ## Important Paths
 
-- tarno/core: engine, config, services
-- tarno/ai: LLM providers and tools
-- tarno/voice: audio pipeline
+- src/tarno_backend/core: engine, config, services (see core_README.md there)
+- src/tarno_backend/ai: LLM providers and tools (see ai_README.md there)
+- src/tarno_backend/voice: audio pipeline (see voice_README.md there)
 - src/TARNO.UI: Windows frontend
+- workspace/debug/{tests,docs,installer,tools}: everything non-shipped (test suite, ADRs/docs, NSIS scaffolding, debug scripts)
+- workspace/plans, workspace/scripts, workspace/future: planning docs, build scripts, parked ideas
 
 ## Technical Constraints
 
@@ -43,8 +45,11 @@ Core execution:
 
 ## Build
 
-Backend:
-py -3.12 -m tarno.grpc
+Backend (PowerShell, from repo root):
+$env:PYTHONPATH = "src"; py -3.12 -m tarno_backend.grpc
 
 Frontend:
 dotnet build src/TARNO.UI/TARNO.UI.csproj -c Debug -p:Platform=x64
+
+Full verify (build + tests, handles PYTHONPATH itself):
+workspace/scripts/verify.ps1

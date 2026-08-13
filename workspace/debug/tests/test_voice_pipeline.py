@@ -14,8 +14,8 @@ from unittest.mock import MagicMock, patch, PropertyMock
 
 import numpy as np
 
-from tarno.core.config import AudioConfig, WakeWordConfig, TarnoConfig
-from tarno.core.voice_controller import VoiceController, VoiceState
+from tarno_backend.core.config import AudioConfig, WakeWordConfig, TarnoConfig
+from tarno_backend.core.voice_controller import VoiceController, VoiceState
 
 
 def _make_audio_config() -> AudioConfig:
@@ -75,9 +75,9 @@ def _tone_chunk(chunk_size: int = 1280, freq: float = 440.0, rate: int = 16000) 
 class AudioStreamPauseResumeTests(unittest.TestCase):
     """Test that pause/resume keeps the PyAudio instance alive."""
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_pause_does_not_terminate_pyaudio(self, mock_pa_cls):
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_stream = MagicMock()
         mock_stream.is_active.return_value = True
@@ -97,9 +97,9 @@ class AudioStreamPauseResumeTests(unittest.TestCase):
         self.assertFalse(stream.is_active)
         stream.stop()
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_resume_reopens_stream_on_same_pyaudio(self, mock_pa_cls):
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_stream = MagicMock()
         mock_stream.is_active.return_value = True
@@ -120,10 +120,10 @@ class AudioStreamPauseResumeTests(unittest.TestCase):
         self.assertTrue(stream.is_active)
         stream.stop()
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_multiple_pause_resume_cycles(self, mock_pa_cls):
         """Simulate 10 wake-word interactions with pause/resume."""
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_stream = MagicMock()
         mock_stream.is_active.return_value = True
@@ -150,10 +150,10 @@ class AudioStreamPauseResumeTests(unittest.TestCase):
         self.assertEqual(mock_pa.open.call_count, 11)
         stream.stop()
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_stop_terminates_pyaudio(self, mock_pa_cls):
         """Full stop() must destroy everything."""
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_stream = MagicMock()
         mock_stream.is_active.return_value = True
@@ -167,9 +167,9 @@ class AudioStreamPauseResumeTests(unittest.TestCase):
 
         mock_pa.terminate.assert_called_once()
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_restart_recovers_from_failure(self, mock_pa_cls):
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         mock_stream = MagicMock()
         mock_stream.is_active.return_value = True
@@ -231,7 +231,7 @@ class VoiceControllerStateMachineTests(unittest.TestCase):
 class VoiceControllerLifecycleTests(unittest.TestCase):
     """Test start/stop/watchdog without real audio."""
 
-    @patch("tarno.core.voice_controller.VoiceController._run_loop")
+    @patch("tarno_backend.core.voice_controller.VoiceController._run_loop")
     def test_start_creates_watchdog_thread(self, mock_loop):
         mock_loop.side_effect = lambda: None
 
@@ -247,7 +247,7 @@ class VoiceControllerLifecycleTests(unittest.TestCase):
         vc.stop()
         self.assertFalse(vc.active)
 
-    @patch("tarno.core.voice_controller.VoiceController._run_loop")
+    @patch("tarno_backend.core.voice_controller.VoiceController._run_loop")
     def test_stop_logs_interaction_count(self, mock_loop):
         mock_loop.side_effect = lambda: None
 
@@ -289,7 +289,7 @@ class VoiceControllerWatchdogTests(unittest.TestCase):
         vc._heartbeat()
         self.assertGreater(vc._last_heartbeat, before)
 
-    @patch("tarno.core.voice_controller.VoiceController._run_loop_safe")
+    @patch("tarno_backend.core.voice_controller.VoiceController._run_loop_safe")
     def test_watchdog_detects_missing_heartbeat(self, mock_loop):
         """Simulate a hung loop by not sending heartbeats."""
         mock_loop.side_effect = lambda: time.sleep(10)
@@ -339,9 +339,9 @@ class VirtualAudioTests(unittest.TestCase):
         # The peak amplitude should be close to 16000
         self.assertGreater(np.abs(chunk).max(), 10000)
 
-    @patch("tarno.voice.audio_stream.pyaudio.PyAudio")
+    @patch("tarno_backend.voice.audio_stream.pyaudio.PyAudio")
     def test_read_chunk_returns_numpy_array(self, mock_pa_cls):
-        from tarno.voice.audio_stream import AudioStream
+        from tarno_backend.voice.audio_stream import AudioStream
 
         chunk_bytes = _silence_chunk(1280).tobytes()
         mock_stream = MagicMock()

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from tarno.core.workspace import (
+from tarno_backend.core.workspace import (
     get_workspace_roots,
     is_allowed,
     resolve_for_read,

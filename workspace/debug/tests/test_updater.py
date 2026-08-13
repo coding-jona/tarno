@@ -6,7 +6,7 @@ import hashlib
 import unittest
 from unittest import mock
 
-from tarno.updater import AutoUpdater, UpdateInfo
+from tarno_backend.updater import AutoUpdater, UpdateInfo
 
 
 class AutoUpdaterTests(unittest.TestCase):
@@ -56,7 +56,7 @@ class AutoUpdaterTests(unittest.TestCase):
         expected_checksum = hashlib.sha256(b"fake").hexdigest()
         checksum_text = f"{expected_checksum}  update.exe\n"
         with tempfile.TemporaryDirectory() as tmp:
-            with mock.patch("tarno.updater.requests.get") as mock_get:
+            with mock.patch("tarno_backend.updater.requests.get") as mock_get:
 
                 def _side_effect(url, **kwargs):
                     response = mock.Mock()

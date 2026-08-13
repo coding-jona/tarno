@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import unittest
 
-from tarno.ai.conversation import ConversationManager
-from tarno.ai.prompts import build_system_prompt
-from tarno.ai.prompts.tts_voice_prompt import build_tts_prompt
-from tarno.core.config import AudioConfig, TTSPromptConfig, TarnoConfig
+from tarno_backend.ai.conversation import ConversationManager
+from tarno_backend.ai.prompts import build_system_prompt
+from tarno_backend.ai.prompts.tts_voice_prompt import build_tts_prompt
+from tarno_backend.core.config import AudioConfig, TTSPromptConfig, TarnoConfig
 
 
 class TTSPromptConfigTests(unittest.TestCase):

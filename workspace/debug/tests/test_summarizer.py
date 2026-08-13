@@ -5,9 +5,9 @@ from __future__ import annotations
 import unittest
 from typing import Any
 
-from tarno.ai.conversation import ConversationManager
-from tarno.ai.provider import LLMProvider, LLMResponse
-from tarno.ai.summarizer import ConversationSummarizer
+from tarno_backend.ai.conversation import ConversationManager
+from tarno_backend.ai.provider import LLMProvider, LLMResponse
+from tarno_backend.ai.summarizer import ConversationSummarizer
 
 
 class FakeProvider(LLMProvider):

@@ -8,10 +8,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tarno.security.audit import AuditManager
-from tarno.security.encryption import DataEncryption
-from tarno.security.pii import redact, redact_dict
-from tarno.telemetry.logging import configure_logging, get_logger
+from tarno_backend.security.audit import AuditManager
+from tarno_backend.security.encryption import DataEncryption
+from tarno_backend.security.pii import redact, redact_dict
+from tarno_backend.telemetry.logging import configure_logging, get_logger
+from tarno_backend.utils.paths import CONFIG_DIR, DEBUG_DIR
 
 
 class PiiRedactionTests(unittest.TestCase):
@@ -96,7 +97,7 @@ class LoggingPiiIntegrationTests(unittest.TestCase):
 
     def test_log_redaction(self):
         import logging
-        logger = logging.getLogger("tarno.pii_test")
+        logger = logging.getLogger("tarno_backend.pii_test")
         configure_logging(redact_pii=True)
         # After configuring, the filter is active. A direct log call should be redacted.
         logger.info("Email: user@example.com")
@@ -107,18 +108,16 @@ class ApiKeyLeakPreventionTests(unittest.TestCase):
     """Tests that API keys are never written to project files or runtime config."""
 
     def test_leaked_docs_file_removed(self):
-        project_root = Path(__file__).resolve().parent.parent
-        self.assertFalse((project_root / "docs" / "mistral-api-key.md").exists())
+        self.assertFalse((DEBUG_DIR / "docs" / "mistral-api-key.md").exists())
 
     def test_bundled_persona_has_no_key_field(self):
-        project_root = Path(__file__).resolve().parent.parent
-        persona = project_root / "config" / "persona" / "tarno.json"
+        persona = CONFIG_DIR / "persona" / "tarno.json"
         self.assertTrue(persona.exists())
         data = json.loads(persona.read_text(encoding="utf-8"))
         self.assertNotIn("key", data.get("ovos-solver-openai-plugin", {}))
 
     def test_install_persona_removes_key_field(self):
-        from tarno.core.ovos_engine import TarnoOvosEngine
+        from tarno_backend.core.ovos_engine import TarnoOvosEngine
 
         secret = "test_secret_sk_12345678901234567890"
         with tempfile.TemporaryDirectory() as tmp:
@@ -147,7 +146,7 @@ class ApiKeyLeakPreventionTests(unittest.TestCase):
                 os.environ.pop("MISTRAL_API_KEY", None)
 
     def test_build_secret_scan_detects_leak(self):
-        from tarno.security.build_secret_scan import verify_no_secrets as _verify_no_secrets
+        from tarno_backend.security.build_secret_scan import verify_no_secrets as _verify_no_secrets
 
         with tempfile.TemporaryDirectory() as tmp:
             leak_file = Path(tmp) / "persona.json"
@@ -165,7 +164,7 @@ class ApiKeyLeakPreventionTests(unittest.TestCase):
             self.assertIn("SECURITY CHECK FAILED", str(ctx.exception))
 
     def test_build_secret_scan_allows_placeholders(self):
-        from tarno.security.build_secret_scan import verify_no_secrets as _verify_no_secrets
+        from tarno_backend.security.build_secret_scan import verify_no_secrets as _verify_no_secrets
 
         with tempfile.TemporaryDirectory() as tmp:
             placeholder_file = Path(tmp) / "example.md"
