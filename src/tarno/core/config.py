@@ -13,7 +13,7 @@ import yaml
 log = logging.getLogger(__name__)
 
 
-_CONFIG_DIR = Path(__file__).resolve().parent.parent.parent / "config"
+_CONFIG_DIR = Path(__file__).resolve().parent.parent.parent.parent / "config"
 _DEFAULT_CONFIG = _CONFIG_DIR / "default.yaml"
 _USER_CONFIG_NAME = "tarno_config.yaml"
 

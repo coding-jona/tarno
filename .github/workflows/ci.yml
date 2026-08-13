@@ -31,11 +31,13 @@ jobs:
       - name: Lint with ruff
         run: |
           pip install ruff
-          ruff check tarno tests || true
+          ruff check src/tarno workspace/debug/tests || true
 
       - name: Run unit tests
-        run: python -m unittest discover -s tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s workspace/debug/tests
 
       - name: Compile package
-        run: python -m py_compile tarno/**/*.py
+        run: python -m py_compile src/tarno/**/*.py
         shell: bash

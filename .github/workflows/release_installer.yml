@@ -33,35 +33,37 @@ jobs:
           pip install pyinstaller
 
       - name: Run core tests
-        run: python -m unittest discover -s tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s workspace/debug/tests
 
       - name: Run installer tests
-        run: python -m unittest discover -s installer/tests
+        run: python -m unittest discover -s workspace/debug/installer/tests
 
       - name: Build Public Edition
         run: |
-          python -m installer.pipeline.build_all --edition public --version ${{ github.ref_name || inputs.version }}
+          python -m workspace.debug.installer.pipeline.build_all --edition public --version ${{ github.ref_name || inputs.version }}
 
       - name: Build Developer Edition
         run: |
-          python -m installer.pipeline.build_all --edition developer --version ${{ github.ref_name || inputs.version }}
+          python -m workspace.debug.installer.pipeline.build_all --edition developer --version ${{ github.ref_name || inputs.version }}
 
       - name: Sign installers (if certificate configured)
         env:
           CODESIGN_CERT: ${{ secrets.CODESIGN_CERT }}
           CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
         run: |
-          python installer/scripts/sign_installer.py --version ${{ github.ref_name || inputs.version }}
+          python workspace/debug/installer/scripts/sign_installer.py --version ${{ github.ref_name || inputs.version }}
 
       - name: Generate checksums
         run: |
-          python installer/scripts/checksums.py --version ${{ github.ref_name || inputs.version }} --output installer/dist/artifacts/SHA256SUMS.txt
+          python workspace/debug/installer/scripts/checksums.py --version ${{ github.ref_name || inputs.version }} --output workspace/debug/installer/dist/artifacts/SHA256SUMS.txt
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tarno-installers
-          path: installer/dist/artifacts/**
+          path: workspace/debug/installer/dist/artifacts/**
 
       - name: Create draft release
         if: startsWith(github.ref, 'refs/tags/')
@@ -69,6 +71,6 @@ jobs:
         with:
           draft: true
           files: |
-            installer/dist/artifacts/TARNO_Setup_*/TARNO_Setup_*.exe
-            installer/dist/artifacts/TARNO_Setup_*/install-info.json
-            installer/dist/artifacts/SHA256SUMS.txt
+            workspace/debug/installer/dist/artifacts/TARNO_Setup_*/TARNO_Setup_*.exe
+            workspace/debug/installer/dist/artifacts/TARNO_Setup_*/install-info.json
+            workspace/debug/installer/dist/artifacts/SHA256SUMS.txt

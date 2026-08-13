@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 
 def _project_root() -> Path:
     """Return the repository root from this module's location."""
-    return Path(__file__).resolve().parent.parent.parent
+    return Path(__file__).resolve().parent.parent.parent.parent
 
 
 def _default_exe_path() -> Path:

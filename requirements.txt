@@ -1,0 +1,78 @@
+# TARNO backend - Python runtime dependencies.
+#
+# This file did not exist before (see debug tools' technical-debt-catalog.md,
+# TD-015) even though CI (.github/workflows/*.yml) already assumed it.
+# Derived from actually installed packages in .venv (Python 3.12) cross-
+# referenced against real top-level imports in src/tarno/. Versions are
+# pinned to what is currently verified working in the project venv, not
+# arbitrarily chosen.
+#
+# Dev-only tooling (pytest etc.) lives in requirements-dev.txt, not here.
+# OVOS packages live in a separate requirements-ovos.txt (only needed for
+# --no-gui mode, see ADR-002 / TD-007) - not reconstructed here since the
+# original file's exact package set wasn't available at restructuring time.
+
+# --- Core / gRPC bridge ---
+grpcio==1.83.0
+protobuf==7.35.1
+PyYAML==6.0.2
+
+# --- AI providers ---
+anthropic==0.121.0
+requests==2.34.2
+huggingface-hub==1.13.0
+
+# --- Voice pipeline: STT ---
+faster-whisper==1.2.1
+vosk==0.3.45
+SpeechRecognition==3.17.0
+soundfile==0.13.1
+silero-vad==6.2.1
+
+# --- Voice pipeline: wake word ---
+openwakeword==0.6.0
+pvporcupine==1.9.5
+
+# --- Voice pipeline: TTS ---
+edge-tts==7.2.8
+gTTS==2.5.4
+piper-tts==1.6.0
+neutts==1.4.1
+pygame==2.6.1
+PyAudio==0.2.14
+
+# --- Memory / embeddings ---
+fastembed==0.8.0
+torch==2.13.0
+
+# --- Vision ---
+opencv-python==5.0.0.93
+Pillow==12.3.0
+
+# --- Browser automation ---
+playwright==1.62.0
+
+# --- Mesh / integrations ---
+paho-mqtt==2.1.0
+amqtt==0.11.4
+
+# --- Security / secrets ---
+cryptography==50.0.0
+keyring==25.7.0
+
+# --- System / Windows integration ---
+psutil==7.2.2
+pywin32==312
+comtypes==1.4.16
+pycaw==20251023
+tzlocal==5.4.4
+
+# --- Legacy / optional feature deps (guarded imports, not always required) ---
+# PySide6: legacy GUI (tarno/ui/, tarno/gui/), deprecated per TD-006 but kept
+#   as the --legacy-ui fallback (TD-017). NOT installed in the current dev
+#   venv - only needed if that fallback path is actually exercised.
+# aider-chat: optional coding backend (tarno/ai/coding/adapters/aider_adapter.py),
+#   "native" is the default backend and doesn't need it.
+# llama-cpp-python: optional NeuTTS backend variant.
+# pynput: optional push-to-talk control for the Discord integration.
+# openai-whisper: optional fallback recognizer, faster-whisper is primary.

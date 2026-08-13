@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 # PyInstaller extraction root; for normal source runs this is the project root.
-_BUNDLE_ROOT = Path(__file__).parent.parent.parent
+_BUNDLE_ROOT = Path(__file__).parent.parent.parent.parent
 
 # Runtime home is always a persistent user directory so that config, cache,
 # data and the persona file never leak into the project/source tree.

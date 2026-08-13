@@ -25,7 +25,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
+# Dieses Skript liegt unter workspace/scripts/, also zwei Ebenen unterm Repo-Root.
+$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
 # KERNFIX: 'python' zeigte auf das System-Python (aktuell 3.14), nicht auf
 # das Projekt-venv (.venv, Python 3.12) - genau die Python-Version, wegen der
@@ -43,7 +44,24 @@ if (-not (Test-Path $venvPython)) {
 }
 $python = $venvPython
 $dotnet = 'dotnet'
-$nsis = 'C:\Program Files (x86)\NSIS\makensis.exe'
+
+# Nicht hardcoden - NSIS kann auf jeder Maschine woanders liegen. Erst PATH
+# pruefen, dann die ueblichen Program-Files-Installationsorte ueber
+# Umgebungsvariablen (nicht als Literal-Pfad) statt eines fixen Laufwerks-
+# buchstabens/Verzeichnisses.
+$nsisCmd = Get-Command 'makensis.exe' -ErrorAction SilentlyContinue
+if ($nsisCmd) {
+    $nsis = $nsisCmd.Source
+} else {
+    $nsisCandidates = @(
+        (Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'),
+        (Join-Path $env:ProgramFiles 'NSIS\makensis.exe')
+    )
+    $nsis = $nsisCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if (-not $nsis) {
+        throw "makensis.exe nicht gefunden (weder im PATH noch unter '%ProgramFiles%\NSIS' oder '%ProgramFiles(x86)%\NSIS'). NSIS installieren oder PATH ergaenzen: https://nsis.sourceforge.io/"
+    }
+}
 
 $csproj = Join-Path $root (Join-Path 'src' (Join-Path 'TARNO.UI' 'TARNO.UI.csproj'))
 $spec = Join-Path $root 'tarno.spec'
@@ -55,15 +73,15 @@ $pyinstallerOutput = Join-Path $distDir 'tarno_backend'
 
 function Step-Tests {
     Write-Host "`n[1/5] Python-Tests ..." -ForegroundColor Cyan
-    $env:PYTHONPATH = $root
-    & $python -m unittest discover -s (Join-Path $root 'tests') -v
+    $env:PYTHONPATH = Join-Path $root 'src'
+    & $python -m unittest discover -s (Join-Path (Join-Path (Join-Path $root 'workspace') 'debug') 'tests') -v
     if ($LASTEXITCODE -ne 0) { throw "Python tests failed with exit code $LASTEXITCODE" }
     Write-Host "Tests OK." -ForegroundColor Green
 }
 
 function Step-SecretScan {
     Write-Host "`n[2/6] Secret-Scan ..." -ForegroundColor Cyan
-    $env:PYTHONPATH = $root
+    $env:PYTHONPATH = Join-Path $root 'src'
     & $python -c "from tarno.security.build_secret_scan import verify_no_secrets; from pathlib import Path; verify_no_secrets(Path(r'$root'))"
     if ($LASTEXITCODE -ne 0) { throw "Secret scan failed with exit code $LASTEXITCODE - moeglicher API-Key-Leak im Quellcode" }
     Write-Host "Secret-Scan OK." -ForegroundColor Green

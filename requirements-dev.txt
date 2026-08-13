@@ -1,0 +1,16 @@
+# Dev-only tooling - not needed at runtime, only for running the test suite
+# and regenerating gRPC stubs locally. Addresses TD-015 in
+# workspace/debug/docs/technical-debt-catalog.md ("pytest is not in
+# requirements.txt, tests can't run in the bundled package" - intentional,
+# tests are never meant to ship in the built product).
+-r requirements.txt
+
+pytest==8.3.4
+pytest-asyncio==0.25.2
+pytest-cov==6.0.0
+pytest-mock==3.14.0
+ruff==0.9.4
+
+# Only needed when editing tarno/grpc/tarno.proto and regenerating the
+# generated tarno_pb2.py / tarno_pb2_grpc.py stubs.
+grpcio-tools==1.83.0
