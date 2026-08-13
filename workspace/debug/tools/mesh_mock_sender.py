@@ -6,9 +6,9 @@ expects, so Phase 1 (this PC's mesh plugin) can be exercised end-to-end
 without any real phone/ESP32 hardware.
 
 Usage:
-    py -3.12 tools/mesh_mock_sender.py --scenario full_mesh
-    py -3.12 tools/mesh_mock_sender.py --scenario pc_fallback
-    py -3.12 tools/mesh_mock_sender.py --scenario solo_pc
+    py -3.12 workspace/debug/tools/mesh_mock_sender.py --scenario full_mesh
+    py -3.12 workspace/debug/tools/mesh_mock_sender.py --scenario pc_fallback
+    py -3.12 workspace/debug/tools/mesh_mock_sender.py --scenario solo_pc
 
 Not imported by the app - a standalone verification tool only.
 """

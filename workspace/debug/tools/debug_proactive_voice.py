@@ -13,10 +13,10 @@ mitschneiden: vollstaendiges Text-Transkript (JSON + lesbares .log) UND die
 synthetisierten Audio-Dateien werden in einen Session-Ordner kopiert.
 
 Nutzung:
-    python tools/debug_proactive_voice.py                 # alle Szenarien, mit echter Sprachausgabe
-    python tools/debug_proactive_voice.py --no-speak       # nur Text/Log, keine Audiowiedergabe
-    python tools/debug_proactive_voice.py --list           # Szenarien auflisten
-    python tools/debug_proactive_voice.py --only 2         # nur Szenario Nr. 2 (alle Stufen)
+    python workspace/debug/tools/debug_proactive_voice.py                 # alle Szenarien, mit echter Sprachausgabe
+    python workspace/debug/tools/debug_proactive_voice.py --no-speak       # nur Text/Log, keine Audiowiedergabe
+    python workspace/debug/tools/debug_proactive_voice.py --list           # Szenarien auflisten
+    python workspace/debug/tools/debug_proactive_voice.py --only 2         # nur Szenario Nr. 2 (alle Stufen)
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
-TARNO_ROOT = Path(__file__).resolve().parent.parent
+TARNO_ROOT = Path(__file__).resolve().parent.parent.parent.parent / "src"
 sys.path.insert(0, str(TARNO_ROOT))
 
 from tarno.ai.factory import create_provider  # noqa: E402

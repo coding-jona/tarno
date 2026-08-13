@@ -92,7 +92,7 @@ class NativeAgentBackend(CodingBackend):
         start = time.monotonic()
 
         messages: list[dict[str, Any]] = [{"role": "user", "content": prompt}]
-        # KERNFIX (live gefunden per tools/debug_coding_agent.py --advanced):
+        # KERNFIX (live gefunden per workspace/debug/tools/debug_coding_agent.py --advanced):
         # ohne diese Sperre kann das Modell denselben (fehlschlagenden)
         # edit_file-Aufruf wortgleich wiederholen, obwohl das Tool-Ergebnis
         # (inkl. der Datei-Inhalt aus einem zwischenzeitlichen read_file) klar

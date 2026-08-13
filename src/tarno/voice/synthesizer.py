@@ -179,7 +179,7 @@ class SpeechSynthesizer:
         self._rate = f"{int((self._speed - 1.0) * 100):+d}%"
         self._cache_dir = Path(config.tts_cache_dir).expanduser()
         self._cache_dir.mkdir(parents=True, exist_ok=True)
-        # KERNFIX (Live-Test, siehe tools/debug_proactive_live.py): speak()
+        # KERNFIX (Live-Test, siehe workspace/debug/tools/debug_proactive_live.py): speak()
         # haelt self._lock fuer den gesamten Aufruf und ruft im Datei-
         # Fallback-Pfad _speak_file() auf, das denselben Lock ERNEUT
         # acquired ("with self._lock:") - mit einem einfachen threading.Lock

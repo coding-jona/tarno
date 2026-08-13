@@ -28,7 +28,7 @@ protokolliert JEDEN echten Trigger mit Rohwert, Quelle, umformuliertem Text,
 gesprochenem Audio (Datei-Modus, damit mitschneidbar) und Zeitstempel.
 
 Nutzung:
-    python tools/debug_proactive_live.py --duration 300 --calendar-in 90
+    python workspace/debug/tools/debug_proactive_live.py --duration 300 --calendar-in 90
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-TARNO_ROOT = Path(__file__).resolve().parent.parent
+TARNO_ROOT = Path(__file__).resolve().parent.parent.parent.parent / "src"
 sys.path.insert(0, str(TARNO_ROOT))
 
 from tarno.ai.factory import create_provider  # noqa: E402

@@ -11,8 +11,8 @@ running live with you interacting - see the Block 6 planning notes) - it is
 specifically a memory-leak smoke test for the background-loop machinery.
 
 Usage:
-    py -3.12 tools/soak_test.py --duration-seconds 60 --sample-interval 5
-    py -3.12 tools/soak_test.py --duration-seconds 86400 --sample-interval 300  # real 24h run
+    py -3.12 workspace/debug/tools/soak_test.py --duration-seconds 60 --sample-interval 5
+    py -3.12 workspace/debug/tools/soak_test.py --duration-seconds 86400 --sample-interval 300  # real 24h run
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ import tempfile
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent / "src"))
 
 import psutil  # noqa: E402
 

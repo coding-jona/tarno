@@ -7,11 +7,11 @@ PermissionService (bewusst umgangen, das hier ist ein Entwickler-Werkzeug,
 kein Endnutzer-Pfad).
 
 Nutzung:
-    python tools/debug_coding_agent.py              # alle eingebauten Testfaelle
-    python tools/debug_coding_agent.py --list        # Testfaelle auflisten
-    python tools/debug_coding_agent.py --only 2       # nur Testfall Nr. 2
-    python tools/debug_coding_agent.py --prompt "..."  # eigener freier Prompt
-    python tools/debug_coding_agent.py --backend aider  # zum Vergleich: alter Adapter
+    python workspace/debug/tools/debug_coding_agent.py              # alle eingebauten Testfaelle
+    python workspace/debug/tools/debug_coding_agent.py --list        # Testfaelle auflisten
+    python workspace/debug/tools/debug_coding_agent.py --only 2       # nur Testfall Nr. 2
+    python workspace/debug/tools/debug_coding_agent.py --prompt "..."  # eigener freier Prompt
+    python workspace/debug/tools/debug_coding_agent.py --backend aider  # zum Vergleich: alter Adapter
 
 Workspace: H:\\CascadeProjects\\coding-agent-testbed (kleines Git-Repo mit
 greeter.py + test_greeter.py) - wird zwischen Testfaellen NICHT automatisch
@@ -27,7 +27,7 @@ import sys
 import time
 from pathlib import Path
 
-TARNO_ROOT = Path(__file__).resolve().parent.parent
+TARNO_ROOT = Path(__file__).resolve().parent.parent.parent.parent / "src"
 sys.path.insert(0, str(TARNO_ROOT))
 
 TESTBED = Path(r"H:\CascadeProjects\coding-agent-testbed")

@@ -10,8 +10,8 @@ Nutzt echte API-Aufrufe - nicht Teil der pytest-Suite (siehe
 tests/test_vision_block7.py für die kostenlose, netzwerkfreie Testabdeckung).
 
 Usage:
-    py -3.12 tools/vision_calibration.py
-    py -3.12 tools/vision_calibration.py --device-index 1 --motion-threshold 15
+    py -3.12 workspace/debug/tools/vision_calibration.py
+    py -3.12 workspace/debug/tools/vision_calibration.py --device-index 1 --motion-threshold 15
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent / "src"))
 
 from tarno.security.secrets import SecretsVault  # noqa: E402
 from tarno.vision.camera_capture import CameraCapture  # noqa: E402
