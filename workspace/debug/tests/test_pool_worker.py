@@ -8,8 +8,8 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import MagicMock
 
-from tarno.ai.pool.models import PoolAgentSpec, PoolMessage, SubTask
-from tarno.ai.pool.worker import PoolWorker
+from tarno_backend.ai.pool.models import PoolAgentSpec, PoolMessage, SubTask
+from tarno_backend.ai.pool.worker import PoolWorker
 
 
 class _FakeResponse:
@@ -89,7 +89,7 @@ class RunSubtaskTests(unittest.TestCase):
 
         asyncio.run(worker.run_subtask(subtask, context=[]))
 
-        from tarno.ai.prompts.pool_system import WORKER_SYSTEM_PROMPT
+        from tarno_backend.ai.prompts.pool_system import WORKER_SYSTEM_PROMPT
         self.assertEqual(provider.send.call_args.kwargs["system"], WORKER_SYSTEM_PROMPT)
 
 

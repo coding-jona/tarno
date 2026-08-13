@@ -28,10 +28,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent / "s
 
 import psutil  # noqa: E402
 
-from tarno.ai.conversation import ConversationManager  # noqa: E402
-from tarno.core.config import MemoryConfig  # noqa: E402
-from tarno.core.proactive_engine import ProactiveDraft, ProactiveEngine  # noqa: E402
-from tarno.memory.store import MemoryStore  # noqa: E402
+from tarno_backend.ai.conversation import ConversationManager  # noqa: E402
+from tarno_backend.core.config import MemoryConfig  # noqa: E402
+from tarno_backend.core.proactive_engine import ProactiveDraft, ProactiveEngine  # noqa: E402
+from tarno_backend.memory.store import MemoryStore  # noqa: E402
 
 
 class _CyclingObserver:

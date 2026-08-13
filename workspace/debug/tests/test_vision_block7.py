@@ -17,16 +17,16 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from tarno.core.proactive_engine import ProactiveDraft
-from tarno.vision.camera_capture import CameraCapture
-from tarno.vision.motion_gate import MotionGate
-from tarno.vision.preprocessing import (
+from tarno_backend.core.proactive_engine import ProactiveDraft
+from tarno_backend.vision.camera_capture import CameraCapture
+from tarno_backend.vision.motion_gate import MotionGate
+from tarno_backend.vision.preprocessing import (
     downscale_and_encode_jpeg,
     frame_to_data_url,
     uploaded_bytes_to_data_url,
 )
-from tarno.vision.vision_observer import VisionObserver
-from tarno.vision.vision_provider import MistralVisionProvider, VisionAssessment
+from tarno_backend.vision.vision_observer import VisionObserver
+from tarno_backend.vision.vision_provider import MistralVisionProvider, VisionAssessment
 
 
 class MotionGateTests(unittest.TestCase):
@@ -496,8 +496,8 @@ class CameraCaptureBackendFallbackTests(unittest.TestCase):
         msmf_cap = _FakeCv2Capture(opens=True, frames=[_real_frame()])
         fake_cv2 = self._make_fake_cv2({1: dshow_cap, 2: msmf_cap})
 
-        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno.vision.camera_capture.sys.platform", "win32"):
-            from tarno.vision.camera_capture import CameraCapture
+        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno_backend.vision.camera_capture.sys.platform", "win32"):
+            from tarno_backend.vision.camera_capture import CameraCapture
 
             camera = CameraCapture(device_index=0)
             self.assertTrue(camera.start())
@@ -508,8 +508,8 @@ class CameraCaptureBackendFallbackTests(unittest.TestCase):
         msmf_cap = _FakeCv2Capture(opens=True, frames=[_real_frame()])
         fake_cv2 = self._make_fake_cv2({1: dshow_cap, 2: msmf_cap})
 
-        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno.vision.camera_capture.sys.platform", "win32"):
-            from tarno.vision.camera_capture import CameraCapture
+        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno_backend.vision.camera_capture.sys.platform", "win32"):
+            from tarno_backend.vision.camera_capture import CameraCapture
 
             camera = CameraCapture(device_index=0)
             self.assertTrue(camera.start())
@@ -522,8 +522,8 @@ class CameraCaptureBackendFallbackTests(unittest.TestCase):
         any_cap = _FakeCv2Capture(opens=False, frames=[])
         fake_cv2 = self._make_fake_cv2({1: dshow_cap, 2: msmf_cap, 0: any_cap})
 
-        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno.vision.camera_capture.sys.platform", "win32"):
-            from tarno.vision.camera_capture import CameraCapture
+        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno_backend.vision.camera_capture.sys.platform", "win32"):
+            from tarno_backend.vision.camera_capture import CameraCapture
 
             camera = CameraCapture(device_index=0)
             self.assertFalse(camera.start())
@@ -533,8 +533,8 @@ class CameraCaptureBackendFallbackTests(unittest.TestCase):
         any_cap = _FakeCv2Capture(opens=True, frames=[_real_frame()])
         fake_cv2 = self._make_fake_cv2({1: _FakeCv2Capture(opens=False, frames=[]), 0: any_cap}, has_msmf=False)
 
-        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno.vision.camera_capture.sys.platform", "win32"):
-            from tarno.vision.camera_capture import CameraCapture
+        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno_backend.vision.camera_capture.sys.platform", "win32"):
+            from tarno_backend.vision.camera_capture import CameraCapture
 
             camera = CameraCapture(device_index=0)
             self.assertTrue(camera.start())  # must not raise AttributeError
@@ -545,8 +545,8 @@ class CameraCaptureBackendFallbackTests(unittest.TestCase):
         msmf_cap = _FakeCv2Capture(opens=True, frames=[_real_frame()])
         fake_cv2 = self._make_fake_cv2({1: dshow_cap, 2: msmf_cap})
 
-        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno.vision.camera_capture.sys.platform", "win32"):
-            from tarno.vision.camera_capture import CameraCapture
+        with patch.dict("sys.modules", {"cv2": fake_cv2}), patch("tarno_backend.vision.camera_capture.sys.platform", "win32"):
+            from tarno_backend.vision.camera_capture import CameraCapture
 
             camera = CameraCapture(device_index=0)
             self.assertTrue(camera.start())

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from tarno.core.config import AudioConfig, TarnoConfig
+from tarno_backend.core.config import AudioConfig, TarnoConfig
 
 
 def test_set_language_updates_tarno_config_and_audio():

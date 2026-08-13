@@ -44,11 +44,11 @@ from pathlib import Path
 TARNO_ROOT = Path(__file__).resolve().parent.parent.parent.parent / "src"
 sys.path.insert(0, str(TARNO_ROOT))
 
-from tarno.ai.factory import create_provider  # noqa: E402
-from tarno.ai.prompts.proactive_system import PROACTIVE_SYSTEM_PROMPT  # noqa: E402
-from tarno.core.calendar_service import CalendarService  # noqa: E402
-from tarno.core.config import TarnoConfig  # noqa: E402
-from tarno.core.proactive_engine import (  # noqa: E402
+from tarno_backend.ai.factory import create_provider  # noqa: E402
+from tarno_backend.ai.prompts.proactive_system import PROACTIVE_SYSTEM_PROMPT  # noqa: E402
+from tarno_backend.core.calendar_service import CalendarService  # noqa: E402
+from tarno_backend.core.config import TarnoConfig  # noqa: E402
+from tarno_backend.core.proactive_engine import (  # noqa: E402
     IdleCuriosityObserver,
     ProactiveDraft,
     ProactiveEngine,
@@ -56,8 +56,8 @@ from tarno.core.proactive_engine import (  # noqa: E402
     TimeCalendarObserver,
     UserBehaviorObserver,
 )
-from tarno.extensions.task_planner import PlannedTask, TaskPlanner, TaskStatus  # noqa: E402
-from tarno.voice.synthesizer import SpeechSynthesizer  # noqa: E402
+from tarno_backend.extensions.task_planner import PlannedTask, TaskPlanner, TaskStatus  # noqa: E402
+from tarno_backend.voice.synthesizer import SpeechSynthesizer  # noqa: E402
 
 LOG_ROOT = Path(r"H:\CascadeProjects\proactive-voice-debug-logs")
 

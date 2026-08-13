@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import unittest
 
-from tarno.ai.conversation import ConversationManager
-from tarno.memory.store import MemoryStore
+from tarno_backend.ai.conversation import ConversationManager
+from tarno_backend.memory.store import MemoryStore
 
 
 class MemoryIntegrationTests(unittest.TestCase):

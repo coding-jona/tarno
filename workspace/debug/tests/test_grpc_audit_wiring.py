@@ -13,10 +13,10 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock
 
-from tarno.ai.tool_registry import ToolRegistry
-from tarno.core.config import TarnoConfig
-from tarno.core.events import EventBus
-from tarno.grpc.server import TarnoGrpcBridge
+from tarno_backend.ai.tool_registry import ToolRegistry
+from tarno_backend.core.config import TarnoConfig
+from tarno_backend.core.events import EventBus
+from tarno_backend.grpc.server import TarnoGrpcBridge
 
 
 class _FakeEngineWithAudit:

@@ -8,12 +8,12 @@ import tempfile
 import unittest
 from typing import Any, Iterator
 
-from tarno.ai.coding.agent import CodingAgent
-from tarno.ai.coding.protocol import CodingOutput
-from tarno.core.config import TarnoConfig
-from tarno.grpc import tarno_pb2
-from tarno.grpc.mock_engine import MockTarnoEngine
-from tarno.grpc.server import TarnoGrpcBridge
+from tarno_backend.ai.coding.agent import CodingAgent
+from tarno_backend.ai.coding.protocol import CodingOutput
+from tarno_backend.core.config import TarnoConfig
+from tarno_backend.grpc import tarno_pb2
+from tarno_backend.grpc.mock_engine import MockTarnoEngine
+from tarno_backend.grpc.server import TarnoGrpcBridge
 
 
 class _FakeBackend:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from tarno.ai.context.usage_tracker import ContextUsageTracker
+from tarno_backend.ai.context.usage_tracker import ContextUsageTracker
 
 
 class RecordTests(unittest.TestCase):

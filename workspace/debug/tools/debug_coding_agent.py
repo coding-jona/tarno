@@ -184,9 +184,9 @@ def main() -> None:
     if args.reset:
         _reset_testbed()
 
-    from tarno.ai.coding.dispatcher import CodingDispatcher
-    from tarno.core.config import TarnoConfig
-    from tarno.security.secrets import SecretsVault
+    from tarno_backend.ai.coding.dispatcher import CodingDispatcher
+    from tarno_backend.core.config import TarnoConfig
+    from tarno_backend.security.secrets import SecretsVault
 
     config = TarnoConfig.load()
     if args.backend:

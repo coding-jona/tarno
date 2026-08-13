@@ -14,13 +14,13 @@ import time
 import unittest
 from pathlib import Path
 
-from tarno.ai.tool_registry import ToolRegistry, ToolDefinition, validate_tool_input
-from tarno.core.action_result import ActionResult
-from tarno.core.command_engine import CommandEngine
-from tarno.core.exceptions import CommandBlockedError
-from tarno.desktop.file_manager import copy_file, create_directory, delete_file, move_file
-from tarno.extensions.rollback import RollbackJournal
-from tarno.extensions.task_planner import TaskPlanner
+from tarno_backend.ai.tool_registry import ToolRegistry, ToolDefinition, validate_tool_input
+from tarno_backend.core.action_result import ActionResult
+from tarno_backend.core.command_engine import CommandEngine
+from tarno_backend.core.exceptions import CommandBlockedError
+from tarno_backend.desktop.file_manager import copy_file, create_directory, delete_file, move_file
+from tarno_backend.extensions.rollback import RollbackJournal
+from tarno_backend.extensions.task_planner import TaskPlanner
 
 
 class ToolArgumentValidationTests(unittest.TestCase):
@@ -219,7 +219,7 @@ class ProcessSandboxTests(unittest.TestCase):
 
     def test_assign_and_close_real_process(self) -> None:
         import subprocess
-        from tarno.core.process_sandbox import ProcessSandbox
+        from tarno_backend.core.process_sandbox import ProcessSandbox
 
         proc = subprocess.Popen(
             ["ping", "127.0.0.1", "-n", "3"],
@@ -240,7 +240,7 @@ class ProcessSandboxTests(unittest.TestCase):
                 proc.kill()
 
     def test_unavailable_on_non_windows_is_handled_gracefully(self) -> None:
-        from tarno.core.process_sandbox import ProcessSandbox
+        from tarno_backend.core.process_sandbox import ProcessSandbox
         sandbox = ProcessSandbox()
         # On Windows this is True; the point of this test is just that
         # `.available` never raises and create_and_assign() degrades softly

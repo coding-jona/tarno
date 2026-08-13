@@ -23,10 +23,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent / "src"))
 
-from tarno.security.secrets import SecretsVault  # noqa: E402
-from tarno.vision.camera_capture import CameraCapture  # noqa: E402
-from tarno.vision.motion_gate import MotionGate  # noqa: E402
-from tarno.vision.vision_provider import MistralVisionProvider  # noqa: E402
+from tarno_backend.security.secrets import SecretsVault  # noqa: E402
+from tarno_backend.vision.camera_capture import CameraCapture  # noqa: E402
+from tarno_backend.vision.motion_gate import MotionGate  # noqa: E402
+from tarno_backend.vision.vision_provider import MistralVisionProvider  # noqa: E402
 
 
 def run_calibration(

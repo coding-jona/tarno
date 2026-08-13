@@ -8,11 +8,11 @@ import tempfile
 import unittest
 from typing import Any, Iterator
 
-from tarno.ai.coding.agent import CodingAgent
-from tarno.ai.coding.protocol import CodingOutput
-from tarno.core.action_result import ActionResult
-from tarno.core.config import TarnoConfig
-from tarno.core.events import EventBus
+from tarno_backend.ai.coding.agent import CodingAgent
+from tarno_backend.ai.coding.protocol import CodingOutput
+from tarno_backend.core.action_result import ActionResult
+from tarno_backend.core.config import TarnoConfig
+from tarno_backend.core.events import EventBus
 
 
 class _FakeBackend:

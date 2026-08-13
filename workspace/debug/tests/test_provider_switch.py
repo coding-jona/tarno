@@ -12,8 +12,8 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock, patch
 
-from tarno.core.config import TarnoConfig
-from tarno.core.engine import TarnoEngine
+from tarno_backend.core.config import TarnoConfig
+from tarno_backend.core.engine import TarnoEngine
 
 
 def _make_bare_engine() -> TarnoEngine:
@@ -54,8 +54,8 @@ class SetProviderTests(unittest.TestCase):
         engine = _make_bare_engine()
         original_provider = engine.provider
 
-        with patch("tarno.security.secrets.SecretsVault.get", return_value=None), \
-             patch("tarno.ai.factory.create_provider") as mock_create:
+        with patch("tarno_backend.security.secrets.SecretsVault.get", return_value=None), \
+             patch("tarno_backend.ai.factory.create_provider") as mock_create:
             success, message = engine.set_provider("mistral")
 
         self.assertFalse(success)
@@ -75,8 +75,8 @@ class SetProviderTests(unittest.TestCase):
         def fake_get(self, name, fallback=None):
             return "fake-key" if name == "CLAUDE_API_KEY" else None
 
-        with patch("tarno.security.secrets.SecretsVault.get", fake_get), \
-             patch("tarno.ai.factory.create_provider", return_value=fake_new_provider) as mock_create:
+        with patch("tarno_backend.security.secrets.SecretsVault.get", fake_get), \
+             patch("tarno_backend.ai.factory.create_provider", return_value=fake_new_provider) as mock_create:
             success, message = engine.set_provider("claude")
 
         mock_create.assert_called_once()
@@ -90,8 +90,8 @@ class SetProviderTests(unittest.TestCase):
         fake_new_provider = MagicMock()
         fake_new_provider.name = "mistral"
 
-        with patch("tarno.security.secrets.SecretsVault.get", return_value="fake-key"), \
-             patch("tarno.ai.factory.create_provider", return_value=fake_new_provider) as mock_create:
+        with patch("tarno_backend.security.secrets.SecretsVault.get", return_value="fake-key"), \
+             patch("tarno_backend.ai.factory.create_provider", return_value=fake_new_provider) as mock_create:
             success, message = engine.set_provider("mistral")
 
         mock_create.assert_called_once()

@@ -13,13 +13,13 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock
 
-from tarno.ai.conversation import ConversationManager
-from tarno.ai.provider import LLMProvider, LLMResponse, ToolCall
-from tarno.ai.tool_registry import ToolDefinition, ToolRegistry
-from tarno.core.config import TarnoConfig
-from tarno.core.engine import TarnoEngine
-from tarno.core.events import ProcessingStageEvent
-from tarno.core.permission_service import AutonomyMode
+from tarno_backend.ai.conversation import ConversationManager
+from tarno_backend.ai.provider import LLMProvider, LLMResponse, ToolCall
+from tarno_backend.ai.tool_registry import ToolDefinition, ToolRegistry
+from tarno_backend.core.config import TarnoConfig
+from tarno_backend.core.engine import TarnoEngine
+from tarno_backend.core.events import ProcessingStageEvent
+from tarno_backend.core.permission_service import AutonomyMode
 
 
 class _FakeToolProvider(LLMProvider):

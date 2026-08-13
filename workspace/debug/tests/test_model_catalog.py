@@ -6,8 +6,8 @@ import json
 import unittest
 from unittest.mock import patch
 
-from tarno.ai.model_catalog import PROVIDER_MODEL_CATALOG, ModelInfo
-from tarno.ai.ollama_client import list_ollama_models
+from tarno_backend.ai.model_catalog import PROVIDER_MODEL_CATALOG, ModelInfo
+from tarno_backend.ai.ollama_client import list_ollama_models
 
 
 class ProviderModelCatalogTests(unittest.TestCase):

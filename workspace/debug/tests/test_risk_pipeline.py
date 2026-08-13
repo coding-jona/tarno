@@ -12,10 +12,10 @@ from __future__ import annotations
 
 import unittest
 
-from tarno.core.command_engine import CommandEngine, PreparedCommand, RiskLevel
-from tarno.core.exceptions import CommandBlockedError, PermissionDeniedError
-from tarno.core.permission_service import AutonomyMode, PermissionService
-from tarno.security.content_filter import is_prompt_injection_safe
+from tarno_backend.core.command_engine import CommandEngine, PreparedCommand, RiskLevel
+from tarno_backend.core.exceptions import CommandBlockedError, PermissionDeniedError
+from tarno_backend.core.permission_service import AutonomyMode, PermissionService
+from tarno_backend.security.content_filter import is_prompt_injection_safe
 
 
 class _FailIfCalledDialog:

@@ -10,7 +10,7 @@ import unittest
 from datetime import datetime
 from unittest.mock import patch
 
-from tarno.ai.conversation import ConversationManager
+from tarno_backend.ai.conversation import ConversationManager
 
 
 class SystemPromptDateInjectionTests(unittest.TestCase):
@@ -29,10 +29,10 @@ class SystemPromptDateInjectionTests(unittest.TestCase):
         the fact that it's resent in full on every single LLM call), two
         reads at different simulated times must show different dates."""
         cm = ConversationManager()
-        with patch("tarno.ai.prompts.builder.datetime") as mock_dt:
+        with patch("tarno_backend.ai.prompts.builder.datetime") as mock_dt:
             mock_dt.now.return_value = datetime(2026, 1, 1, 8, 0, 0)
             first = cm.system_prompt
-        with patch("tarno.ai.prompts.builder.datetime") as mock_dt:
+        with patch("tarno_backend.ai.prompts.builder.datetime") as mock_dt:
             mock_dt.now.return_value = datetime(2026, 12, 31, 23, 0, 0)
             second = cm.system_prompt
         self.assertIn("01.01.2026", first)

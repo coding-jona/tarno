@@ -8,10 +8,10 @@ import unittest
 from pathlib import Path
 from typing import Any
 
-from tarno.memory.preferences import PreferenceManager
-from tarno.memory.privacy import MemoryPrivacy
-from tarno.memory.retrieval import MemoryRetriever
-from tarno.memory.store import MemoryStore
+from tarno_backend.memory.preferences import PreferenceManager
+from tarno_backend.memory.privacy import MemoryPrivacy
+from tarno_backend.memory.retrieval import MemoryRetriever
+from tarno_backend.memory.store import MemoryStore
 
 
 class MemoryStoreTests(unittest.TestCase):

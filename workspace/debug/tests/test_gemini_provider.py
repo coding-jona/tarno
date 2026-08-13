@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import unittest
 
-from tarno.ai.gemini_client import GeminiProvider
+from tarno_backend.ai.gemini_client import GeminiProvider
 
 
 class GeminiToolCallThoughtSignatureTests(unittest.TestCase):

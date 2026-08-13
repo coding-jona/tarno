@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock
 
-from tarno.ai.context.summarizer import HistorySummarizer
+from tarno_backend.ai.context.summarizer import HistorySummarizer
 
 
 class _FakeResponse:

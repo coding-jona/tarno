@@ -15,8 +15,8 @@ import unittest
 
 import numpy as np
 
-from tarno.core.config import VADConfig, vad_config_for_eagerness
-from tarno.voice.adaptive_listener import AdaptiveListener, sentence_seems_incomplete
+from tarno_backend.core.config import VADConfig, vad_config_for_eagerness
+from tarno_backend.voice.adaptive_listener import AdaptiveListener, sentence_seems_incomplete
 
 
 class SentenceSeemsIncompleteTests(unittest.TestCase):

@@ -16,10 +16,10 @@ import time
 import unittest
 from unittest.mock import MagicMock
 
-from tarno.core.config import TarnoConfig
-from tarno.core.events import EventBus, ResponseReadyEvent
-from tarno.grpc import tarno_pb2
-from tarno.grpc.server import TarnoGrpcBridge
+from tarno_backend.core.config import TarnoConfig
+from tarno_backend.core.events import EventBus, ResponseReadyEvent
+from tarno_backend.grpc import tarno_pb2
+from tarno_backend.grpc.server import TarnoGrpcBridge
 
 
 class _FakeEngine:
@@ -93,7 +93,7 @@ class GrpcErrorHandlingTests(unittest.TestCase):
             yield tarno_pb2.ClientMessage(voice_command=tarno_pb2.VoiceCommand(active=True))
             yield tarno_pb2.ClientMessage(chat_input=tarno_pb2.ChatInput(text="hallo danach"))
 
-        from tarno.grpc.server import TarnoGrpcServicer
+        from tarno_backend.grpc.server import TarnoGrpcServicer
 
         servicer = TarnoGrpcServicer(self.bridge)
         future = asyncio.run_coroutine_threadsafe(

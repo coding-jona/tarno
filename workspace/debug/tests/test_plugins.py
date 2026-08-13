@@ -8,8 +8,8 @@ from pathlib import Path
 
 import yaml
 
-from tarno.ai.tool_registry import ToolDefinition, ToolRegistry
-from tarno.plugins.manager import PluginManager
+from tarno_backend.ai.tool_registry import ToolDefinition, ToolRegistry
+from tarno_backend.plugins.manager import PluginManager
 
 
 class PluginManagerTests(unittest.TestCase):

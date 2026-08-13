@@ -14,17 +14,17 @@ from unittest.mock import patch
 
 from ovos_bus_client.message import Message
 
-from tarno.ai.conversation import ConversationManager
-from tarno.ai.fallback_provider import FallbackProvider
-from tarno.ai.mistral_client import MistralProvider
-from tarno.ai.provider import LLMProvider, LLMResponse, ToolCall
-from tarno.ai.response_guard import guard_response
-from tarno.ai.tool_registry import ToolDefinition, ToolRegistry
-from tarno.core.calendar_service import CalendarService
-from tarno.core.config import AudioConfig, TarnoConfig, MemoryConfig
-from tarno.core.agent_service import AgentService
-from tarno.desktop.file_manager import list_directory, read_file, write_file
-from tarno.utils.text import is_exit
+from tarno_backend.ai.conversation import ConversationManager
+from tarno_backend.ai.fallback_provider import FallbackProvider
+from tarno_backend.ai.mistral_client import MistralProvider
+from tarno_backend.ai.provider import LLMProvider, LLMResponse, ToolCall
+from tarno_backend.ai.response_guard import guard_response
+from tarno_backend.ai.tool_registry import ToolDefinition, ToolRegistry
+from tarno_backend.core.calendar_service import CalendarService
+from tarno_backend.core.config import AudioConfig, TarnoConfig, MemoryConfig
+from tarno_backend.core.agent_service import AgentService
+from tarno_backend.desktop.file_manager import list_directory, read_file, write_file
+from tarno_backend.utils.text import is_exit
 
 
 class _FakeBus:
@@ -235,9 +235,9 @@ class ConfigRecoveryTests(unittest.TestCase):
             os.environ["TARNO_HOME"] = tmp
             # Import must happen after TARNO_HOME is set so the module-level
             # runtime paths point to the temporary directory.
-            if "tarno.core.ovos_engine" in sys.modules:
-                del sys.modules["tarno.core.ovos_engine"]
-            from tarno.core.ovos_engine import _seed_user_config
+            if "tarno_backend.core.ovos_engine" in sys.modules:
+                del sys.modules["tarno_backend.core.ovos_engine"]
+            from tarno_backend.core.ovos_engine import _seed_user_config
 
             _seed_user_config()
             mycroft_conf = Path(tmp) / "config" / "mycroft" / "mycroft.conf"
@@ -260,8 +260,8 @@ class ConfigRecoveryTests(unittest.TestCase):
                 os.environ.pop(k, None)
             else:
                 os.environ[k] = v
-        if "tarno.core.ovos_engine" in sys.modules:
-            del sys.modules["tarno.core.ovos_engine"]
+        if "tarno_backend.core.ovos_engine" in sys.modules:
+            del sys.modules["tarno_backend.core.ovos_engine"]
 
 
 class ToolRegistryTests(unittest.TestCase):

@@ -6,14 +6,14 @@ import asyncio
 import unittest
 from unittest.mock import patch
 
-from tarno.ai.coding.agent import CodingAgent
-from tarno.ai.coding.protocol import CodingOutput
-from tarno.ai.pool.models import PoolMessage
-from tarno.core.config import TarnoConfig
-from tarno.core.exceptions import PermissionDeniedError
-from tarno.grpc import tarno_pb2
-from tarno.grpc.mock_engine import MockTarnoEngine
-from tarno.grpc.server import TarnoGrpcBridge
+from tarno_backend.ai.coding.agent import CodingAgent
+from tarno_backend.ai.coding.protocol import CodingOutput
+from tarno_backend.ai.pool.models import PoolMessage
+from tarno_backend.core.config import TarnoConfig
+from tarno_backend.core.exceptions import PermissionDeniedError
+from tarno_backend.grpc import tarno_pb2
+from tarno_backend.grpc.mock_engine import MockTarnoEngine
+from tarno_backend.grpc.server import TarnoGrpcBridge
 
 
 class _FakeOrchestrator:
@@ -55,8 +55,8 @@ class PoolGrpcTests(unittest.TestCase):
                 conn = bridge.add_client()
 
                 fake_outputs = [CodingOutput(kind="summary", text="Pool-Änderung angewendet.")]
-                with patch("tarno.grpc.server.PoolOrchestrator", _FakeOrchestrator), \
-                     patch("tarno.grpc.server.apply_merged_instruction", return_value=iter(fake_outputs)):
+                with patch("tarno_backend.grpc.server.PoolOrchestrator", _FakeOrchestrator), \
+                     patch("tarno_backend.grpc.server.apply_merged_instruction", return_value=iter(fake_outputs)):
                     request = tarno_pb2.StartPoolTaskRequest(
                         prompt="Docstrings ergänzen",
                         workspace=tarno_pb2.Workspace(id="ws", name="ws", root_path="/tmp/x"),
@@ -113,8 +113,8 @@ class PoolGrpcTests(unittest.TestCase):
                 bridge._loop = loop
                 conn = bridge.add_client()
 
-                with patch("tarno.grpc.server.PoolOrchestrator", _FakeOrchestrator), \
-                     patch("tarno.grpc.server.apply_merged_instruction") as mock_apply:
+                with patch("tarno_backend.grpc.server.PoolOrchestrator", _FakeOrchestrator), \
+                     patch("tarno_backend.grpc.server.apply_merged_instruction") as mock_apply:
                     request = tarno_pb2.StartPoolTaskRequest(
                         prompt="Ändere etwas",
                         workspace=tarno_pb2.Workspace(id="ws", name="ws", root_path="/tmp/x"),

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import unittest
 
-from tarno.ai.coding.protocol import CodingOutput
-from tarno.core.config import TarnoConfig
+from tarno_backend.ai.coding.protocol import CodingOutput
+from tarno_backend.core.config import TarnoConfig
 
 
 class CodingProtocolTests(unittest.TestCase):

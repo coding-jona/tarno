@@ -14,7 +14,7 @@ from __future__ import annotations
 import unittest
 from datetime import datetime
 
-from tarno.core.engine import TarnoEngine
+from tarno_backend.core.engine import TarnoEngine
 
 
 class ResolveReminderTimeTests(unittest.TestCase):
