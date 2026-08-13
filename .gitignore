@@ -80,3 +80,8 @@ test_reports/
 
 # --- Deprecated/legacy trees kept out of the clean source snapshot ---
 _deprecated_legacy_installers/
+
+
+# AI Bullshit
+.windsurf
+.claude
