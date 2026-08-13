@@ -1,0 +1,27 @@
+{
+  "eval_id": 3,
+  "eval_name": "settings-page",
+  "prompt": "Wir brauchen eine neue Settings-Seite in der WinUI App wo man den LLM Provider wechseln kann. Die soll die aktuelle Auswahl über gRPC an das Backend schicken und dort persistent speichern.",
+  "assertions": [
+    {
+      "id": "sp-current-state",
+      "text": "Checks current SettingsPage state (exists but UI-only, not wired to backend)",
+      "type": "content_check"
+    },
+    {
+      "id": "sp-grpc-extension",
+      "text": "Mentions need to extend gRPC proto or use existing CommandRequest for settings",
+      "type": "content_check"
+    },
+    {
+      "id": "sp-config-persistence",
+      "text": "References JarvisConfig.save() or YAML file persistence for storing the provider choice",
+      "type": "content_check"
+    },
+    {
+      "id": "sp-planning-approach",
+      "text": "Follows a structured approach: analyzes current state before proposing changes, considers alternatives",
+      "type": "content_check"
+    }
+  ]
+}

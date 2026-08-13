@@ -1,0 +1,27 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- =====================================================
+         TARNO Designsystem – Schatten-Tokens
+         WinUI 3 kennt in XAML nur ThemeShadow (keine Offset/
+         BlurRadius/Opacity/Color-Properties wie in CSS/WPF).
+         Die Elevation-Stufen werden über Translation-Z am
+         konsumierenden Element gesteuert, nicht hier.
+         ===================================================== -->
+
+    <ThemeShadow x:Key="ShadowElevation1" />
+    <ThemeShadow x:Key="ShadowElevation2" />
+    <ThemeShadow x:Key="ShadowElevation3" />
+    <ThemeShadow x:Key="ShadowAccentGlow" />
+    <ThemeShadow x:Key="ShadowErrorGlow" />
+
+    <!-- Liquid Glass – zusätzliche Elevation-Stufen für Karten/Flyouts.
+         WinUI 3 ThemeShadow nutzt implizit Translation-Z; diese Ressourcen
+         werden mit Border.Shadow oder UIElement.Shadow konsumiert. -->
+    <ThemeShadow x:Key="ShadowGlassCard" />
+    <ThemeShadow x:Key="ShadowGlassFlyout" />
+    <ThemeShadow x:Key="ShadowOrbGlow" />
+    <ThemeShadow x:Key="ShadowOrbListenGlow" />
+    <ThemeShadow x:Key="ShadowOrbSpeakGlow" />
+</ResourceDictionary>

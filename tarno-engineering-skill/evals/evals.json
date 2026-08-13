@@ -1,0 +1,23 @@
+{
+  "skill_name": "tarno-engineering",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Hey, die Spracherkennung reagiert manchmal nicht auf 'Hey Tarno' wenn Hintergrundgeräusche da sind. Kannst du den Threshold anpassen oder irgendwie die Erkennung robuster machen?",
+      "expected_output": "Should identify the correct file (tarno/voice/wakeword.py), understand the dual-backend architecture (pvporcupine vs openWakeWord), check current threshold/patience/debounce values in config, and propose targeted changes rather than rewriting the whole wake word system. Should mention that pvporcupine has its own sensitivity parameter separate from openWakeWord's threshold.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Ich will dass TARNO nach dem Wake Word nicht mehr 'Ja, Sir?' sagt sondern stattdessen einen kurzen Bestätigungston abspielt. Wo muss ich das ändern?",
+      "expected_output": "Should identify all THREE voice pipeline implementations (TarnoEngine.run(), ServiceMediator/VoiceWorker, VoiceController/gRPC) that call speak('Ja, Sir?') after wake word detection. Should warn that changing only one implementation means the other launch modes still say 'Ja, Sir?'. Should suggest playing a sound file via pygame mixer instead of TTS.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Wir brauchen eine neue Settings-Seite in der WinUI App wo man den LLM Provider wechseln kann. Die soll die aktuelle Auswahl über gRPC an das Backend schicken und dort persistent speichern.",
+      "expected_output": "Should follow the planning-first approach: research current SettingsPage state (UI-only, no persistence), check gRPC proto for existing CommandRequest message, propose extending the proto with a settings RPC or using CommandRequest. Should note that config changes require updating tarno/core/config.py TarnoConfig.save() and the YAML file. Should mention MVVM pattern (extend MainViewModel) and that the current SettingsPage already has ComboBoxes for provider selection but they're not wired up.",
+      "files": []
+    }
+  ]
+}

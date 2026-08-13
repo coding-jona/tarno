@@ -1,0 +1,8 @@
+{
+  "expectations": [
+    {"text": "Checks current SettingsPage state (exists but UI-only, not wired to backend)", "passed": true, "evidence": "States 'die Seite rein statisch -- kein ViewModel-Binding, kein Code-Behind ausser InitializeComponent()' and notes only 3 of 6 providers shown"},
+    {"text": "Mentions need to extend gRPC proto or use existing CommandRequest for settings", "passed": true, "evidence": "Evaluates 3 options: dedicated RPC (recommended), CommandRequest abuse (rejected with reasoning), local-only (rejected). Provides full proto definition"},
+    {"text": "References JarvisConfig.save() or YAML file persistence", "passed": true, "evidence": "Mentions 'config.save() auf den User-Config-Pfad (~/.jarvis/config/jarvis_config.yaml)'"},
+    {"text": "Follows a structured approach: analyzes current state before proposing changes", "passed": true, "evidence": "Clear structure: 'Aktueller Stand' analysis → 3 options with rejected alternatives → 5-step implementation plan → risk assessment. Exemplary planning-first approach"}
+  ]
+}

@@ -1,0 +1,4 @@
+name: git_tools
+version: "1.0.0"
+entrypoint: plugin.py
+dependencies: []

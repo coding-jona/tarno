@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="TARNO.UI.Controls.BlobBackground"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    IsHitTestVisible="False"
+    mc:Ignorable="d">
+
+    <!--
+        Weiche, farbige "Blob"-Flächen hinter Glas-Flächen (Sidebar etc.).
+        Ohne diese Ebene ist ein Blur-/Glas-Effekt unsichtbar, weil nichts
+        Farbiges zum Brechen da ist — siehe docs/liquid-glass-research.md,
+        Abschnitt 2 ("Blobs"). Radiale Verläufe simulieren die weiche,
+        geblurrte Kante (CSS filter: blur(100px)) ohne einen echten
+        Blur-Effekt-Graphen aufzubauen (Composition-API-Näherung, kein Win2D).
+    -->
+    <Grid x:Name="RootGrid">
+        <Ellipse
+            x:Name="Blob1"
+            Width="420"
+            Height="420"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Margin="-160,-160,0,0"
+            Opacity="1">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Offset="0.0" Color="#600BC7FF" />
+                    <GradientStop Offset="0.3" Color="#440BC7FF" />
+                    <GradientStop Offset="0.65" Color="#1E0BC7FF" />
+                    <GradientStop Offset="1.0" Color="#000BC7FF" />
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <Ellipse
+            x:Name="Blob2"
+            Width="380"
+            Height="380"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Margin="0,-40,-180,0">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Offset="0.0" Color="#557C5CBF" />
+                    <GradientStop Offset="0.3" Color="#3D7C5CBF" />
+                    <GradientStop Offset="0.65" Color="#1A7C5CBF" />
+                    <GradientStop Offset="1.0" Color="#007C5CBF" />
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <Ellipse
+            x:Name="Blob3"
+            Width="460"
+            Height="460"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            Margin="-120,0,0,-200">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Offset="0.0" Color="#452DD4BF" />
+                    <GradientStop Offset="0.3" Color="#302DD4BF" />
+                    <GradientStop Offset="0.65" Color="#152DD4BF" />
+                    <GradientStop Offset="1.0" Color="#002DD4BF" />
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+    </Grid>
+</UserControl>

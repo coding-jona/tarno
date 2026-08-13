@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "tarno-grpc-backend-mock",
+      "runtimeExecutable": "py",
+      "runtimeArgs": ["-3.12", "start_tarno_winui_backend.py", "--mock"],
+      "port": 50051
+    },
+    {
+      "name": "tarno-grpc-backend-real",
+      "runtimeExecutable": "py",
+      "runtimeArgs": ["-3.12", "start_tarno_winui_backend.py"],
+      "port": 50051
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- =====================================================
+         TARNO Designsystem – Farb-Tokens
+         Dunkles Windows-11-Fluent-Theme mit Cyan-Akzent (#0BC7FF).
+         Aufbauend auf der bestehenden BuildMC-/PySide6-Palette.
+         ===================================================== -->
+
+    <!-- Primitive Farben -->
+    <Color x:Key="ColorBlack">#000000</Color>
+    <Color x:Key="ColorNeutral1000">#0A0C14</Color>
+    <Color x:Key="ColorNeutral900">#111111</Color>
+    <Color x:Key="ColorNeutral800">#181A27</Color>
+    <Color x:Key="ColorNeutral700">#1A1D2E</Color>
+    <Color x:Key="ColorNeutral600">#222222</Color>
+    <Color x:Key="ColorNeutral500">#333333</Color>
+    <Color x:Key="ColorNeutral400">#444444</Color>
+    <Color x:Key="ColorNeutral300">#555555</Color>
+    <Color x:Key="ColorNeutral200">#8890A4</Color>
+    <Color x:Key="ColorNeutral100">#B0B8C8</Color>
+    <Color x:Key="ColorNeutral50">#EEEEEE</Color>
+    <Color x:Key="ColorWhite">#FFFFFF</Color>
+
+    <!-- Akzentfarben -->
+    <Color x:Key="ColorCyan500">#0BC7FF</Color>
+    <Color x:Key="ColorCyan400">#33D1FF</Color>
+    <Color x:Key="ColorCyan300">#66DDFF</Color>
+    <Color x:Key="ColorCyan600">#0099CC</Color>
+    <Color x:Key="ColorCyan700">#0077A3</Color>
+
+    <Color x:Key="ColorTurquoise500">#2DD4BF</Color>
+    <Color x:Key="ColorOrange500">#F59E0B</Color>
+    <Color x:Key="ColorRed500">#FF4444</Color>
+    <Color x:Key="ColorRed400">#FF6666</Color>
+    <Color x:Key="ColorPurple500">#7C5CBF</Color>
+
+    <!-- BuildMC-Surface-Farben (exakt übernommen) -->
+    <Color x:Key="BuildMCSurface0">#0A0A0F</Color>
+    <Color x:Key="BuildMCSurface1">#12121A</Color>
+    <Color x:Key="BuildMCSurface2">#1A1A25</Color>
+    <Color x:Key="BuildMCSurface3">#22222F</Color>
+    <Color x:Key="BuildMCSurface4">#2A2A38</Color>
+
+    <!-- Semantische Farben (Hintergründe) -->
+    <SolidColorBrush x:Key="BackgroundBaseBrush" Color="{StaticResource BuildMCSurface0}" />
+    <SolidColorBrush x:Key="BackgroundSubtleBrush" Color="{StaticResource BuildMCSurface1}" />
+    <SolidColorBrush x:Key="BackgroundSidebarBrush" Color="{StaticResource BuildMCSurface1}" />
+    <SolidColorBrush x:Key="BackgroundCardBrush" Color="{StaticResource BuildMCSurface2}" />
+    <SolidColorBrush x:Key="BackgroundInputBrush" Color="{StaticResource BuildMCSurface1}" />
+    <SolidColorBrush x:Key="BackgroundHoverBrush" Color="{StaticResource BuildMCSurface3}" />
+    <SolidColorBrush x:Key="BackgroundPressedBrush" Color="{StaticResource BuildMCSurface4}" />
+    <SolidColorBrush x:Key="BackgroundActiveBrush" Color="{StaticResource ColorCyan700}" Opacity="0.18" />
+
+    <!-- Semantische Farben (Text) -->
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource ColorNeutral50}" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource ColorNeutral200}" />
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource ColorNeutral300}" />
+    <SolidColorBrush x:Key="TextAccentBrush" Color="{StaticResource ColorCyan500}" />
+    <SolidColorBrush x:Key="TextOnAccentBrush" Color="{StaticResource ColorBlack}" />
+
+    <!-- Semantische Farben (Aktionen) -->
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource ColorCyan500}" />
+    <SolidColorBrush x:Key="AccentPrimaryBrush" Color="{StaticResource ColorCyan500}" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource ColorCyan400}" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="{StaticResource ColorCyan600}" />
+    <SolidColorBrush x:Key="AccentSubtleBrush" Color="{StaticResource ColorCyan700}" Opacity="0.25" />
+
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource ColorTurquoise500}" />
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource ColorOrange500}" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ColorRed500}" />
+    <SolidColorBrush x:Key="ErrorSubtleBrush" Color="{StaticResource ColorRed500}" Opacity="0.12" />
+
+    <!-- Ränder und Trennlinien -->
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BuildMCSurface3}" />
+    <SolidColorBrush x:Key="BorderFocusBrush" Color="{StaticResource ColorCyan500}" />
+    <SolidColorBrush x:Key="DividerBrush" Color="{StaticResource BuildMCSurface3}" />
+
+    <!-- Spezielle Hintergründe -->
+    <SolidColorBrush x:Key="UserBubbleBrush" Color="{StaticResource ColorCyan600}" />
+    <SolidColorBrush x:Key="AssistantBubbleBrush" Color="{StaticResource BuildMCSurface3}" />
+    <SolidColorBrush x:Key="ListeningRingBrush" Color="{StaticResource ColorRed500}" />
+    <SolidColorBrush x:Key="ThinkingRingBrush" Color="{StaticResource ColorCyan500}" />
+    <SolidColorBrush x:Key="IdleRingBrush" Color="{StaticResource ColorNeutral300}" />
+
+    <!-- =====================================================
+         Liquid Glass – zusätzliche Glas-Surface-Tokens
+         (CPU-first, keine Acrylic/Mica-Abhängigkeiten; Werte
+          sind feste Halbtransparenzen für konsistentes Rendering
+          in WinUI 3.)
+         ===================================================== -->
+    <Color x:Key="ColorGlassBase">#1A1A25</Color>
+    <Color x:Key="ColorGlassLight">#FFFFFF</Color>
+
+    <SolidColorBrush x:Key="SurfaceGlassBrush" Color="{StaticResource BuildMCSurface1}" />
+    <SolidColorBrush x:Key="SurfaceDarkBrush" Color="{StaticResource BuildMCSurface0}" />
+    <SolidColorBrush x:Key="SurfaceGlassLightBrush" Color="{StaticResource ColorGlassLight}" Opacity="0.10" />
+    <SolidColorBrush x:Key="GlassEdgeHiBrush" Color="{StaticResource BuildMCSurface3}" />
+    <SolidColorBrush x:Key="GlassEdgeLoBrush" Color="{StaticResource BuildMCSurface3}" Opacity="0.50" />
+    <SolidColorBrush x:Key="GlassEdgeHiLightBrush" Color="{StaticResource ColorWhite}" Opacity="0.75" />
+    <SolidColorBrush x:Key="GlassEdgeLoLightBrush" Color="{StaticResource ColorWhite}" Opacity="0.16" />
+    <SolidColorBrush x:Key="AccentGlowBrush" Color="{StaticResource ColorCyan500}" Opacity="0.35" />
+    <SolidColorBrush x:Key="ErrorGlowBrush" Color="{StaticResource ColorRed500}" Opacity="0.35" />
+    <SolidColorBrush x:Key="TextOnGlassBrush" Color="{StaticResource ColorNeutral50}" />
+    <SolidColorBrush x:Key="TextOnGlassDimBrush" Color="{StaticResource ColorNeutral200}" />
+
+    <!-- Mica/Acrylic-Unterstützung (System) -->
+    <SolidColorBrush x:Key="MicaBackgroundBrush" Color="{StaticResource ColorNeutral900}" />
+
+    <!-- =====================================================
+         Liquid Glass – "Blob"-Hintergrundfarben (dunkles Theme).
+         Entspricht den blob-1/2/3-Tokens aus dem Referenz-Artefakt
+         (JARVIS Plan — Liquid Glass Preview): große, weiche,
+         farbige Flächen hinter dem Glas, ohne die kein Blur
+         sichtbar wäre (siehe docs/liquid-glass-research.md).
+         ===================================================== -->
+    <SolidColorBrush x:Key="BlobCyanBrush" Color="{StaticResource ColorCyan500}" Opacity="0.26" />
+    <SolidColorBrush x:Key="BlobPurpleBrush" Color="{StaticResource ColorPurple500}" Opacity="0.22" />
+    <SolidColorBrush x:Key="BlobTealBrush" Color="{StaticResource ColorTurquoise500}" Opacity="0.14" />
+
+    <!-- Satte, dunkle Unterschicht hinter der Sidebar (entspricht den
+         wall-a/wall-b/wall-c-Tokens aus dem Referenz-Artefakt: ein
+         dunkler, leicht farbiger Verlauf statt einer einzigen flachen
+         Farbe). Erst darauf
+         wirkt das Glas obendrüber wie Glas — auf einer einzigen flachen
+         Fläche gibt es nichts zu brechen. -->
+    <LinearGradientBrush x:Key="SidebarUnderlayerBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0.0" Color="#070C16" />
+        <GradientStop Offset="0.55" Color="#0D0820" />
+        <GradientStop Offset="1.0" Color="#051A1C" />
+    </LinearGradientBrush>
+
+    <!-- =====================================================
+         Design-System-Überarbeitung Hauptbereich (Lead-UX-Briefing,
+         2026-07-14): Teal/Violett-Verlauf statt großflächigem Neon-
+         Cyan, transluzente Glas-Card-Tokens mit Hover-Zustand, sowie
+         eine deutlich blickdichtere Canvas-Fläche für den Hauptbereich
+         (Sidebar bleibt als Referenz unangetastet).
+         ===================================================== -->
+
+    <!-- Ersetzt Cyan als große Flächenfarbe (Primär-Buttons, große CTAs,
+         User-Chat-Bubble-Rand) — Cyan selbst bleibt für Mikro-Details
+         (Icons, Fokus-Ringe) bestehen. -->
+    <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0.0" Color="{StaticResource ColorTurquoise500}" />
+        <GradientStop Offset="1.0" Color="{StaticResource ColorPurple500}" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="AccentGradientHoverBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0.0" Color="#3EE0CC" />
+        <GradientStop Offset="1.0" Color="#8E6FD4" />
+    </LinearGradientBrush>
+
+    <!-- Glas-Card-Tokens: Ruhezustand vs. Hover (siehe GlassCardHoverBehavior). -->
+    <SolidColorBrush x:Key="GlassCardBackgroundBrush" Color="{StaticResource ColorWhite}" Opacity="0.04" />
+    <SolidColorBrush x:Key="GlassCardBackgroundHoverBrush" Color="{StaticResource ColorWhite}" Opacity="0.06" />
+    <SolidColorBrush x:Key="GlassCardBorderBrush" Color="{StaticResource ColorWhite}" Opacity="0.08" />
+    <SolidColorBrush x:Key="GlassCardBorderHoverBrush" Color="{StaticResource ColorWhite}" Opacity="0.15" />
+    <SolidColorBrush x:Key="NavItemHoverBrush" Color="{StaticResource ColorWhite}" Opacity="0.05" />
+
+    <!-- Deutlich blickdichtere Canvas-Fläche für den Hauptbereich
+         (rgba(10,10,12,~0.78) aus dem Lead-UX-Briefing). Ersetzt die
+         bisherigen Hardcoded-Halbtransparenz-Hex-Werte in MainWindow.xaml. -->
+    <SolidColorBrush x:Key="MainCanvasBrush" Color="#0D0D12" Opacity="0.78" />
+
+    <!-- User-Chat-Bubble: dezente, transluzente Box mit feinem, farbigem
+         Rand statt einer massiven Cyan-Fläche (Lead-UX-Briefing 2026-07-14). -->
+    <SolidColorBrush x:Key="UserBubbleBackgroundBrush" Color="{StaticResource ColorTurquoise500}" Opacity="0.10" />
+    <SolidColorBrush x:Key="UserBubbleBorderBrush" Color="{StaticResource ColorTurquoise500}" Opacity="0.35" />
+</ResourceDictionary>

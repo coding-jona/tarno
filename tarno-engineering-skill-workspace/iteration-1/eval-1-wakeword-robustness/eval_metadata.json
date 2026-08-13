@@ -1,0 +1,27 @@
+{
+  "eval_id": 1,
+  "eval_name": "wakeword-robustness",
+  "prompt": "Hey, die Spracherkennung reagiert manchmal nicht auf 'Hey Jarvis' wenn Hintergrundgeräusche da sind. Kannst du den Threshold anpassen oder irgendwie die Erkennung robuster machen?",
+  "assertions": [
+    {
+      "id": "ww-file",
+      "text": "Identifies jarvis/voice/wakeword.py as the main file to modify",
+      "type": "contains_reference"
+    },
+    {
+      "id": "ww-dual-backend",
+      "text": "Recognizes the dual-backend architecture (pvporcupine AND openWakeWord)",
+      "type": "content_check"
+    },
+    {
+      "id": "ww-three-knobs",
+      "text": "Mentions at least 2 of: threshold, patience, debounce as tuning parameters",
+      "type": "content_check"
+    },
+    {
+      "id": "ww-config-ref",
+      "text": "References the config file (default.yaml or config.py) for changing values",
+      "type": "contains_reference"
+    }
+  ]
+}

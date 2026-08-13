@@ -1,0 +1,298 @@
+language: "de"
+log_level: "DEBUG"
+theme: "dark"
+
+ui:
+  backend: "winui"          # winui | pyside6-legacy
+  autostart: false
+  start_minimized: false
+  show_tray: true
+  winui:
+    exe_path: ""            # auto: src/TARNO.UI/bin/x64/Debug/.../TARNO.UI.exe
+    backend_port: 50051
+    backend_wait_seconds: 10
+
+audio:
+  sample_rate: 16000
+  channels: 1
+  chunk_size: 1280
+  energy_threshold: 1500  # gesenkt (live gemessen) - AGC-Rauschboden liegt bei ~700-900, echte Sprache weit darüber
+  listen_timeout: 10
+  phrase_time_limit: 15
+  pause_threshold: 3.0
+  language: "de"
+  tts_engine: "piper"          # neutts | piper | edge-tts
+  voice: "Trelis/piper-de-de-thorsten-medium"  # Piper repo/neutts model path
+  voice_reference_path: ""      # Pfad zu einem .wav Referenzsample für Voice Cloning
+  voice_reference_text: ""      # Transkript des Referenzsamples
+  speed: 1.1
+  tts_cache_dir: "~/.tarno/cache/tts"
+  whisper_model: "small"
+  whisper_initial_prompt: "TARNO, Sprachassistent."
+  whisper_beam_size: 2
+  whisper_condition_on_previous_text: false
+  vad_filter: true
+  microphone_device: "default"
+  tts_prompt:
+    enabled: true
+    spoken_style: true
+    max_sentence_words: 14
+    filler_words: ["äh", "naja", "also", "hmm", "tja", "schau mal", "übrigens"]
+    allow_fillers: true
+    prosody_punctuation: true
+    avoid_bullets: true
+    connective_phrases:
+      - "und dann"
+      - "außerdem"
+      - "was auch noch wichtig ist"
+      - "was ich sonst noch sagen wollte"
+      - "übrigens"
+    voice_hint: "thorsten"
+
+wakeword:
+  enabled: true
+  backend: "vosk"              # vosk | openwakeword | porcupine — lokaler Vosk-Betrieb ohne API-Key
+  model_name: "jarvis"         # Fallback-Hinweis für porcupine/openwakeword; Vosk nutzt wake_phrases
+  picovoice_access_key: ""     # nur nötig bei backend: porcupine
+  threshold: 0.10              # niedrig für Flüster-Erkennung, aber nicht so extrem, dass Rauschen feuert
+  sensitivity: 0.9              # höher für Fernfeld-/leise "jarvis" (porcupine/openwakeword)
+  inference_framework: "onnx"
+  patience: 1
+  debounce_time: 1.0
+  confirm_wake_word: false
+  vosk_model_size: "small"     # small | large — großes Modell erkennt mehr Wörter, kostet ~1.9GB + mehr RAM/CPU
+  wake_phrases:                # Grammar-Vokabular; enthält r-lose/w-für-v-/Doppel-s-Varianten, die Vosk small live produziert
+    - "hey jarvis"
+    - "hey javis"
+    - "hey jaavis"
+    - "hey tarno"
+    - "hey tano"
+    - "hey taano"
+    - "jarvis"
+    - "javis"
+    - "jaavis"
+    - "jarwis"
+    - "jarwiss"
+    - "jarviss"
+    - "tarno"
+    - "tano"
+    - "taano"
+
+vad:
+  engine: "silero"               # silero | energy
+  silence_threshold_sec: 1.8
+  min_speech_duration_sec: 0.3
+  max_speech_duration_sec: 30.0
+  trailing_extension_sec: 2.0
+  max_extensions: 3
+  energy_floor: 300.0
+  noise_gate_enabled: true
+  onset_factor: 1.5
+  listen_timeout: 10.0
+  start_threshold: 0.5
+  end_threshold: 0.35
+  speech_pad_ms: 30
+
+# "Künstlicher Mikrofonverstärker" — EIN gemeinsamer Verstärker für Wake-Word-
+# Lauschen UND die eigentliche Sprachaufnahme danach, damit Fernfeld-Aktivierung
+# (z.B. 5m) auch eine tatsächlich nutzbare Sprachaufnahme aus derselben Distanz
+# ergibt, statt nur das Wake-Word zu triggern. Höhere Werte helfen bei leisem,
+# aber sauberem Signal — beheben aber kein schlechtes Signal-Rausch-Verhältnis
+# durch Raumhall/Hintergrundgeräusche bei echter Entfernung.
+agc:
+  enabled: true
+  target_rms: 9000.0    # höhere Ziel-Lautstärke für Fernfeld (int16-Skala, max 32767)
+  max_gain: 50.0        # deutlich mehr Verstärkung für >3m Distanz; deckelt Clipping ab
+  attack: 0.5             # sanfte Anpassung der Verstärkung zwischen Chunks
+
+proactive:
+  # Aktiviert (Nutzerwunsch: JARVIS-artige eigenstaendige Reaktion auf
+  # Ablenkung/Systemzustand/Termine, siehe proactive_system.py fuer den Ton).
+  # War vorher bewusst per Default aus (Privacy-Erwaegung) - jetzt bewusst
+  # angeschaltet, mit den unveraenderten, vorsichtigen Standard-Schwellenwerten
+  # unten (90% Auslastung, 5min Ablenkung, 15min Kalender-Vorlauf).
+  enabled: true
+  tick_seconds: 10.0
+  score_threshold: 85
+  source_cooldown_seconds: 300.0
+  calendar_lookahead_minutes: 15
+  cpu_threshold_percent: 90.0
+  ram_threshold_percent: 90.0
+  disk_threshold_percent: 90.0
+  distraction_apps: ["youtube", "netflix", "twitch", "steam", "discord"]
+  distraction_minutes_before_action: 5.0
+  close_distraction_window: false  # Phase 28 scharfschalten
+  idle_minutes_for_curiosity: 15.0
+
+vision:
+  enabled: false  # Block 7: Kamera-Vision-Layer - bewusst deaktiviert per Default
+  device_index: 0
+  base_fps: 1.0
+  motion_fps: 3.0
+  motion_threshold: 25.0
+  candidate_frames: 5
+  downscale_max_edge: 720  # hoehere Aufloesung fuer bessere Details
+  jpeg_quality: 85         # bessere Bildqualitaet bei noch akzeptabler Payload
+  vision_model: "mistral-large-latest"  # bestes vision-faehiges Mistral-Modell
+  source_cooldown_seconds: 300.0
+  score_threshold: 85
+  show_status_indicator: true
+
+memory:
+  enabled: true
+  storage_dir: "~/.tarno/memory"
+  conversation_id: "default"
+  episode_max_age_days: 30
+  preference_min_confidence: 0.3
+
+briefing:
+  enabled: false
+  times: ["08:00"]
+  trigger_on_start: false
+  prompt: "Erstelle ein kurzes, motivierendes morgendliches Briefing im TARNO-Stil. Nutze die verfügbaren Systeminformationen und begrüße den Nutzer höflich. Halte es auf Deutsch, knapp und präzise."
+  calendar_file: ""
+  calendar_days: 1
+
+llm:
+  provider: "mistral"
+  fallback_providers: []
+  max_history: 20
+  max_coding_iterations: 0  # 0 = unbegrenzt (hard cap 10.000)
+  mistral:
+    model: "mistral-small-2506"
+    max_tokens: 4096
+    temperature: 0.0
+    # temperature: 0.0 (greedy decoding) plus a large max_tokens is a known
+    # combination for runaway verbatim-repetition loops (found live: model
+    # got stuck repeating one sentence for hundreds of tokens after a tool
+    # result). frequency_penalty discourages exact repetition independent of
+    # temperature.
+    frequency_penalty: 0.4
+    # frequency_penalty alone still let a short 2-4-token cycle
+    # ("```html```<html></html>``` ") repeat for hundreds of tokens after an
+    # unhelpful tool result - presence_penalty (flat penalty for any
+    # already-used token, not scaled by count) is the standard complement.
+    presence_penalty: 0.4
+    timeout: 60.0
+    max_retries: 3
+    base_delay: 1.0
+    # Per-request model selection by difficulty (message length + tool-use
+    # keywords).
+    # NOTE: "high" = mistral-large-2512 is our elite precision fallback.
+    difficulty_tiers:
+      enabled: true
+      low: "ministral-3b-2512"
+      medium: "mistral-small-2506"
+      high: "mistral-large-2512"
+
+  # OpenAI-kompatible Provider. Jeder Schlüssel kann einzeln überschrieben
+  # werden; fehlende Werte greifen auf die hartcodierten Defaults zurück.
+  openai_compatible:
+    openai:
+      model: "gpt-4o-mini"
+      base_url: "https://api.openai.com/v1"
+      api_key_env: "OPENAI_API_KEY"
+      context_window: 128000
+    glm:
+      model: "glm-4.7-flash"
+      base_url: "https://open.bigmodel.cn/api/paas/v4"
+      api_key_env: "GLM_API_KEY"
+      context_window: 200000
+    perplexity:
+      model: "sonar"
+      base_url: "https://api.perplexity.ai"
+      api_key_env: "PERPLEXITY_API_KEY"
+      context_window: 128000
+    meta:
+      model: "llama-3.3-70b-instruct"
+      base_url: "https://api.meta.ai/v1"
+      api_key_env: "META_API_KEY"
+      context_window: 128000
+    deepseek:
+      model: "deepseek-v4-flash"
+      base_url: "https://api.deepseek.com/v1"
+      api_key_env: "DEEPSEEK_API_KEY"
+      context_window: 1000000
+    moonshot:
+      model: "kimi-k3"
+      base_url: "https://api.moonshot.ai/v1"
+      api_key_env: "MOONSHOT_API_KEY"
+      context_window: 1000000
+    qwen:
+      model: "qwen3.7-plus"
+      base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      api_key_env: "QWEN_API_KEY"
+      context_window: 1000000
+    openrouter:
+      model: "openai/gpt-4o-mini"
+      base_url: "https://openrouter.ai/api/v1"
+      api_key_env: "OPENROUTER_API_KEY"
+      context_window: 128000
+
+security:
+  secrets_backend: "keyring"
+  audit_log_retention_days: 365
+  pii_redaction_enabled: true
+  encryption_enabled: true
+
+telemetry:
+  structured_logging: true
+  metrics_enabled: true
+  crash_reporting: false
+  log_level: "INFO"
+
+plugins:
+  enabled: true
+  directories:
+    - "~/.tarno/plugins"
+  auto_load: true
+
+command_execution:
+  enabled: true
+  timeout: 0.0
+  log_dir: "~/.tarno/logs"
+  dry_run_default: false
+  autonomy_mode: "balanced"  # manual | balanced | plan | ultimate
+
+voice_permissions:
+  policy_file: "~/.tarno/voice_policy.yaml"
+  default_durations:
+    voice_input_basic: null
+    voice_recording: 300
+    voice_external_output: 600
+    voice_game_integration: 1800
+    voice_communication: 600
+
+audio_manager:
+  echo_cooldown_ms: 2000
+  echo_energy_threshold: 0.15
+  refresh_interval_ms: 2000
+  use_overlay_fallback: true
+
+minecraft_voice:
+  enabled: false
+  host: "127.0.0.1"
+  port: 19999
+
+discord_client:
+  enabled: false
+  ptt_key: null
+  virtual_cable: null
+
+overlay:
+  enabled: true
+  position: "bottom_right"
+  opacity: 0.85
+
+coding:
+  enabled: true
+  provider: "mistral"
+  # Codestral statt mistral-small-latest: dediziertes Coding-Modell, deutlich
+  # kompetenter beim tatsächlichen Editieren als das kleine Allzweckmodell -
+  # siehe tarno/ai/coding/adapters/native_agent.py.
+  model: "codestral-latest"
+  # "native" (Standard, siehe native_agent.py) oder "aider" (alter Adapter).
+  backend: "native"
+  read_only_default: false
+  timeout: 0.0  # 0.0 = kein Zeitlimit für den Coding-Agent
+  auto_allow: false

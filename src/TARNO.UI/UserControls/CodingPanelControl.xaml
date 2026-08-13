@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="TARNO.UI.UserControls.CodingPanelControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid x:Name="CodingPanelRoot" Background="{StaticResource MainCanvasBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Border
+            x:Name="PanelHeader"
+            Grid.Row="0"
+            Height="32"
+            Background="{StaticResource MainCanvasBrush}"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="0,0,0,1"
+            CanDrag="True"
+            DragStarting="OnPanelDragStarting"
+            DoubleTapped="OnPanelHeaderDoubleTapped">
+            <Grid>
+                <TextBlock
+                    Text="Coding-Agent"
+                    VerticalAlignment="Center"
+                    Margin="12,0"
+                    FontSize="12"
+                    FontWeight="SemiBold"
+                    Foreground="{StaticResource TextPrimaryBrush}" />
+                <Button
+                    x:Name="CodingToggleButton"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Margin="0,0,8,0"
+                    Padding="6,2"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="OnCodingPanelToggleClick"
+                    Foreground="{StaticResource TextSecondaryBrush}"
+                    Content="▶" />
+            </Grid>
+        </Border>
+        <Grid
+            x:Name="CodingContent"
+            x:FieldModifier="public"
+            Grid.Row="1"
+            Height="180"
+            Visibility="Collapsed"
+            Background="{StaticResource MainCanvasBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ListView
+                x:Name="CodingOutput"
+                Grid.Row="0"
+                ItemsSource="{x:Bind ViewModel.CodingOutputs, Mode=OneWay}"
+                Background="Transparent"
+                BorderThickness="0"
+                FontFamily="Consolas"
+                FontSize="12"
+                Foreground="{StaticResource TextSecondaryBrush}"
+                ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            <Grid
+                Grid.Row="1"
+                Padding="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox
+                    x:Name="CodingInput"
+                    Grid.Column="0"
+                    PlaceholderText="Coding-Aufgabe eingeben..."
+                    KeyDown="OnCodingInputKeyDown"
+                    FontFamily="Consolas"
+                    FontSize="12"
+                    Background="Transparent"
+                    BorderBrush="{StaticResource BorderBrush}" />
+                <CheckBox
+                    x:Name="ReadOnlyCheck"
+                    Grid.Column="1"
+                    Content="Nur lesen"
+                    VerticalAlignment="Center"
+                    Margin="8,0,0,0" />
+                <Button
+                    x:Name="SendCodingTaskButton"
+                    Grid.Column="2"
+                    Content="Senden"
+                    Click="OnSendCodingTaskClick"
+                    Margin="8,0,8,0" />
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

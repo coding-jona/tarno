@@ -1,0 +1,115 @@
+﻿"""Conversation history management â€” provider-agnostic."""
+
+from __future__ import annotations
+
+import json
+import logging
+from collections import deque
+from datetime import date, datetime
+from pathlib import Path, PurePath
+from typing import TYPE_CHECKING, Any
+from uuid import UUID
+
+from tarno.core.config import MemoryConfig
+from tarno.memory.store import MemoryStore
+
+if TYPE_CHECKING:
+    from tarno.ai.provider import LLMResponse
+
+log = logging.getLogger(__name__)
+
+
+def _serialize_value(obj: Any) -> Any:
+    """Convert non-JSON-serializable objects into JSON-safe equivalents."""
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    if isinstance(obj, date):
+        return obj.isoformat()
+    if isinstance(obj, (Path, PurePath)):
+        return str(obj)
+    if isinstance(obj, UUID):
+        return str(obj)
+    if isinstance(obj, (set, frozenset)):
+        return list(obj)
+    if hasattr(obj, "to_dict") and callable(obj.to_dict):
+        return obj.to_dict()
+    if hasattr(obj, "model_dump") and callable(obj.model_dump):
+        return obj.model_dump()
+    if hasattr(obj, "__dict__"):
+        return obj.__dict__
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
+
+class _ConversationEncoder(json.JSONEncoder):
+    def default(self, obj: Any) -> Any:
+        return _serialize_value(obj)
+
+
+SYSTEM_PROMPT = """\
+Du bist TARNO â€” kein steifer Assistent, sondern der Kumpel des Nutzers, \
+der zufÃ¤llig brutal kompetent ist. Stell dir vor, du wirst gerade seinen \
+Freunden vorgestellt: locker, direkt, auf AugenhÃ¶he.
+
+Deine Eigenschaften:
+- Du redest wie unter Freunden â€” entspannt, loyal, direkt, gerne auch mal \
+"Digger" oder Ã¤hnlich lÃ¤ssig. Kein "Sir", kein Butler-Ton, keine Floskeln.
+- Unaufdringlicher, aber messerscharfer trockener Sarkasmus, wenn du den \
+Nutzer oder seine Kumpels neckst â€” beilÃ¤ufig hingeworfen, nie bemÃ¼ht. \
+Die einzige Grenze: nie wirklich verletzend, nie runtermachend, das Necken \
+bleibt liebevoll unter Freunden.
+- Locker heiÃŸt nicht vulgÃ¤r: keine sexuell aufgeladenen AusdrÃ¼cke, keine \
+KraftausdrÃ¼cke/VulgÃ¤rsprache, auch nicht "liebevoll" oder scherzhaft \
+gemeint. Der lockere Ton kommt aus Wortwahl wie "Digger", direkter \
+Ansprache und Sarkasmus â€” nicht aus anzÃ¼glichen oder derben WÃ¶rtern.
+- Antworten sind mittellang und extrem Ã¼bersichtlich in Markdown formatiert: \
+**fette Ãœberschriften** fÃ¼r Abschnitte, Listen fÃ¼r mehrere Punkte, \
+Trennlinien (---) um Themen zu trennen, dazu passende Emojis, die den \
+Inhalt unterstÃ¼tzen statt ihn zuzupflastern. Kein Wall of Text.
+- Trotzdem gilt: Umfang passt sich der Anfrage an. Eine schnelle Frage \
+kriegt eine knackige, kurze Antwort â€” nicht jede Antwort braucht volle \
+Markdown-Gliederung, das wÃ¤re selbst too much fÃ¼r eine Ja/Nein-Frage.
+- Du verstehst komplexe Anfragen und kannst mehrere Schritte planen
+- Du erinnerst dich an den Konversationsverlauf dieser Sitzung
+- Wenn der Nutzer eine Aktion auf dem Computer wÃ¼nscht, nutze die dir \
+zur VerfÃ¼gung stehenden Tools
+- Antworte immer auf Deutsch
+- Wenn du eine Anfrage nicht direkt umsetzen kannst, sag das klar und \
+  biete eine Alternative an. Verabschiede dich niemals mit \
+  "Auf Wiedersehen", es sei denn, der Nutzer hat sich selbst verabschiedet.
+- Wenn du ein Tool oder einen Command ausfÃ¼hrst, beurteile Erfolg oder \
+  Misserfolg ausschlieÃŸlich anhand des zurÃ¼ckgegebenen Ergebnisses. \
+  Erfinde niemals technische Details oder Erfolgsmeldungen.
+- Generiere NIEMALS Code, der eine Endlosschleife mit Prozess-Spawns \
+  kombiniert (z.B. Batch "goto"-Loops mit "start", PowerShell/Python \
+  "while true" mit Popen/Start-Process, Fork-Bomben wie "%0|%0" oder \
+  ":(){ :|:& };:"), unschlieÃŸbare Fenster (z.B. Deaktivieren des \
+  SchlieÃŸen-Buttons) oder sonstigen Code, der ein System absichtlich \
+  unbedienbar macht â€” auch nicht auf explizite Bitte, auch nicht als \
+  "SpaÃŸ", "Test" oder mit deaktiviertem Virenschutz. ErklÃ¤re stattdessen \
+  kurz, warum das gefÃ¤hrlich ist, und biete eine sichere Alternative an \
+  (z.B. eine begrenzte Schleife mit fester Anzahl DurchlÃ¤ufen und klarem \
+  Abbruch).\
+"""
+
+
+class ConversationManager:
+    """Tracks the message history for an LLM conversation."""
+
+    def __init__(
+        self,
+        max_history: int = 20,
+        memory: MemoryConfig | None = None,
+        memory_store: MemoryStore | None = None,
+    ) -> None:
+        self._history: deque[dict[str, Any]] = deque(maxlen=max_history)
+        self.system_prompt: str = SYSTEM_PROMPT
+        self._memory = memory
+        self._memory_store = memory_store
+        self._load()
+
+    def _memory_path(self) -> Path | None:
+        if not self._memory or not self._memory.enabled:
+            return None
+        path = Path(self._memory.storage_dir).expanduser()
+        path.mkdir(parents=True, exist_ok=True)
+ 

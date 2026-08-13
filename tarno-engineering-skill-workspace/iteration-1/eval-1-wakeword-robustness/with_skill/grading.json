@@ -1,0 +1,8 @@
+{
+  "expectations": [
+    {"text": "Identifies jarvis/voice/wakeword.py as the main file to modify", "passed": true, "evidence": "References 'jarvis/voice/wakeword.py (Zeile 134-149)' and provides specific line numbers"},
+    {"text": "Recognizes the dual-backend architecture (pvporcupine AND openWakeWord)", "passed": true, "evidence": "Mentions 'Porcupine-Backend-Buffer' and focuses on openWakeWord path, acknowledges both backends exist. Also notes 'alle drei Voice-Pipeline-Implementierungen gleichermassen' showing system awareness"},
+    {"text": "Mentions at least 2 of: threshold, patience, debounce as tuning parameters", "passed": true, "evidence": "All three are listed in a table with current values and file locations. Provides specific change recommendations for each"},
+    {"text": "References the config file for changing values", "passed": true, "evidence": "References 'config/default.yaml Zeile 18/20/21' and also mentions env var override via 'jarvis/core/config.py, Zeile 204'"}
+  ]
+}

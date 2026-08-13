@@ -1,0 +1,7 @@
+name: calendar_email
+version: "1.0.0"
+entrypoint: plugin.py
+dependencies: []
+config:
+  calendar_file: null
+  email: null

@@ -1,0 +1,8 @@
+{
+  "expectations": [
+    {"text": "Identifies jarvis/voice/wakeword.py as the main file to modify", "passed": true, "evidence": "References 'jarvis/voice/wakeword.py, Zeile 53-55' and line 43"},
+    {"text": "Recognizes the dual-backend architecture (pvporcupine AND openWakeWord)", "passed": true, "evidence": "Explains pvporcupine is used for 'jarvis' model name, and mentions openWakeWord with Speex noise suppression as alternative"},
+    {"text": "Mentions at least 2 of: threshold, patience, debounce as tuning parameters", "passed": true, "evidence": "Mentions all three: threshold (section 1), patience (section 2), debounce_time (section 3)"},
+    {"text": "References the config file for changing values", "passed": true, "evidence": "References 'config/default.yaml' multiple times for threshold, patience, debounce changes"}
+  ]
+}

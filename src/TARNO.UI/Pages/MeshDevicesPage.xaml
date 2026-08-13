@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="TARNO.UI.Pages.MeshDevicesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <Grid Padding="40,32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,28" Spacing="6">
+            <TextBlock Text="Mesh-Geräte" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+            <TextBlock Text="Alle Geräte des Dynamic Hybrid Mesh (ZTE, ESP32, Wiko-Hub) an einem Ort - Account-Login, Verbindungsstatus, Geräte-Registrierung." FontSize="15" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalContentAlignment="Center">
+            <StackPanel Spacing="20" MaxWidth="900" HorizontalAlignment="Center">
+
+                <!-- KERNFIX: Server-URL ist NICHT mehr per App editierbar - ein
+                     ueber die UI aenderbarer Server-Endpunkt war ein Sicherheits-
+                     risiko (koennte den Account-Token unbemerkt an einen fremden
+                     Server schicken) und fuehrte ausserdem dazu, dass ein
+                     lokaler Test-/Debug-Wert (http://127.0.0.1:8000) in der
+                     geteilten settings.json haengen blieb und in JEDE
+                     TARNO-Installation auf demselben Rechner durchschlug.
+                     Nur noch Anzeige, Aenderung ausschliesslich per Datei
+                     (%LOCALAPPDATA%\TARNO\settings.json), siehe ServerUrlHintText. -->
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Tarno-Server" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock
+                            x:Name="ServerUrlDisplayText"
+                            FontSize="14"
+                            FontFamily="Consolas"
+                            Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock
+                            x:Name="ServerUrlHintText"
+                            Text="Nur per Datei aenderbar (%LOCALAPPDATA%\TARNO\settings.json, Feld &quot;MeshServerUrl&quot;) - bewusst nicht ueber die App editierbar."
+                            FontSize="11"
+                            Foreground="{StaticResource TextMutedBrush}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Login-Bereich, nur sichtbar wenn nicht eingeloggt -->
+                <Border x:Name="LoginCard" Style="{StaticResource GlassCardStyle}" Visibility="Collapsed">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Anmelden" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}" />
+                        <StackPanel x:Name="LoginCredentialsPanel" Spacing="10">
+                            <TextBox x:Name="EmailTextBox" Style="{StaticResource GlassTextBoxStyle}" PlaceholderText="E-Mail" />
+                            <PasswordBox x:Name="PasswordBox" Style="{StaticResource GlassPasswordBoxStyle}" PlaceholderText="Passwort" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button x:Name="LoginButton" Content="Einloggen" Style="{StaticResource GlassPrimaryButtonStyle}" Click="OnLoginClick" />
+                                <Button x:Name="RegisterButton" Content="Neu registrieren" Style="{StaticResource GlassSecondaryButtonStyle}" Click="OnRegisterClick" />
+                            </StackPanel>
+                            <HyperlinkButton x:Name="ForgotPasswordLink" Content="Passwort vergessen?" Click="OnForgotPasswordLinkClick" Padding="0" />
+                        </StackPanel>
+
+                        <!-- 2FA-Code-Eingabe, nur nach Login mit 2FA-aktivem Account sichtbar -->
+                        <StackPanel x:Name="LoginTwoFactorPanel" Spacing="10" Visibility="Collapsed">
+                            <TextBlock Text="Zwei-Faktor-Code aus deiner Authenticator-App (oder ein Backup-Code)." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                            <TextBox x:Name="LoginTwoFactorCodeBox" Style="{StaticResource GlassTextBoxStyle}" PlaceholderText="123456 oder XXXX-XXXX" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button x:Name="LoginTwoFactorConfirmButton" Content="Bestätigen" Style="{StaticResource GlassPrimaryButtonStyle}" Click="OnLoginTwoFactorConfirmClick" />
+                                <Button Content="Zurück" Style="{StaticResource GlassSecondaryButtonStyle}" Click="OnLoginTwoFactorCancelClick" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Passwort-Reset, per Link oben eingeblendet -->
+                        <StackPanel x:Name="PasswordResetPanel" Spacing="10" Visibility="Collapsed">
+                            <TextBlock Text="Passwort zurücksetzen (per TOTP- oder Backup-Code - kein E-Mail-Versand eingerichtet, 2FA muss dafür aktiv sein)." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                            <TextBox x:Name="ResetEmailTextBox" Style="{StaticResource GlassTextBoxStyle}" PlaceholderText="E-Mail" />
+                            <TextBox x:Name="ResetCodeTextBox" Style="{StaticResource GlassTextBoxStyle}" PlaceholderText="TOTP- oder Backup-Code" />
+                            <PasswordBox x:Name="ResetNewPasswordBox" Style="{StaticResource GlassPasswordBoxStyle}" PlaceholderText="Neues Passwort" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button x:Name="ResetPasswordButton" Content="Zurücksetzen" Style="{StaticResource GlassPrimaryButtonStyle}" Click="OnResetPasswordClick" />
+                                <Button Content="Zurück" Style="{StaticResource GlassSecondaryButtonStyle}" Click="OnResetPasswordCancelClick" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock x:Name="LoginStatusText" FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource TextMutedBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Angemeldet-Bereich, nur sichtbar wenn eingeloggt -->
+                <Border x:Name="AccountCard" Style="{StaticResource GlassCardStyle}" Visibility="Collapsed">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="AccountEmailText" Grid.Column="0" VerticalAlignment="Center" Foreground="{StaticResource TextPrimaryBrush}" />
+                        <Button x:Name="RefreshButton" Grid.Column="1" Content="Aktualisieren" Style="{StaticResource GlassSecondaryButtonStyle}" Click="OnRefreshClick" />
+                        <Button x:Name="LogoutButton" Grid.Column="2" Content="Abmelden" Style="{StaticResource GlassSecondaryButtonStyle}" Click="OnLogoutClick" />
+                    </Grid>
+                </Border>
+
+                <!-- Zwei-Faktor-Authentifizierung, nur sichtbar wenn eingeloggt -->
+                <Border x:Name="TwoFactorCard" Style="{StaticResource GlassCardStyle}" Visibility="Collapsed">
+                    <StackPanel Spacing="10">
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Zwei-Faktor-Authentifizierung" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" />
+                            <TextBlock x:Name="TwoFactorStatusText" Grid.Column="1" Text="Aus" FontSize="12" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}" />
+                        </Grid>
+
+                        <!-- Zustand "aus": Einrichten-Knopf -->
+                        <Button x:Name="StartTwoFactorSetupButton" Content="Einrichten" Style="{StaticResource GlassSecondaryButtonStyle}" Click="OnStartTwoFactorSetupClick" HorizontalAlignment="Left" />
+
+                        <!-- Zustand "Setup läuft": QR-Code + Secret + Code-Eingabe -->
+                        <StackPanel x:Name="TwoFactorSetupPanel" Spacing="10" Visibility="Collapsed">
+                            <TextBlock Text="QR-Code mit der Authenticator-App scannen (Google Authenticator, Authy, ...) oder das Secret manuell eintragen:" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                            <Image x:Name="TwoFactorQrImage" Width="200" Height="200" HorizontalAlignment="Left" />
+                            <TextBlock x:Name="TwoFactorSecretText" FontFamily="Consolas" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+                            <TextBox x:Name="TwoFactorEnableCodeBox" Style="{StaticResource GlassTextBoxStyle}" PlaceholderText="6-stelliger Code aus der App" />
+                            <Button x:Name="ConfirmTwoFactorEnableButton" Content="Aktivieren" Style="{StaticResource GlassPrimaryButtonStyle}" Click="OnConfirmTwoFactorEnableClick" HorizontalAlignment="Left" />
+                        </StackPanel>
+
+                        <!-- Backup-Codes, nur direkt nach dem Aktivieren sichtbar -->
+                        <StackPanel x:Name="BackupCodesPanel" Spacing="6" Visibility="Collapsed">
+                            <TextBlock Text="2FA aktiviert! Backup-Codes jetzt sichern (jeder nur einmal nutzbar, werden nie wieder angezeigt):" FontSize="12" Foreground="{StaticResource SuccessBrush}" TextWrapping="Wrap" />
+                            <TextBlock x:Name="BackupCodesText" FontFamily="Consolas" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <!-- Zustand "an": Deaktivieren -->
+                        <StackPanel x:Name="TwoFactorDisablePanel" Spacing="10" Visibility="Collapsed">
+                            <TextBox x:Name="TwoFactorDisableCodeBox" Style="{StaticResource GlassTextBoxStyle}" PlaceholderText="Code zur Bestätigung (TOTP oder Backup)" />
+                            <Button x:Name="DisableTwoFactorButton" Content="Deaktivieren" Style="{StaticResource GlassSecondaryButtonStyle}" Click="OnDisableTwoFactorClick" HorizontalAlignment="Left" />
+                        </StackPanel>
+
+                        <TextBlock x:Name="TwoFactorStatusMessageText" FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource TextMutedBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Neues Gerät registrieren, nur sichtbar wenn eingeloggt -->
+                <Border x:Name="RegisterDeviceCard" Style="{StaticResource GlassCardStyle}" Visibility="Collapsed">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Neues Gerät registrieren" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}" />
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="180" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="NewDeviceNameBox" Grid.Column="0" Style="{StaticResource GlassTextBoxStyle}" PlaceholderText="Gerätename, z.B. 'ESP32-S3 Wohnzimmer'" />
+                            <ComboBox x:Name="NewDeviceKindCombo" Grid.Column="1" Style="{StaticResource GlassComboBoxStyle}" SelectedIndex="0">
+                                <ComboBoxItem Content="ESP32-Sensor-Node" Tag="esp32_node" />
+                                <ComboBoxItem Content="ZTE Blade V70" Tag="zte_blade_v70" />
+                                <ComboBoxItem Content="Wiko-Hub" Tag="wiko_hub" />
+                                <ComboBoxItem Content="PC / Tarno" Tag="pc_main" />
+                            </ComboBox>
+                            <Button x:Name="RegisterDeviceButton" Grid.Column="2" Content="Registrieren" Style="{StaticResource GlassSecondaryButtonStyle}" Click="OnRegisterDeviceClick" />
+                        </Grid>
+                        <TextBlock
+                            x:Name="NewDeviceKeyText"
+                            FontSize="12"
+                            TextWrapping="Wrap"
+                            Foreground="{StaticResource SuccessBrush}"
+                            Visibility="Collapsed" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Geräteliste -->
+                <Border x:Name="DeviceListCard" Style="{StaticResource GlassCardStyle}" Visibility="Collapsed">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Geräte" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock x:Name="DeviceListEmptyText" Text="Noch keine Geräte registriert." FontSize="12" Foreground="{StaticResource TextMutedBrush}" Visibility="Collapsed" />
+                        <StackPanel x:Name="DeviceRowsPanel" Spacing="16" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

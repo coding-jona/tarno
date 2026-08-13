@@ -1,0 +1,330 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:comp="using:TARNO.UI.Composition">
+
+    <!-- =====================================================
+         Liquid-Glass-Tokens (aus Design-Artefakt "HologramOverlay
+         Mockup" übernommen: Glass/GlassEdgeHi/GlassEdgeLo/Shadow-Tokens).
+         Dunkles Theme, da die App aktuell RequestedTheme="Dark" fest
+         eingestellt hat (siehe App.xaml).
+         ===================================================== -->
+
+    <!-- Entspricht dem "Glass"-Token: rgba(20, 26, 40, 0.34) aus dem Mockup.
+         AcrylicBrush statt SolidColorBrush, damit echtes Backdrop-Blur
+         entsteht (das "Glas" hinter dem Panel ist unscharf, nicht nur
+         halbtransparent) — das ist der eigentliche Liquid-Glass-Effekt. -->
+    <!-- TintOpacity/TintLuminosityOpacity bewusst NIEDRIG: das Referenz-CSS
+         nutzt den "glass"-Token rgba(20, 26, 40, 0.34) auf einem farbigen Blob-
+         Hintergrund — bei 0.40+ wirkt AcrylicBrush wie eine blickdichte
+         dunkle Fläche statt Glas, egal wie viel Blur dahinter liegt (siehe
+         docs/liquid-glass-research.md). Niedrig genug halten, dass die
+         BlobBackground-Farben und der Fenster-Mica-Backdrop sichtbar
+         durchscheinen. -->
+    <!-- BackgroundSource="HostBackdrop": blurt tatsaechlich, was hinter dem
+         ganzen Fenster liegt (Desktop/andere Fenster), nicht nur XAML-
+         Geschwister im selben Fensterbaum (Default "Backdrop" sieht nur
+         die Blob-Ebene, nicht den echten Desktop dahinter — das war der
+         Hauptgrund, warum die erste Version nicht wie Glas wirkte). -->
+    <AcrylicBrush
+        x:Key="LiquidGlassBrush"
+        TintColor="#141A28"
+        TintOpacity="0.16"
+        TintLuminosityOpacity="0.20"
+        FallbackColor="#141A28" />
+
+    <!-- Deutlich dichter für Elemente, die Vorrang/Wichtigkeit signalisieren
+         sollen (z. B. Flyouts, aktive Auswahl) — entspricht dem
+         "GlassStrong"-Token. Der Abstand zu LiquidGlassBrush ist bewusst
+         groß gehalten: laut HIG wird Wichtigkeit über den Grad der
+         Transparenz/Brechung kommuniziert, nicht nur über Farbe/Größe
+         (siehe docs/liquid-glass-research.md, Abschnitt 1). Bleibt aber
+         auch hier unterhalb dessen, was wie eine deckende Fläche wirkt. -->
+    <AcrylicBrush
+        x:Key="LiquidGlassStrongBrush"
+        TintColor="#1C2438"
+        TintOpacity="0.34"
+        TintLuminosityOpacity="0.38"
+        FallbackColor="#1C2438" />
+
+    <!-- Entspricht dem Übergang von "GlassEdgeHi" (hell) zu "GlassEdgeLo"
+         (dunkel) über die obere/linke Kante — der "Lichtkante"-Effekt an
+         Glasrändern aus dem Mockup. Simuliert eine Lichtquelle von
+         oben-links, analog zu border-top-color/border-left-color im
+         Referenz-CSS (siehe docs/liquid-glass-research.md, Abschnitt 2). -->
+    <LinearGradientBrush x:Key="LiquidGlassEdgeBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0.0" Color="#38FFFFFF" />
+        <GradientStop Offset="0.35" Color="#0AFFFFFF" />
+        <GradientStop Offset="1.0" Color="#08FFFFFF" />
+    </LinearGradientBrush>
+
+    <!-- Stärkere Variante für wichtigere Flächen (HIG: Wichtigkeit wird
+         über Transparenz-/Brechungsgrad kommuniziert, nicht nur Farbe). -->
+    <LinearGradientBrush x:Key="LiquidGlassEdgeStrongBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0.0" Color="#55FFFFFF" />
+        <GradientStop Offset="0.35" Color="#12FFFFFF" />
+        <GradientStop Offset="1.0" Color="#0AFFFFFF" />
+    </LinearGradientBrush>
+
+    <!-- Inset-Highlight-Linie (entspricht "inset 0 1px 0 rgba(255,255,255,0.35)"
+         im Referenz-CSS). Als eigener Brush für eine dünne obere Border
+         innerhalb eines Glas-Panels, nicht Teil des äußeren BorderBrush. -->
+    <SolidColorBrush x:Key="LiquidGlassInsetHighlightBrush" Color="#FFFFFF" Opacity="0.30" />
+
+    <!-- =====================================================
+         BuildMC-inspirierte Utility-Styles (eins-zu-eins
+         aus Tailwind-Klassen übersetzt).
+         ===================================================== -->
+
+    <!-- Card: transluzente Glas-Fläche mit Hover-Aufhellung (Lead-UX-Briefing
+         2026-07-14) statt der vorherigen flachen BackgroundCardBrush. -->
+    <Style x:Key="GlassCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource GlassCardBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassCardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusLarge}" />
+        <Setter Property="Padding" Value="{StaticResource GlassCardPadding}" />
+        <Setter Property="comp:GlassCardHoverBehavior.IsEnabled" Value="True" />
+    </Style>
+
+    <!-- Primärer Button: Teal/Violett-Verlauf statt großflächigem Neon-Cyan
+         (Lead-UX-Briefing 2026-07-14), echtes Hover-VisualState. -->
+    <Style x:Key="GlassPrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource AccentGradientBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource ColorWhite}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}" />
+        <Setter Property="Padding" Value="16,10" />
+        <Setter Property="FontWeight" Value="{StaticResource FontWeightMedium}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border
+                        x:Name="RootBorder"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootBorder.Background" Value="{StaticResource AccentGradientHoverBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootBorder.Opacity" Value="0.85" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootBorder.Opacity" Value="0.50" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter
+                            x:Name="ContentPresenter"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Content="{TemplateBinding Content}"
+                            ContentTransitions="{TemplateBinding ContentTransitions}"
+                            Padding="{TemplateBinding Padding}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Sekundärer Button: neutrale Glas-Fläche, echtes Hover-VisualState. -->
+    <Style x:Key="GlassSecondaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource BackgroundHoverBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}" />
+        <Setter Property="Padding" Value="16,10" />
+        <Setter Property="FontWeight" Value="{StaticResource FontWeightMedium}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border
+                        x:Name="RootBorder"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootBorder.Background" Value="{StaticResource BackgroundPressedBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootBorder.Opacity" Value="0.85" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootBorder.Opacity" Value="0.50" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter
+                            x:Name="ContentPresenter"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Content="{TemplateBinding Content}"
+                            ContentTransitions="{TemplateBinding ContentTransitions}"
+                            Padding="{TemplateBinding Padding}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Fallback-Alias: aeltere Seiten/Beta-Builds erwarten noch den
+         Schlüssel "GlassButtonStyle", der nach dem Button-Refactor fehlte. -->
+    <Style x:Key="GlassButtonStyle" TargetType="Button" BasedOn="{StaticResource GlassSecondaryButtonStyle}" />
+
+    <!-- Input: bg-surface-1, border-surface-3, rounded-lg -->
+    <Style x:Key="GlassTextBoxStyle" TargetType="TextBox">
+        <Setter Property="Background" Value="{StaticResource BackgroundInputBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="PlaceholderForeground" Value="{StaticResource TextMutedBrush}" />
+    </Style>
+
+    <!-- Input (Passwort): wie GlassTextBoxStyle, aber eigener Style noetig
+         da PasswordBox kein TextBox-Subtyp ist. -->
+    <Style x:Key="GlassPasswordBoxStyle" TargetType="PasswordBox">
+        <Setter Property="Background" Value="{StaticResource BackgroundInputBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}" />
+        <Setter Property="Padding" Value="12,10" />
+        <!-- PasswordBox has no PlaceholderForeground property in this
+             WindowsAppSDK version (unlike TextBox) - omitted, not a regression. -->
+    </Style>
+
+    <!-- ComboBox: wie Input -->
+    <Style x:Key="GlassComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="Background" Value="{StaticResource BackgroundInputBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}" />
+        <Setter Property="Padding" Value="12,10" />
+    </Style>
+
+    <!-- ToggleSwitch: MaxWidth verhindert das Strecken über die volle
+         Zeilenbreite (Lead-UX-Briefing 2026-07-14). -->
+    <Style x:Key="GlassToggleSwitchStyle" TargetType="ToggleSwitch">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="MaxWidth" Value="320" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+
+    <!-- Menü-Panel -->
+    <Style x:Key="GlassMenuPanelStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource BackgroundCardBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusLarge}" />
+        <Setter Property="Padding" Value="10" />
+    </Style>
+
+    <!-- Settings-Tab: minimalistische Text-Navigation statt NavItemStyle
+         (Lead-UX-Briefing 2026-07-14) — kein Hintergrund-Fill bei
+         Auswahl mehr, damit die Settings-Untermenü nicht optisch mit der
+         Haupt-Sidebar konkurriert. Aktiv-Zustand wird über einen
+         separaten Indikator-Balken + Foreground-Wechsel im jeweiligen
+         Page-XAML/Code-Behind gesteuert (siehe SettingsPage). -->
+    <Style x:Key="SettingsTabStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="{StaticResource FontWeightMedium}" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="UseSystemFocusVisuals" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="ContentPresenter.Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter
+                            x:Name="ContentPresenter"
+                            Foreground="{TemplateBinding Foreground}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Sidebar-Item (exakt BuildMC .sidebar-item) -->
+    <Style x:Key="NavItemStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMedium}" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="{StaticResource FontWeightMedium}" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="UseSystemFocusVisuals" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid
+                        x:Name="RootGrid"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootGrid.Background" Value="{StaticResource NavItemHoverBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter
+                            x:Name="ContentPresenter"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,46 @@
+{
+  "providers": [
+    {
+      "provider": "mistral",
+      "label": "Mistral",
+      "dashboardUrl": "https://console.mistral.ai/api-keys",
+      "keyPattern": "^[A-Za-z0-9]{32,}$",
+      "instructions": "Melde dich an, erstelle einen API-Key, kopiere ihn und füge ihn unten ein."
+    },
+    {
+      "provider": "openai",
+      "label": "OpenAI",
+      "dashboardUrl": "https://platform.openai.com/api-keys",
+      "keyPattern": "^sk-[A-Za-z0-9]{48,}$",
+      "instructions": "Melde dich an, klicke auf 'Create new secret key', kopiere den Key und füge ihn unten ein."
+    },
+    {
+      "provider": "gemini",
+      "label": "Gemini",
+      "dashboardUrl": "https://aistudio.google.com/app/apikey",
+      "keyPattern": "^AIza[\\w-]{35}$",
+      "instructions": "Klicke auf 'Create API key', kopiere den Key und füge ihn unten ein."
+    },
+    {
+      "provider": "groq",
+      "label": "Groq",
+      "dashboardUrl": "https://console.groq.com/keys",
+      "keyPattern": "^gsk_[A-Za-z0-9]{40,}$",
+      "instructions": "Erstelle einen API-Key auf der Seite, kopiere ihn und füge ihn unten ein."
+    },
+    {
+      "provider": "huggingface",
+      "label": "Hugging Face",
+      "dashboardUrl": "https://huggingface.co/settings/tokens",
+      "keyPattern": "^hf_[A-Za-z0-9]{34,}$",
+      "instructions": "Erstelle einen Access-Token (mindestens 'Read'), kopiere ihn und füge ihn unten ein."
+    },
+    {
+      "provider": "claude",
+      "label": "Claude (Anthropic)",
+      "dashboardUrl": "https://console.anthropic.com/settings/keys",
+      "keyPattern": "^sk-ant-[A-Za-z0-9_-]{64,}$",
+      "instructions": "Erstelle einen API-Key in der Anthropic Console, kopiere ihn und füge ihn unten ein."
+    }
+  ]
+}

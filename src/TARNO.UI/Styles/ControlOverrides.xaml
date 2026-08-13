@@ -1,0 +1,189 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- =====================================================
+         TARNO Designsystem – globale Steuerelement-Styles
+         ===================================================== -->
+
+    <Style TargetType="Button" x:Key="TARNOPrimaryButtonStyle">
+        <Setter Property="Background" Value="{StaticResource AccentPrimaryBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextOnAccentBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassEdgeHiBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <!-- 12px statt Pillenform: Lead-UX-Briefing 2026-07-14 will konsistente
+             Eckenrundung auf allen interaktiven Elementen. -->
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusLarge}" />
+        <Setter Property="Padding" Value="16,10" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyBase}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="FontWeight" Value="{StaticResource FontWeightSemibold}" />
+        <Setter Property="UseSystemFocusVisuals" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootBorder.Background" Value="{StaticResource AccentHoverBrush}" />
+                                        <Setter Target="ShineOverlay.Opacity" Value="0.30" />
+                                        <Setter Target="GlowBorder.Opacity" Value="0.50" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootBorder.Background" Value="{StaticResource AccentPressedBrush}" />
+                                        <Setter Target="ShineOverlay.Opacity" Value="0.10" />
+                                        <Setter Target="GlowBorder.Opacity" Value="0.25" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="RootBorder.Opacity" Value="0.50" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Border
+                            x:Name="GlowBorder"
+                            Opacity="0"
+                            CornerRadius="{TemplateBinding CornerRadius}">
+                            <Border.Background>
+                                <SolidColorBrush Color="{StaticResource ColorCyan500}" Opacity="0.35" />
+                            </Border.Background>
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="1.08" ScaleY="1.15" CenterX="0.5" CenterY="0.5" />
+                            </Border.RenderTransform>
+                        </Border>
+
+                        <Border
+                            x:Name="RootBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}">
+                            <ContentPresenter
+                                x:Name="ContentPresenter"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Content="{TemplateBinding Content}"
+                                ContentTransitions="{TemplateBinding ContentTransitions}"
+                                Padding="{TemplateBinding Padding}" />
+                            <Border.Shadow>
+                                <StaticResource ResourceKey="ShadowElevation1" />
+                            </Border.Shadow>
+                        </Border>
+
+                        <Border
+                            x:Name="ShineOverlay"
+                            Opacity="0"
+                            IsHitTestVisible="False"
+                            CornerRadius="{TemplateBinding CornerRadius}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Offset="0.0" Color="#60FFFFFF" />
+                                    <GradientStop Offset="0.5" Color="#18FFFFFF" />
+                                    <GradientStop Offset="1.0" Color="#00FFFFFF" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ToggleButton is a sibling of Button (both derive from ButtonBase), not
+         a subtype, so TARNOPrimaryButtonStyle cannot be applied to a
+         ToggleButton directly - WinUI throws a XamlParseException at
+         InitializeComponent time. This is the ToggleButton equivalent, used
+         by VoicePage's mic toggle. -->
+    <Style TargetType="ToggleButton" x:Key="TARNOPrimaryToggleButtonStyle">
+        <Setter Property="Background" Value="{StaticResource AccentPrimaryBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextOnAccentBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassEdgeHiBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <!-- Bewusste Ausnahme von der 12px-Vereinheitlichung: dies ist der
+             Voice-Mikrofon-Orb, der laut Lead-UX-Briefing explizit ein
+             perfekter Kreis (1:1 Seitenverhältnis) sein muss — nicht
+             versehentlich auf 12px "korrigieren". -->
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusRound}" />
+        <Setter Property="Padding" Value="16,10" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyBase}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="FontWeight" Value="{StaticResource FontWeightSemibold}" />
+        <Setter Property="UseSystemFocusVisuals" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border
+                        x:Name="RootBorder"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                        <!-- Checked-Zustand färbt den Rahmen nicht mehr fest rot: seit
+                             der Voice-Orb-Verschmelzung (Lead-UX-Briefing 2026-07-14)
+                             übernimmt der Glow-Ring (OrbGlow/OrbCore in VoicePage) die
+                             Zustandsanzeige — ein zusätzlicher roter Vollton-Rahmen
+                             würde den weichen Glas-Look des verschmolzenen Orbs
+                             überdecken. -->
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Unchecked" />
+                                <VisualState x:Name="Checked" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter
+                            x:Name="ContentPresenter"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Content="{TemplateBinding Content}"
+                            ContentTransitions="{TemplateBinding ContentTransitions}"
+                            Padding="{TemplateBinding Padding}" />
+                        <Border.Shadow>
+                            <StaticResource ResourceKey="ShadowElevation1" />
+                        </Border.Shadow>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="TARNOSecondaryButtonStyle">
+        <Setter Property="Background" Value="{StaticResource SurfaceGlassBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource AccentPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassEdgeHiBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusLarge}" />
+        <Setter Property="Padding" Value="16,10" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyBase}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="FontWeight" Value="{StaticResource FontWeightSemibold}" />
+    </Style>
+
+    <Style TargetType="TextBox" x:Key="TARNOTextBoxStyle">
+        <Setter Property="Background" Value="{StaticResource SurfaceGlassBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassEdgeHiBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusRound}" />
+        <Setter Property="Padding" Value="16,12" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyBase}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="SelectionHighlightColor" Value="{StaticResource AccentPrimaryBrush}" />
+    </Style>
+
+    <Style TargetType="ComboBox" x:Key="TARNOComboBoxStyle">
+        <Setter Property="Background" Value="{StaticResource SurfaceGlassBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassEdgeHiBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusRound}" />
+        <Setter Property="Padding" Value="16,10" />
+    </Style>
+</ResourceDictionary>

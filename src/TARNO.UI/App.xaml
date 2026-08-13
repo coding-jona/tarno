@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="TARNO.UI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:TARNO.UI.Converters"
+    RequestedTheme="Dark">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- WinUI-Standard-Control-Templates — MUSS als erstes geladen werden,
+                     sonst haben Button/TextBox/Frame keine Templates und die App
+                     stürzt beim Start ab (0xC000027B). -->
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!-- Designsystem-Tokens -->
+                <ResourceDictionary Source="ms-appx:///Styles/Colors.xaml" />
+                <ResourceDictionary Source="ms-appx:///Styles/Typography.xaml" />
+                <ResourceDictionary Source="ms-appx:///Styles/Spacing.xaml" />
+                <ResourceDictionary Source="ms-appx:///Styles/Shadows.xaml" />
+                <!-- Globale Steuerelement-Overrides -->
+                <ResourceDictionary Source="ms-appx:///Styles/ControlOverrides.xaml" />
+                <!-- Liquid Glass – zusätzliche wiederverwendbare Styles -->
+                <ResourceDictionary Source="ms-appx:///Styles/GlassStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <!-- WebView2 in WinUI 3 (windowed hosting) ignoriert DefaultBackgroundColor komplett
+                 (egal ob Transparent oder ein eigener Hex-Wert) und rendert stattdessen immer
+                 ApplicationPageBackgroundThemeBrush (Standard-Dark-Theme-Wert #1F1F1F - per
+                 Pixel-Messung bestätigt, siehe microsoft/microsoft-ui-xaml#6527). Einziger Weg,
+                 die Orb-Box gegen den App-Canvas (#0D0D12, MainCanvasBrush) unsichtbar zu machen:
+                 dieses Theme-Resource selbst überschreiben, da WebView2 ausschließlich darauf
+                 zurückfällt. App ist RequestedTheme="Dark", daher genügt der Dark-Eintrag. -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="#0D0D12" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="#0D0D12" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+            <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+            <converters:RoleToBrushConverter x:Key="RoleToBrushConverter" />
+            <converters:RoleToBorderBrushConverter x:Key="RoleToBorderBrushConverter" />
+            <converters:RoleToAlignmentConverter x:Key="RoleToAlignmentConverter" />
+            <converters:BoolToSendStopTextConverter x:Key="BoolToSendStopTextConverter" />
+            <converters:AutonomyModeToLabelConverter x:Key="AutonomyModeToLabelConverter" />
+            <converters:AutonomyModeToBrushConverter x:Key="AutonomyModeToBrushConverter" />
+            <converters:VisionStatusToBrushConverter x:Key="VisionStatusToBrushConverter" />
+            <converters:BoolToVisionLabelConverter x:Key="BoolToVisionLabelConverter" />
+            <converters:BoolToOnOffLabelConverter x:Key="BoolToOnOffLabelConverter" />
+            <converters:ProviderToLabelConverter x:Key="ProviderToLabelConverter" />
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:BoolToPoolStartTextConverter x:Key="BoolToPoolStartTextConverter" />
+            <converters:BoolToInverseConverter x:Key="BoolToInverseConverter" />
+            <converters:BoolToPoolLeadBrushConverter x:Key="BoolToPoolLeadBrushConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

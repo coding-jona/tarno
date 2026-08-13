@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="TARNO.UI.Dialogs.FirstStartWizardDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Uid="FirstRun"
+    DefaultButton="Primary"
+    PrimaryButtonClick="OnPrimaryButtonClick"
+    SecondaryButtonClick="OnSecondaryButtonClick"
+    Background="{StaticResource BackgroundCardBrush}"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ScrollViewer MaxHeight="480" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="16" MaxWidth="440">
+            <TextBlock
+                x:Uid="FirstRun_ChooseLanguage"
+                Text="Sprache wählen"
+                FontSize="15"
+                Foreground="{StaticResource TextPrimaryBrush}" />
+            <ComboBox x:Name="LanguageCombo" Style="{StaticResource GlassComboBoxStyle}" HorizontalAlignment="Stretch">
+                <ComboBoxItem Content="Deutsch" Tag="de" IsSelected="True" />
+                <ComboBoxItem Content="English" Tag="en" />
+            </ComboBox>
+
+            <TextBlock
+                x:Uid="FirstRun_ApiKeyHint"
+                Text="TARNO benötigt mindestens einen API-Key, um mit einem KI-Provider zu sprechen. Die Keys werden verschlüsselt im Windows Credential Manager gespeichert, niemals in einer Datei."
+                FontSize="13"
+                Foreground="{StaticResource TextSecondaryBrush}"
+                TextWrapping="Wrap" />
+
+            <StackPanel x:Name="ApiKeyRowsPanel" Spacing="16" />
+
+            <TextBlock
+                x:Name="ErrorText"
+                Foreground="{StaticResource ErrorBrush}"
+                FontSize="12"
+                TextWrapping="Wrap"
+                Visibility="Collapsed" />
+
+            <TextBlock
+                x:Uid="FirstRun_LaterHint"
+                Text="Du kannst Keys jederzeit später unter Einstellungen &gt; KI eingeben oder ändern."
+                FontSize="11"
+                Foreground="{StaticResource TextMutedBrush}"
+                TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

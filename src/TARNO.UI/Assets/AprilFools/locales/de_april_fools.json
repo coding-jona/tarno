@@ -1,0 +1,27 @@
+{
+  "closeButton": {
+    "stage1Tooltip": "Versuch's gar nicht erst, Digger.",
+    "stage1Audio": "close_evade_1.wav",
+    "stage2Tooltip": "Zu langsam!",
+    "stage2Audio": "close_evade_2.wav",
+    "stage3Tooltip": "Welches X ist das echte?",
+    "stage3Audio": "close_evade_3.wav",
+    "fakeClickAudio": "glitch_click.wav"
+  },
+  "taskbarClose": {
+    "audio": "taskbar_respect.wav"
+  },
+  "forceQuit": {
+    "audio": "alt_f4_traitor.wav"
+  },
+  "mainButtonClick": {
+    "toast": "Heute im Streik.",
+    "audio": "blue_monday.wav"
+  },
+  "monitorDrag": {
+    "audio": "monitor_drag.wav"
+  },
+  "keyboardStress": {
+    "audio": "keyboard_stress.wav"
+  }
+}

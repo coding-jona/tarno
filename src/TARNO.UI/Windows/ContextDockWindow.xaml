@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="TARNO.UI.MultiScreen.ContextDockWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:uc="using:TARNO.UI.UserControls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid
+        x:Name="RootGrid"
+        Background="{StaticResource MainCanvasBrush}"
+        AllowDrop="True"
+        DragOver="OnRootDragOver"
+        DragLeave="OnRootDragLeave"
+        Drop="OnRootDrop">
+        <uc:ContextDockPanelControl
+            x:Name="ContextDockPanel"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch" />
+
+        <Border
+            x:Name="DropTargetOverlay"
+            BorderBrush="{StaticResource AccentBrush}"
+            BorderThickness="2"
+            Background="Transparent"
+            Visibility="Collapsed"
+            IsHitTestVisible="False"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+            <TextBlock
+                Text="Hier ablegen"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="16"
+                Foreground="{StaticResource AccentBrush}" />
+        </Border>
+    </Grid>
+</Window>

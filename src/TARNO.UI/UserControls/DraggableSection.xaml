@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="TARNO.UI.UserControls.DraggableSection"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid x:Name="RootGrid" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid
+            x:Name="DragHeader"
+            Grid.Row="0"
+            Height="34"
+            PointerPressed="OnHeaderPointerPressed"
+            PointerMoved="OnHeaderPointerMoved"
+            PointerReleased="OnHeaderPointerReleased"
+            Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                x:Name="GripIcon"
+                Grid.Column="0"
+                Text="&#xE784;"
+                FontFamily="{StaticResource SymbolThemeFontFamily}"
+                FontSize="12"
+                Foreground="{StaticResource TextMutedBrush}"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Margin="8,0,4,0" />
+
+            <TextBlock
+                x:Name="HeaderText"
+                Grid.Column="1"
+                Text="{x:Bind Title, Mode=OneWay}"
+                FontSize="12"
+                Foreground="{StaticResource TextSecondaryBrush}"
+                VerticalAlignment="Center"
+                Margin="4,0,8,0"
+                TextTrimming="CharacterEllipsis" />
+
+            <Button
+                x:Name="PopOutButton"
+                Grid.Column="2"
+                Content="&#xE7AD;"
+                FontFamily="{StaticResource SymbolThemeFontFamily}"
+                FontSize="12"
+                Padding="4,0"
+                Background="Transparent"
+                BorderThickness="0"
+                Foreground="{StaticResource TextMutedBrush}"
+                Click="OnPopOutClick"
+                Visibility="Collapsed"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center" />
+
+            <ToolTipService.ToolTip>
+                <ToolTip Content="Gedrückt halten und in eine beliebige Ecke/Zone ziehen" />
+            </ToolTipService.ToolTip>
+        </Grid>
+
+        <ContentPresenter
+            x:Name="SectionContentPresenter"
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch" />
+
+        <Border
+            x:Name="RightResizeHandle"
+            Grid.Row="1"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Stretch"
+            Width="8"
+            Background="{StaticResource AccentBrush}"
+            Opacity="0.3"
+            Tag="Horizontal"
+            PointerPressed="OnResizePointerPressed"
+            PointerMoved="OnResizePointerMoved"
+            PointerReleased="OnResizePointerReleased"
+            IsHitTestVisible="True">
+            <ToolTipService.ToolTip>
+                <ToolTip Content="Breite ziehen" />
+            </ToolTipService.ToolTip>
+        </Border>
+
+        <Border
+            x:Name="BottomResizeHandle"
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            Height="8"
+            Background="{StaticResource AccentBrush}"
+            Opacity="0.3"
+            Tag="Vertical"
+            PointerPressed="OnResizePointerPressed"
+            PointerMoved="OnResizePointerMoved"
+            PointerReleased="OnResizePointerReleased"
+            IsHitTestVisible="True">
+            <ToolTipService.ToolTip>
+                <ToolTip Content="Höhe ziehen" />
+            </ToolTipService.ToolTip>
+        </Border>
+
+        <Border
+            x:Name="ResizeGrip"
+            Grid.Row="1"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Width="22"
+            Height="22"
+            CornerRadius="4"
+            Background="{StaticResource AccentBrush}"
+            Opacity="0.7"
+            Tag="Both"
+            PointerPressed="OnResizePointerPressed"
+            PointerMoved="OnResizePointerMoved"
+            PointerReleased="OnResizePointerReleased"
+            IsHitTestVisible="True">
+            <ToolTipService.ToolTip>
+                <ToolTip Content="Breite und Höhe ziehen" />
+            </ToolTipService.ToolTip>
+            <Viewbox Stretch="Uniform" Margin="3">
+                <Path
+                    Data="M0,16 L16,0 M4,16 L16,4"
+                    Stroke="{StaticResource TextOnAccentBrush}"
+                    StrokeThickness="1.5" />
+            </Viewbox>
+        </Border>
+    </Grid>
+</UserControl>

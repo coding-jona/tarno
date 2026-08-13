@@ -1,0 +1,8 @@
+name: minecraft_voice
+version: "1.0.0"
+entrypoint: plugin.py
+dependencies: []
+config:
+  enabled: false
+  host: "127.0.0.1"
+  port: 19999

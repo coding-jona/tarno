@@ -1,0 +1,7 @@
+{
+  "expectations": [
+    {"text": "Identifies at least 2 of the 3 voice pipeline implementations", "passed": true, "evidence": "Found 2 of 4: voice_service.py:94 and engine.py:155. MISSED service_mediator.py and server.py (gRPC path)"},
+    {"text": "Warns that changing only one location leaves other launch modes unchanged", "passed": false, "evidence": "Lists the two locations as 'Primaer' and 'Sekundaer' but does NOT warn about the missing service_mediator.py and server.py locations. A user following this would leave 2 launch modes still saying 'Ja, Sir?'"},
+    {"text": "Suggests using pygame.mixer or similar audio playback for the confirmation sound", "passed": true, "evidence": "Suggests winsound.PlaySound and mentions pygame.mixer as alternative. However winsound is Windows-only while pygame is already imported in the project"}
+  ]
+}

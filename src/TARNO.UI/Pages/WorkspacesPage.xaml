@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="TARNO.UI.Pages.WorkspacesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:TARNO.UI.Models"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <TextBlock Text="Workspaces" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+            <TextBlock Text="Verwalte die Ordner, in denen TARNO als Coding-Agent arbeiten darf." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnSpacing="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Workspace-Liste -->
+            <Border Grid.Column="0" Style="{StaticResource GlassCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <ListView
+                        x:Name="WorkspaceListView"
+                        Grid.Row="0"
+                        ItemsSource="{x:Bind ViewModel.Workspaces, Mode=OneWay}"
+                        SelectionChanged="OnWorkspaceSelectionChanged"
+                        SelectionMode="Single">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Workspace">
+                                <TextBlock Text="{x:Bind Name}" Foreground="{StaticResource TextPrimaryBrush}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
+                        <Button x:Name="AddButton" Click="OnAddClick" Content="Hinzufügen" Style="{StaticResource GlassPrimaryButtonStyle}" />
+                        <Button x:Name="RemoveButton" Click="OnRemoveClick" Content="Entfernen" Style="{StaticResource GlassSecondaryButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Editor -->
+            <Border Grid.Column="1" Style="{StaticResource GlassCardStyle}">
+                <ScrollViewer>
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Workspace-Einstellungen" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBox x:Name="NameTextBox" Header="Name" PlaceholderText="Mein Projekt" Style="{StaticResource GlassTextBoxStyle}" />
+
+                        <TextBlock Text="Root-Ordner" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <ListView x:Name="FolderListView" MaxHeight="200">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="models:WorkspaceFolder">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind DisplayText, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" />
+                                        <Button Grid.Column="1" Content="Entfernen" Click="OnRemoveFolderClick" Style="{StaticResource GlassSecondaryButtonStyle}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBox x:Name="FolderNameTextBox" Width="140" PlaceholderText="Name" Style="{StaticResource GlassTextBoxStyle}" />
+                            <TextBox x:Name="FolderPathTextBox" Width="220" IsReadOnly="True" PlaceholderText="Ordnerpfad" Style="{StaticResource GlassTextBoxStyle}" />
+                            <Button Content="Durchsuchen" Click="OnBrowseFolderClick" Style="{StaticResource GlassSecondaryButtonStyle}" />
+                            <Button Content="Hinzufügen" Click="OnAddFolderClick" Style="{StaticResource GlassPrimaryButtonStyle}" />
+                        </StackPanel>
+
+                        <TextBox x:Name="IncludeTextBox" Header="Include-Patterns (kommasepariert)" PlaceholderText="**/*, src/**" Style="{StaticResource GlassTextBoxStyle}" />
+                        <TextBox x:Name="ExcludeTextBox" Header="Exclude-Patterns (kommasepariert)" PlaceholderText=".env, bin/, obj/" Style="{StaticResource GlassTextBoxStyle}" />
+                        <Button x:Name="SaveButton" Click="OnSaveClick" Content="Speichern" Style="{StaticResource GlassPrimaryButtonStyle}" HorizontalAlignment="Left" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

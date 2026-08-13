@@ -1,0 +1,15 @@
+{
+  "autoEnableOnDate": "04-01",
+  "locale": "de_april_fools",
+  "assetBasePath": "Assets/AprilFools",
+  "stageThresholds": {
+    "stage1ProximityDip": 30,
+    "stage2AfterEvades": 3,
+    "stage3AfterEvades": 6,
+    "fakeIconCount": 5
+  },
+  "gummibandMsPerStep": 16,
+  "gummibandStepDip": 12,
+  "keyboardStressMaxMsBetweenEnters": 600,
+  "keyboardStressMinRepeatedEnters": 4
+}

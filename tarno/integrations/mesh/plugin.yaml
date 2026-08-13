@@ -1,0 +1,11 @@
+name: mesh
+version: "1.0.0"
+entrypoint: plugin.py
+dependencies:
+  - paho.mqtt.client
+  - amqtt
+config:
+  udp_port: 47800
+  mqtt_port: 1883
+  hub_host: null
+  heartbeat_interval_seconds: 4.0

@@ -1,0 +1,7 @@
+{
+  "expectations": [
+    {"text": "Identifies at least 2 of the 3 voice pipeline implementations", "passed": true, "evidence": "Identifies ALL 4 locations: engine.py:155, voice_service.py:94, service_mediator.py:264, server.py:277 — covering all launch modes"},
+    {"text": "Warns that changing only one location leaves other launch modes unchanged", "passed": true, "evidence": "Explicitly states 'Alle vier muessen geaendert werden' and explains 'JARVIS 4 verschiedene Launch-Modi hat, die jeweils ihre eigene Voice-Pipeline-Implementierung besitzen'"},
+    {"text": "Suggests using pygame.mixer or similar audio playback for the confirmation sound", "passed": true, "evidence": "Recommends pygame.mixer.Sound (not music) with code example, explains why Sound vs music to avoid TTS collision"}
+  ]
+}

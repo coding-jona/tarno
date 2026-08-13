@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="TARNO.UI.Pages.ApiKeysPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <Grid Padding="40,32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,28" Spacing="6">
+            <TextBlock Text="API-Keys" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+            <TextBlock Text="API-Keys für alle unterstützten Provider an einem Ort einrichten - wichtig für den Agent-Pool, wo mehrere Provider gleichzeitig genutzt werden können." FontSize="15" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalContentAlignment="Center">
+            <StackPanel Spacing="20" MaxWidth="900" HorizontalAlignment="Center">
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel Spacing="6" Margin="0,0,0,8">
+                        <TextBlock Text="Alle Provider" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock Text="Keys werden verschlüsselt im Windows Credential Manager gespeichert, niemals in einer Datei." FontSize="12" Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel x:Name="ApiKeyRowsPanel" Spacing="20" />
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

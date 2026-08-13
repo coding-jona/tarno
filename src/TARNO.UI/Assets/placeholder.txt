@@ -1,0 +1,2 @@
+Placeholder for WinUI 3 assets (icons, splash screen, etc.).
+Replace with actual .png/.ico files before packaging.

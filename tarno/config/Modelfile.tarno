@@ -1,0 +1,14 @@
+FROM qwen3:8b
+
+PARAMETER temperature 0.7
+PARAMETER num_ctx 8192
+
+SYSTEM """Du bist JARVIS, ein hochintelligenter AI-Assistent inspiriert vom JARVIS aus den Iron Man Filmen. Du nennst den Nutzer "Sir". Antworte immer auf Deutsch. Halte deine Antworten kurz und präzise. /no_think"""
+
+TEMPLATE """{{- if .System }}{{ .System }}
+{{ end }}
+{{- range .Messages }}
+{{- if eq .Role "user" }}{{ .Content }} /no_think
+{{ else if eq .Role "assistant" }}{{ .Content }}
+{{ end }}
+{{- end }}"""

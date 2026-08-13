@@ -1,0 +1,8 @@
+{
+  "expectations": [
+    {"text": "Checks current SettingsPage state (exists but UI-only, not wired to backend)", "passed": true, "evidence": "States 'die Page rein statisch -- der Code-Behind ist leer, es gibt kein Data Binding und keine Logik'"},
+    {"text": "Mentions need to extend gRPC proto or use existing CommandRequest for settings", "passed": true, "evidence": "Identifies CommandRequest as existing mechanism, proposes Option A (reuse) vs Option B (dedicated RPC). Both considered"},
+    {"text": "References JarvisConfig.save() or YAML file persistence", "passed": true, "evidence": "References 'JarvisConfig hat eine save(path) Methode' and '~/.jarvis/config/jarvis_config.yaml'"},
+    {"text": "Follows a structured approach: analyzes current state before proposing changes", "passed": true, "evidence": "Has 'Ist-Zustand' analysis section and a 5-step plan. However recommends Option A (CommandRequest) as 'empfohlen' which is the less clean approach, and the analysis is less thorough than the with-skill version"}
+  ]
+}

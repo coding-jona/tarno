@@ -1,0 +1,6 @@
+name: smart_home
+version: "1.0.0"
+entrypoint: plugin.py
+dependencies: []
+config:
+  home_assistant: null

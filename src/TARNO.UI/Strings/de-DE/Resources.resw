@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="MainWindow_BrandTitle.Text" xml:space="preserve">
+    <value>TARNO</value>
+  </data>
+  <data name="MainWindow_BrandSubtitle.Text" xml:space="preserve">
+    <value>Voice Assistant</value>
+  </data>
+  <data name="MainWindow_ChatMode.Text" xml:space="preserve">
+    <value>Chat</value>
+  </data>
+  <data name="MainWindow_CodeMode.Text" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="MainWindow_NewChat.Text" xml:space="preserve">
+    <value>Neuer Chat</value>
+  </data>
+  <data name="MainWindow_HomeNav.Text" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="MainWindow_VoiceNav.Text" xml:space="preserve">
+    <value>Voice</value>
+  </data>
+  <data name="MainWindow_ChatNav.Text" xml:space="preserve">
+    <value>Chat</value>
+  </data>
+  <data name="MainWindow_TasksNav.Text" xml:space="preserve">
+    <value>Aufgaben</value>
+  </data>
+  <data name="MainWindow_MemoryNav.Text" xml:space="preserve">
+    <value>Memory</value>
+  </data>
+  <data name="MainWindow_SettingsNav.Text" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="MainWindow_ApiKeysNav.Text" xml:space="preserve">
+    <value>API-Keys</value>
+  </data>
+  <data name="MainWindow_LogsNav.Text" xml:space="preserve">
+    <value>Logs</value>
+  </data>
+  <data name="MainWindow_MeshDevicesNav.Text" xml:space="preserve">
+    <value>Mesh-Geräte</value>
+  </data>
+  <data name="MainWindow_WorkspacesNav.Text" xml:space="preserve">
+    <value>Workspaces</value>
+  </data>
+  <data name="MainWindow_ManageWorkspaces.Text" xml:space="preserve">
+    <value>Workspaces verwalten</value>
+  </data>
+  <data name="MainWindow_LanguageGerman.Content" xml:space="preserve">
+    <value>Deutsch</value>
+  </data>
+  <data name="MainWindow_LanguageEnglish.Content" xml:space="preserve">
+    <value>English</value>
+  </data>
+
+  <data name="SettingsPage_Title.Text" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="SettingsPage_Subtitle.Text" xml:space="preserve">
+    <value>Konfiguration von TARNO.</value>
+  </data>
+  <data name="SettingsPage_Theme.Text" xml:space="preserve">
+    <value>Erscheinungsbild</value>
+  </data>
+  <data name="SettingsPage_ThemeDescription.Text" xml:space="preserve">
+    <value>Wähle das Farbschema der Anwendung.</value>
+  </data>
+  <data name="SettingsPage_StartupPage.Text" xml:space="preserve">
+    <value>Startseite</value>
+  </data>
+  <data name="SettingsPage_StartupPageDescription.Text" xml:space="preserve">
+    <value>Seite, die beim Start angezeigt wird.</value>
+  </data>
+  <data name="SettingsPage_AutoStart.Text" xml:space="preserve">
+    <value>Autostart</value>
+  </data>
+  <data name="SettingsPage_AutoStartDescription.Text" xml:space="preserve">
+    <value>TARNO mit Windows starten.</value>
+  </data>
+  <data name="SettingsPage_Language.Text" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="SettingsPage_LanguageDescription.Text" xml:space="preserve">
+    <value>Sprache der Oberfläche und Spracherkennung.</value>
+  </data>
+  <data name="SettingsPage_LanguageGerman.Content" xml:space="preserve">
+    <value>Deutsch</value>
+  </data>
+  <data name="SettingsPage_LanguageEnglish.Content" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="SettingsPage_Save.Content" xml:space="preserve">
+    <value>Einstellungen speichern</value>
+  </data>
+
+  <data name="FirstRun.Title" xml:space="preserve">
+    <value>Willkommen bei TARNO</value>
+  </data>
+  <data name="FirstRun_ChooseLanguage.Text" xml:space="preserve">
+    <value>Sprache wählen</value>
+  </data>
+  <data name="FirstRun_ApiKeyHint.Text" xml:space="preserve">
+    <value>TARNO benötigt mindestens einen API-Key, um mit einem KI-Provider zu sprechen. Die Keys werden verschlüsselt im Windows Credential Manager gespeichert, niemals in einer Datei.</value>
+  </data>
+  <data name="FirstRun_LaterHint.Text" xml:space="preserve">
+    <value>Du kannst Keys jederzeit später unter Einstellungen &gt; KI eingeben oder ändern.</value>
+  </data>
+  <data name="FirstRun.PrimaryButtonText" xml:space="preserve">
+    <value>Fertig</value>
+  </data>
+  <data name="FirstRun.SecondaryButtonText" xml:space="preserve">
+    <value>Später konfigurieren</value>
+  </data>
+</root>

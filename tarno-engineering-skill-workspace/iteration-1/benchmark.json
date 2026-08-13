@@ -1,0 +1,89 @@
+{
+  "skill_name": "jarvis-engineering",
+  "iteration": 1,
+  "configurations": [
+    {
+      "name": "with_skill",
+      "results": [
+        {
+          "eval_name": "wakeword-robustness",
+          "assertions_passed": 4,
+          "assertions_total": 4,
+          "pass_rate": 1.0,
+          "duration_seconds": 87.3,
+          "total_tokens": 37396
+        },
+        {
+          "eval_name": "confirmation-sound",
+          "assertions_passed": 3,
+          "assertions_total": 3,
+          "pass_rate": 1.0,
+          "duration_seconds": 85.4,
+          "total_tokens": 32564
+        },
+        {
+          "eval_name": "settings-page",
+          "assertions_passed": 4,
+          "assertions_total": 4,
+          "pass_rate": 1.0,
+          "duration_seconds": 115.0,
+          "total_tokens": 51568
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 1.0,
+        "mean_duration_seconds": 95.9,
+        "mean_tokens": 40509,
+        "total_assertions_passed": 11,
+        "total_assertions": 11
+      }
+    },
+    {
+      "name": "without_skill",
+      "results": [
+        {
+          "eval_name": "wakeword-robustness",
+          "assertions_passed": 4,
+          "assertions_total": 4,
+          "pass_rate": 1.0,
+          "duration_seconds": 117.1,
+          "total_tokens": 41863
+        },
+        {
+          "eval_name": "confirmation-sound",
+          "assertions_passed": 2,
+          "assertions_total": 3,
+          "pass_rate": 0.67,
+          "duration_seconds": 86.4,
+          "total_tokens": 30103
+        },
+        {
+          "eval_name": "settings-page",
+          "assertions_passed": 4,
+          "assertions_total": 4,
+          "pass_rate": 1.0,
+          "duration_seconds": 123.8,
+          "total_tokens": 47401
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 0.89,
+        "mean_duration_seconds": 109.1,
+        "mean_tokens": 39789,
+        "total_assertions_passed": 10,
+        "total_assertions": 11
+      }
+    }
+  ],
+  "delta": {
+    "pass_rate": "+11%",
+    "duration": "-12% faster",
+    "tokens": "+2% more tokens"
+  },
+  "analyst_observations": [
+    "The skill's biggest win is on Eval 2 (confirmation sound): with the skill, all 4 voice pipeline locations were found; without it, only 2 of 4 were found, and no warning about incomplete changes was given. This is the core value proposition — the skill's architecture knowledge prevents incomplete changes.",
+    "Eval 1 (wakeword) passed all assertions both ways, but the without-skill run took 34% longer (117s vs 87s) and used 12% more tokens (42k vs 37k) because it needed extensive file exploration that the skill's context made unnecessary.",
+    "Eval 3 (settings page) passed all assertions both ways, but qualitatively the with-skill response is stronger: it recommends the cleaner dedicated RPC approach and explicitly rejects CommandRequest abuse, while the without-skill version recommends CommandRequest as its primary approach.",
+    "The with-skill runs are consistently faster (avg 96s vs 109s) because the architectural context reduces exploration time."
+  ]
+}

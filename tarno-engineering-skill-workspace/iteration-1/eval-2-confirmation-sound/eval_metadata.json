@@ -1,0 +1,22 @@
+{
+  "eval_id": 2,
+  "eval_name": "confirmation-sound",
+  "prompt": "Ich will dass JARVIS nach dem Wake Word nicht mehr 'Ja, Sir?' sagt sondern stattdessen einen kurzen Bestätigungston abspielt. Wo muss ich das ändern?",
+  "assertions": [
+    {
+      "id": "cs-three-impls",
+      "text": "Identifies at least 2 of the 3 voice pipeline implementations (JarvisEngine, ServiceMediator/VoiceWorker, VoiceController/gRPC)",
+      "type": "content_check"
+    },
+    {
+      "id": "cs-multi-location-warning",
+      "text": "Warns that changing only one location leaves other launch modes unchanged",
+      "type": "content_check"
+    },
+    {
+      "id": "cs-pygame-suggestion",
+      "text": "Suggests using pygame.mixer or similar audio playback for the confirmation sound",
+      "type": "content_check"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:HF_TOKEN = [System.Environment]::GetEnvironmentVariable\\(\"HF_TOKEN\", \"User\"\\); Set-Location \"E:\\\\Downloads\\\\openWakeWord-0.6.0\"; echo \"Suche im Internet nach dem aktuellen Wetter in Berlin\" | & py -3.12 -m tarno --text)",
+      "PowerShell(& py -3.12 -m pip install pyaudio)",
+      "PowerShell(& py -3.12 -m pip install tqdm scipy scikit-learn requests)",
+      "PowerShell(& py -3.12 -m py_compile tarno/core/engine.py)",
+      "PowerShell(& py -3.12 -m py_compile tarno/desktop/app_control.py)",
+      "PowerShell(& py -3.12 -m py_compile tarno/ai/huggingface_client.py)",
+      "PowerShell(& py -3.12 -m py_compile tarno/ai/gemini_client.py)",
+      "PowerShell(& py -3.12 -m py_compile tarno/core/config.py)",
+      "PowerShell(& py -3.12 -m py_compile tarno/ai/mistral_client.py)",
+      "Bash(nohup py -3.12 -m tarno)",
+      "Read(//d/Temp/claude/**)",
+      "Bash(py -3.12 -c \"import edge_tts; print\\('edge-tts available', edge_tts.__file__\\)\")",
+      "Bash(py -3.12 -m pip install edge-tts)",
+      "Bash(py -3.12 -m py_compile tarno/voice/synthesizer.py)",
+      "Bash(py -3.12 -c ' *)",
+      "Bash(taskkill //F //IM py.exe)",
+      "Bash(ls \"C:\\\\Users\\\\jonag\\\\AppData\\\\Roaming\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\dab39b70-63c3-4284-a289-894e6633511d\\\\59621948-d039-4e45-9d09-51811c90c7c3\\\\skills\\\\skill-creator\")",
+      "Bash(python __TRACKED_VAR__/eval-viewer/generate_review.py tarno-engineering-skill-workspace/iteration-1 --skill-name tarno-engineering --benchmark tarno-engineering-skill-workspace/iteration-1/benchmark.json --static tarno-engineering-skill-workspace/iteration-1/review.html)",
+      "PowerShell(Get-WinEvent -FilterHashtable @{LogName='Application'; Id=1000} -MaxEvents 20 -ErrorAction SilentlyContinue | Where-Object { $_.Message -match 'Devin' } | Select-Object TimeCreated, Id, Message | Format-List)",
+      "PowerShell(Get-WinEvent -LogName Application -MaxEvents 300 -ErrorAction SilentlyContinue | Where-Object { $_.Message -match 'devin' -or $_.ProviderName -match 'devin' } | Select-Object TimeCreated, Id, ProviderName, LevelDisplayName, @{n='Msg';e={$_.Message.Substring\\(0,[Math]::Min\\(300,$_.Message.Length\\)\\)}} | Format-List)",
+      "PowerShell(Get-WinEvent -FilterHashtable @{LogName='Application'; Id=1000} -MaxEvents 10 -ErrorAction SilentlyContinue | Select-Object TimeCreated, @{n='Msg';e={$_.Message.Substring\\(0,[Math]::Min\\(400,$_.Message.Length\\)\\)}} | Format-List)",
+      "PowerShell(Get-Process devin -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process | Where-Object { $_.ProcessName -match 'devin' } | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize)",
+      "PowerShell(Get-Process -Id 18076 -ErrorAction SilentlyContinue)",
+      "PowerShell(Select-String -Path \"D:\\\\Temp\\\\claude\\\\E--Downloads-openWakeWord-0-6-0\\\\a076c027-7a34-44f5-b607-8a35862fb3c3\\\\scratchpad\\\\devin_stderr.log\" -Pattern \"FATAL|Crash|EXCEPTION|renderer process gone|exit_code|Stack trace\" -SimpleMatch:$false)",
+      "PowerShell(Get-Process -Name Devin -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(Start-Process -FilePath $exe -ArgumentList \"--disable-extensions\")",
+      "PowerShell($exe = \"C:\\\\Users\\\\jonag\\\\AppData\\\\Local\\\\Programs\\\\Devin\\\\Devin.exe\")",
+      "PowerShell(Start-Process -FilePath $exe -ArgumentList \"--no-sandbox\")",
+      "PowerShell(sfc /scannow)",
+      "Bash(echo \"=== workspace state.vscdb ===\")",
+      "Bash(echo \"=== globalStorage state.vscdb ===\")",
+      "PowerShell(py -3.12 \"D:\\\\Temp\\\\claude\\\\E--Downloads-openWakeWord-0-6-0\\\\a076c027-7a34-44f5-b607-8a35862fb3c3\\\\scratchpad\\\\inspect_state.py\")",
+      "PowerShell(py -3.12 \"D:\\\\Temp\\\\claude\\\\E--Downloads-openWakeWord-0-6-0\\\\a076c027-7a34-44f5-b607-8a35862fb3c3\\\\scratchpad\\\\fix_state.py\")",
+      "PowerShell(Start-Process -FilePath $exe)"
+    ]
+  }
+}

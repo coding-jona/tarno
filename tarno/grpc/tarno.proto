@@ -1,0 +1,654 @@
+syntax = "proto3";
+
+package tarno;
+
+option csharp_namespace = "TARNO.Grpc";
+
+// Main TARNO service: bidirectional stream for chat/commands plus unary helpers.
+service Tarno {
+  // Bidirectional stream. Client sends commands/chat; server pushes events, messages and status.
+  rpc Stream (stream ClientMessage) returns (stream ServerMessage);
+
+  // Request current system information.
+  rpc GetSystemInfo (Empty) returns (SystemInfo);
+
+  // Write an LLM provider API key into the SecretsVault.
+  rpc SetApiKey (ApiKeyRequest) returns (ApiKeyResponse);
+
+  // Query which providers already have a key configured (values are never returned).
+  rpc GetApiKeyStatus (Empty) returns (ApiKeyStatusResponse);
+
+  // Block 6, Phase 54: fetch facts/episodes from the memory layer (Block 4)
+  // for the MemoryPage sidebar. Empty search returns everything (capped).
+  rpc GetMemorySummary (MemoryQuery) returns (MemorySummary);
+
+  // Re-applies a (possibly manually corrected) memory export - the WinUI
+  // file picker already has the JSON bytes in memory, so this takes the
+  // text directly rather than a server-side file path.
+  rpc ImportMemory (ImportMemoryRequest) returns (ImportMemoryResponse);
+
+  // Phase B: blocking, one-shot voice dictation into the chat text box - NOT
+  // part of the normal wake-word/voice-conversation loop. Unary (like
+  // SetApiKey) because it's a single request/response, not a stream event.
+  rpc Dictate (DictateRequest) returns (DictateResponse);
+
+  // Phase 1-6: the curated per-provider model list (rate-limit note +
+  // capability keywords) for the WinUI model picker. Static per provider
+  // except Ollama, which is queried live from the local Ollama server on
+  // each call (whatever the user has pulled) - so this is a plain unary
+  // call, not something cached client-side across the whole session.
+  rpc GetModelCatalog (Empty) returns (ModelCatalog);
+
+  // Settings microphone picker: enumerate real PortAudio input devices
+  // (including built-in laptop mic arrays) for the dropdown. Doesn't need a
+  // running voice session - AudioStream.list_input_devices() is a static
+  // enumeration.
+  rpc GetMicrophoneDevices (Empty) returns (MicrophoneDeviceList);
+
+  // Settings speaker picker - same shape as GetMicrophoneDevices, via
+  // pygame's SDL2 playback-device enumeration.
+  rpc GetSpeakerDevices (Empty) returns (SpeakerDeviceList);
+}
+
+message ModelInfo {
+  string id = 1;
+  string label = 2;
+  string rate_limit_note = 3;
+  repeated string capabilities = 4;
+}
+
+message ProviderModelList {
+  repeated ModelInfo models = 1;
+}
+
+message ModelCatalog {
+  // provider name -> its model list. Mistral is deliberately absent (own
+  // tier/eagerness system, see MistralDifficultyTiers).
+  map<string, ProviderModelList> providers = 1;
+}
+
+message DictateRequest {
+  string eagerness = 1;  // "low" | "medium" | "high"
+}
+
+message DictateResponse {
+  bool success = 1;
+  string text = 2;
+  string error = 3;
+}
+
+message MemoryQuery {
+  string search = 1;  // empty = return everything (capped at a reasonable limit)
+}
+
+message MemoryFactEntry {
+  string key = 1;
+  string value = 2;
+  string source = 3;
+  int64 updated_at = 4;  // unix milliseconds
+}
+
+message MemoryEpisodeEntry {
+  string summary = 1;
+  repeated string tags = 2;
+  int64 created_at = 3;  // unix milliseconds
+}
+
+message MemorySummary {
+  bool memory_enabled = 1;
+  repeated MemoryFactEntry facts = 2;
+  repeated MemoryEpisodeEntry episodes = 3;
+}
+
+message ImportMemoryRequest {
+  string json_text = 1;
+}
+
+message ImportMemoryResponse {
+  bool success = 1;
+  int32 imported_count = 2;
+  string message = 3;
+}
+
+message Empty {}
+
+// Messages sent from the client (UI) to the backend.
+message ClientMessage {
+  oneof payload {
+    ChatInput chat_input = 1;
+    VoiceCommand voice_command = 2;
+    CommandRequest command = 3;
+    PermissionResponse permission_response = 4;
+    CancelChat cancel_chat = 5;
+    SetAutonomyMode set_autonomy_mode = 6;
+    SetVisionEnabled set_vision_enabled = 7;
+    SetReasoningMode set_reasoning_mode = 8;
+    SetProvider set_provider = 9;
+    SetHighTierModel set_high_tier_model = 10;
+    SetWakeWordModelSize set_wakeword_model_size = 11;
+    SetMicrophoneDevice set_microphone_device = 12;
+    SetSpeakerDevice set_speaker_device = 13;
+    CodingTaskRequest coding_task = 14;
+    SetActiveChat set_active_chat = 15;
+    SetSpeakResponses set_speak_responses = 16;
+    SetContextEfficiency set_context_efficiency = 17;
+    StartPoolTaskRequest start_pool_task = 18;
+    SetLanguage set_language = 19;
+  }
+}
+
+// Coding-Agent-Pool: startet einen Lauf mit 2-4 Agenten (Lead + Worker),
+// die gemeinsam an EINER Aufgabe arbeiten (siehe tarno/ai/pool/). Der
+// eigentliche Fortschritt/die Kommunikation zwischen den Agenten wird als
+// Strom von PoolMessageProto-Events zurueckgesendet, damit der Nutzer live
+// mitverfolgen kann, wie die Agenten "miteinander reden".
+message PoolAgentSpecProto {
+  string provider = 1;
+  string model = 2;
+  bool is_lead = 3;
+}
+
+message StartPoolTaskRequest {
+  string prompt = 1;
+  Workspace workspace = 2;
+  repeated string file_paths = 3;
+  repeated PoolAgentSpecProto agents = 4;  // 2-4 Eintraege, genau einer mit is_lead=true
+  string chat_id = 5;
+  bool read_only = 6;
+}
+
+// Chat-Umschalter "Kontext-Effizienz" (Beta): aktiviert Tool-Output-
+// Kompression (siehe tarno/ai/context/output_compressor.py) und rekursive
+// Verlauf-Zusammenfassung (siehe tarno/ai/context/summarizer.py) fuer den
+// normalen Chat-Modus. Default aus - im Agent-Pool ist dasselbe Verhalten
+// dagegen zwingend aktiv, ohne eigenen Schalter (siehe Kontext-Effizienz-
+// Plan Phase 7).
+message SetContextEfficiency {
+  bool enabled = 1;
+}
+
+// Chat-Umschalter: steuert, ob Antworten per TTS vorgelesen werden. Sowohl
+// getippte Chat-Nachrichten als auch per Sprache erkannter Text laufen ueber
+// denselben TarnoEngine._handle_input-Pfad, der ueber einen einzigen
+// Turn-Lock serialisiert - solange synthesizer.speak() eine laufende
+// Wiedergabe abspielt, blockiert dieser Lock die naechste Nachricht (live
+// bestaetigt: der Nutzer musste warten, bis TARNO fertig vorgelesen hatte,
+// bevor die naechste Nachricht verarbeitet wurde). Ausschalten uebergeht
+// speak() fuer normale Antworten komplett, damit Chat-Sessions ohne Warten
+// auf die Sprachausgabe schnell durchlaufen.
+message SetSpeakResponses {
+  bool enabled = 1;
+}
+
+// Tells the backend which chat session is currently selected in the UI, so
+// server-initiated events with no client request to carry a chat_id (namely
+// voice-recognized speech, see VoiceController.on_speech) know which chat to
+// attribute the resulting conversation turn to. Without this, voice input
+// was hardcoded to the "default" chat_id regardless of which of the user's
+// (now multiple) chats was actually open.
+message SetActiveChat {
+  string chat_id = 1;
+}
+
+// Settings small/large toggle for the Vosk wake-word model (see
+// tarno/voice/wakeword.py). size is "small" | "large". Switching to "large"
+// the first time triggers a ~1.9GB download - the client should show the
+// status text pushed via WakeWordModelSizeUpdate while it's in progress.
+message SetWakeWordModelSize {
+  string size = 1;
+}
+
+// Settings microphone picker (replaces the researched-and-rejected "Windows
+// 10/11" toggle - Win10/11 use the identical WASAPI/MME stack, the real fix
+// is picking the actual device, see AudioStream._find_device_index). device
+// is a device name (matches AudioConfig.microphone_device) or "default".
+message SetMicrophoneDevice {
+  string device = 1;
+}
+
+// Settings speaker/output picker - same shape as SetMicrophoneDevice, for
+// TTS playback (tarno/voice/synthesizer.py).
+message SetSpeakerDevice {
+  string device = 1;
+}
+
+// Phase: global language switch (de | en). Triggers UI and audio language swap.
+message SetLanguage {
+  string language = 1;  // "de" | "en"
+}
+
+// Broadcast after a SetLanguage request so all clients stay in sync.
+message LanguageChanged {
+  string language = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message MicrophoneDeviceInfo {
+  string name = 1;
+  int32 index = 2;
+  bool is_default = 3;
+  string host_api = 4;
+  // Best-effort only - see AudioStream._is_builtin_device_name's docstring.
+  bool is_builtin = 5;
+}
+
+message MicrophoneDeviceList {
+  repeated MicrophoneDeviceInfo devices = 1;
+}
+
+message SpeakerDeviceInfo {
+  string name = 1;
+  int32 index = 2;
+  bool is_default = 3;
+  bool is_builtin = 4;
+}
+
+message SpeakerDeviceList {
+  repeated SpeakerDeviceInfo devices = 1;
+}
+
+// Manueller Schalter fuer Mistral's High-Tier-Modell (mistral-medium-2508) -
+// ersetzt die vormals automatische, fehleranfaellige Klassifizierung
+// (siehe MistralProvider._classify_difficulty-Docstring). Bei anderen
+// Providern wirkungslos.
+message SetHighTierModel {
+  bool enabled = 1;
+}
+
+// Phase D: expliziter Wunsch-Wechsel des aktiven LLM-Providers zur Laufzeit.
+// provider ist "mistral"|"claude"|"gemini"|"groq"|"huggingface"|"ollama".
+message SetProvider {
+  string provider = 1;
+  // Optional - leer bedeutet "Provider-Default aus der Config beibehalten"
+  // (unveraendertes Verhalten). Phase 1-6: erlaubt gezielte Modell-Auswahl
+  // aus dem kuratierten Katalog (siehe GetModelCatalog).
+  string model = 2;
+}
+
+// Phase C: aktiviert/deaktiviert den "Denk-Modus" (Mistral reasoning_effort)
+// fuer zukuenftige Zuege. effort ist "low"|"medium"|"high", nur relevant
+// wenn enabled=true.
+message SetReasoningMode {
+  bool enabled = 1;
+  string effort = 2;
+}
+
+// Block 7, Phase 69 (Privacy-Layer/Recording-Opt-out): live an-/ausschalten,
+// ohne den Backend-Prozess neu zu starten. Ausschalten gibt die Kamera-
+// Hardware sofort frei (siehe VisionObserver.set_enabled).
+message SetVisionEnabled {
+  bool enabled = 1;
+}
+
+// Changes TARNO's live autonomy level (see AutonomyMode in permission_service.py).
+// mode must be one of "manual" | "balanced" | "plan" | "ultimate".
+message SetAutonomyMode {
+  string mode = 1;
+}
+
+// Sent when the user hits "Stop" on an in-flight chat request. The backend
+// cannot abort a blocking HTTP call already in flight to the LLM provider,
+// but it marks the current generation as cancelled so the (eventually
+// arriving) response is discarded instead of surprising the user after
+// they've already moved on.
+message CancelChat {}
+
+message WorkspaceFolder {
+  string id = 1;
+  string name = 2;
+  string path = 3;
+}
+
+message Workspace {
+  string id = 1;
+  string name = 2;
+  // Legacy single root path; kept for backward compatibility with older clients.
+  string root_path = 3;
+  repeated string include_patterns = 4;
+  repeated string exclude_patterns = 5;
+  // Multi-root support: one or more folder roots for this workspace.
+  repeated WorkspaceFolder folders = 6;
+}
+
+message CodingTaskRequest {
+  string prompt = 1;
+  Workspace workspace = 2;
+  repeated string file_paths = 3;
+  bool read_only = 4;
+  string chat_id = 5;
+}
+
+message CodingTaskResponse {
+  bool success = 1;
+  string summary = 2;
+  string error = 3;
+  string chat_id = 4;
+}
+
+message CodingOutputMessage {
+  string kind = 1;
+  string text = 2;
+  int64 timestamp_ms = 3;
+  string chat_id = 4;
+}
+
+message ChatInput {
+  string text = 1;
+  // Optionaler Bild-Anhang aus dem WinUI-Datei-Picker (Phase A: Upload).
+  // Nur image/*-MIME-Typen werden verarbeitet - der Client filtert die
+  // Dateiauswahl bereits auf Bilddateien, daher ist attachment_mime_type
+  // hier praktisch immer "image/...", falls ueberhaupt gesetzt.
+  bytes attachment_data = 2;
+  string attachment_filename = 3;
+  string attachment_mime_type = 4;
+  string chat_id = 5;  // Unterscheidet parallele Chat-Sitzungen in der UI.
+  Workspace workspace = 6;  // Aktiver Workspace für diese Nachricht.
+  string chat_mode = 7;  // "chat" oder "code" - steuert den System-Prompt.
+}
+
+message VoiceCommand {
+  bool active = 1;
+}
+
+// Generic command execution request for local tools/actions.
+message CommandRequest {
+  string name = 1;
+  map<string, string> params = 2;
+}
+
+// Server messages pushed to the client.
+message ServerMessage {
+  oneof payload {
+    ChatMessage chat_message = 1;
+    StatusUpdate status = 2;
+    VoiceStateUpdate voice_state = 3;
+    LogEntry log = 4;
+    TaskUpdate task = 5;
+    SystemInfo system_info = 6;
+    ThinkingUpdate thinking = 7;
+    PermissionRequest permission_request = 8;
+    ContextUsage context_usage = 9;
+    AutonomyModeUpdate autonomy_mode_update = 10;
+    VisionStatusUpdate vision_status_update = 11;
+    SpeechEnvelopeUpdate speech_envelope = 12;
+    VisionImageAttachment vision_image = 13;
+    ReasoningModeUpdate reasoning_mode_update = 14;
+    ProviderUpdate provider_update = 15;
+    HighTierModelUpdate high_tier_model_update = 16;
+    WakeWordModelSizeUpdate wakeword_model_size_update = 17;
+    MicrophoneDeviceUpdate microphone_device_update = 18;
+    SpeakerDeviceUpdate speaker_device_update = 19;
+    AgentTrace agent_trace = 20;
+    CodingOutputMessage coding_output = 21;
+    SpeakResponsesUpdate speak_responses_update = 22;
+    ContextEfficiencyUpdate context_efficiency_update = 23;
+    PoolMessageProto pool_message = 24;
+    PoolTaskResponse pool_task_response = 25;
+    LanguageChanged language_changed = 26;
+  }
+}
+
+// Ein einzelnes Inter-Agent-Kommunikationsereignis aus einem laufenden
+// Agent-Pool-Lauf (Zuweisung, Bericht, Zusammenfuehrung, Status) - eine
+// Instanz pro tarno.ai.pool.models.PoolMessage.
+message PoolMessageProto {
+  string from_agent = 1;
+  string to_agent = 2;   // Agenten-Kennung ("provider:model") oder "broadcast"
+  string kind = 3;        // "assign" | "report" | "question" | "merge_decision" | "status"
+  string text = 4;
+  int64 timestamp_ms = 5;
+  string chat_id = 6;
+  string sub_task_id = 7;
+}
+
+// Abschlussmeldung eines Pool-Laufs - anders als bei CodingTaskResponse
+// (die im Erfolgsfall nie gesendet wird) wird diese hier IMMER gesendet,
+// damit die UI zuverlaessig weiss, wann der Pool-Lauf beendet ist.
+message PoolTaskResponse {
+  bool success = 1;
+  string summary = 2;
+  string error = 3;
+  string chat_id = 4;
+}
+
+message ContextEfficiencyUpdate {
+  bool enabled = 1;
+}
+
+message SpeakResponsesUpdate {
+  bool enabled = 1;
+}
+
+// Live Agent Trace / Chain-of-Thought events pushed during a generation turn.
+// Designed for a discrete dark-mode timeline UI similar to Claude Code/Cursor.
+message AgentTrace {
+  string trace_id = 1;          // stable id for this trace item (UUID)
+  string parent_id = 2;         // empty for top-level; child items reference parent
+  int64 timestamp = 3;          // unix milliseconds
+  string turn_id = 4;           // groups all traces of one assistant turn
+  string chat_id = 5;           // Zugehörige Chat-Sitzung in der UI.
+
+  oneof detail {
+    ThoughtDelta thought_delta = 10;
+    ToolStart tool_start = 11;
+    ToolEnd tool_end = 12;
+    FileDiff file_diff = 13;
+  }
+}
+
+// Streaming Chain-of-Thought text (append-only). The UI concatenates deltas
+// for the same trace_id to build the full reasoning block.
+message ThoughtDelta {
+  string title = 1;     // short header, e.g. "Thought for 0.4s"
+  string delta = 2;     // next chunk of reasoning text
+  bool collapsed = 3;   // UI hint: start collapsed after this item finishes
+  bool finished = 4;    // true when no more deltas for this trace_id will follow
+}
+
+// Start of a tool call (read, write, shell, search, ...).
+message ToolStart {
+  string tool = 1;      // "read" | "write" | "command" | "search" | ...
+  string target = 2;    // file path or command string
+  string description = 3;
+}
+
+// End/status of a previously started tool call. Matches trace_id of the ToolStart.
+message ToolEnd {
+  string tool = 1;
+  string target = 2;
+  bool success = 3;
+  string result_summary = 4;  // short result, e.g. "12 matches" or exit code
+}
+
+// Inline diff or new file content for the trace timeline.
+message FileDiff {
+  string path = 1;
+  bool is_new = 2;
+  string language = 3;   // for syntax highlighting hint, e.g. "csharp" | "python"
+  string content = 4;    // full new file or diff snippet (small files only)
+}
+
+// Broadcast after a SetMicrophoneDevice request. status is a short German
+// status string for direct display; active_device reflects the currently
+// active device once the hot-swap completes (not the requested one, if the
+// swap failed).
+message MicrophoneDeviceUpdate {
+  string active_device = 1;
+  bool loading = 2;
+  string status = 3;
+}
+
+// Broadcast after a SetSpeakerDevice request - same shape as
+// MicrophoneDeviceUpdate.
+message SpeakerDeviceUpdate {
+  string active_device = 1;
+  bool loading = 2;
+  string status = 3;
+}
+
+// Broadcast after a SetWakeWordModelSize request, and again once any
+// in-progress download/load completes. status is a short German status
+// string ("Lädt großes Modell... 42%", "Aktiv", "Fehlgeschlagen") for direct
+// display; active_size reflects the currently loaded model once ready (not
+// the requested one, if a swap is still pending/failed).
+message WakeWordModelSizeUpdate {
+  string active_size = 1;
+  bool loading = 2;
+  string status = 3;
+}
+
+// Broadcast whenever the "Starkes Modell"-toggle changes.
+message HighTierModelUpdate {
+  bool enabled = 1;
+}
+
+// Broadcast nach jedem SetProvider-Versuch - bei success=false bleibt der
+// weiterhin aktive (alte) Provider-Name enthalten, NICHT der fehlgeschlagene
+// Wunsch-Name, damit die UI nie einen inkorrekten aktiven Provider anzeigt.
+message ProviderUpdate {
+  string provider = 1;
+  bool success = 2;
+  string message = 3;
+  // Tatsaechlich aktives Modell (leer wenn dem Provider das Konzept fehlt/
+  // Fehlschlag). Wie provider selbst: bei Fehlschlag das weiterhin aktive
+  // ALTE Modell, nie der gescheiterte Wunsch-Wert.
+  string model = 4;
+}
+
+// Broadcast whenever the reasoning mode changes, regardless of which client
+// caused it - keeps every connected UI in sync (same pattern as
+// AutonomyModeUpdate).
+message ReasoningModeUpdate {
+  bool enabled = 1;
+  string effort = 2;
+}
+
+// Echte Amplituden-Huellkurve der gerade startenden TTS-Wiedergabe (RMS pro
+// ~90ms-Fenster, aus der bereits synthetisierten Audiodatei vorab berechnet -
+// kein Live-Streaming noetig, da die Datei zum Zeitpunkt des Sendens bereits
+// vollstaendig feststeht). duration_seconds ist die echte Abspieldauer, damit
+// der Client seine Resonanz-Animation exakt auf die echte Sprechzeit legen
+// kann statt nur auf den Start-Event zu vertrauen.
+message SpeechEnvelopeUpdate {
+  repeated float levels = 1;
+  double duration_seconds = 2;
+}
+
+// The exact JPEG frame that was sent to the vision model for a
+// describe_what_i_see tool call, pushed to the UI so the user can see what
+// TARNO actually analysed. image/jpeg bytes; caption is optional.
+message VisionImageAttachment {
+  bytes image_bytes = 1;
+  string caption = 2;
+  int64 timestamp = 3;  // Unix milliseconds
+}
+
+// Broadcast whenever the camera hardware actually opens/closes (Phase 69) -
+// reflects genuine device activity, not just the "enabled" config flag, so
+// the UI indicator matches what the physical capture LED is doing.
+message VisionStatusUpdate {
+  bool camera_active = 1;
+  bool vision_available = 2;  // false if disabled, no API key, or no camera found
+}
+
+// Broadcast whenever the autonomy mode changes, regardless of which client
+// (or internal trigger, e.g. a voice command) caused the change - keeps every
+// connected UI in sync.
+message AutonomyModeUpdate {
+  string mode = 1;
+}
+
+message ChatMessage {
+  string id = 1;          // turn_id (UUID des Zuges)
+  string role = 2;        // "user" or "assistant"
+  string text = 3;
+  int64 timestamp = 4;    // Unix milliseconds
+  string chat_id = 5;     // Zugehörige Chat-Sitzung in der UI.
+}
+
+message StatusUpdate {
+  string state = 1;     // e.g. "Bereit", "Hört zu...", "Spricht..."
+}
+
+enum VoiceState {
+  VOICE_IDLE = 0;
+  VOICE_LISTENING = 1;
+  VOICE_THINKING = 2;
+  VOICE_PROCESSING = 3;
+  VOICE_SPEAKING = 4;
+  VOICE_ERROR = 5;
+}
+
+message VoiceStateUpdate {
+  VoiceState state = 1;
+}
+
+message ThinkingUpdate {
+  bool active = 1;
+  string stage = 2;      // deutscher Anzeigetext für den aktuellen Schritt
+  string reasoning = 3;  // erfasster <think>-Inhalt, leer wenn keiner
+  string stage_key = 4;  // maschinenlesbar: "llm_call"|"tool_exec"|"tool_followup"|"reasoning"
+}
+
+message LogEntry {
+  string level = 1;     // INFO, WARNING, ERROR
+  string message = 2;
+  string module = 3;
+  int64 timestamp = 4;
+}
+
+message TaskUpdate {
+  string id = 1;
+  string title = 2;
+  string status = 3;    // pending, running, completed, failed, cancelled
+  int32 progress = 4;   // 0-100
+}
+
+message SystemInfo {
+  string os = 1;
+  string cpu = 2;
+  string memory = 3;
+  float cpu_percent = 4;
+  float memory_percent = 5;
+}
+
+message ApiKeyRequest {
+  string provider = 1;  // "mistral" | "gemini" | "groq" | "huggingface" | "claude"
+  string api_key = 2;
+}
+
+message ApiKeyResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ApiKeyStatusResponse {
+  map<string, bool> configured = 1;  // provider name -> key already set
+}
+
+// Pushed by the backend when CommandEngine/PermissionService needs the user
+// to confirm a MEDIUM/HIGH-risk command. The backend blocks the executing
+// thread until a matching PermissionResponse arrives (or times out).
+message PermissionRequest {
+  string request_id = 1;   // UUID, echoed back in PermissionResponse
+  string permission = 2;   // PermissionType value, e.g. "command_high"
+  string target = 3;       // human-readable description of what will run
+  string risk_level = 4;   // "low" | "medium" | "high"
+  string safety_phrase = 5; // non-empty only for HIGH risk; must be typed verbatim to approve
+}
+
+message PermissionResponse {
+  string request_id = 1;
+  bool approved = 2;
+  bool persistent = 3;  // remember this approval for the rest of the session
+}
+
+// Pushed after each LLM turn so the UI can show a context-window usage
+// indicator (like the token-usage rings in ChatGPT/Claude). used/max are in
+// tokens; max depends on the model actually used for that turn (difficulty
+// tiers can pick different models with different context windows).
+message ContextUsage {
+  int32 used = 1;
+  int32 max = 2;
+}
