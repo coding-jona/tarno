@@ -27,10 +27,19 @@ def _make_bare_engine() -> TarnoEngine:
 class SetProviderTests(unittest.TestCase):
     def test_switch_to_ollama_succeeds_without_api_key(self) -> None:
         """Ollama needs no API key (not in _PROVIDER_SECRET_NAMES) - must
-        succeed and actually swap the live provider object."""
+        succeed and actually swap the live provider object.
+
+        OllamaProvider.__init__ does a real connectivity check against a
+        local Ollama server (see ollama_client.py's _verify_connection) -
+        patched out here since this test exercises set_provider's routing/
+        no-API-key logic, not real Ollama reachability (there's no Ollama
+        server in CI)."""
+        from tarno_backend.ai.ollama_client import OllamaProvider
+
         engine = _make_bare_engine()
 
-        success, message = engine.set_provider("ollama")
+        with patch.object(OllamaProvider, "_verify_connection", return_value=None):
+            success, message = engine.set_provider("ollama")
 
         self.assertTrue(success)
         self.assertEqual(engine.provider.name, "ollama")

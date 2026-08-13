@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import tempfile
 import unittest
@@ -97,6 +98,10 @@ class PluginIntegrationTests(unittest.TestCase):
 class DiscordClientTests(unittest.TestCase):
     """Tests for the Discord client control module."""
 
+    @unittest.skipUnless(
+        importlib.util.find_spec("pynput") is not None,
+        "pynput not installed (optional Discord PTT dependency)",
+    )
     def test_push_to_talk(self):
         cfg = DiscordClientConfig(enabled=True, ptt_key="f13")
         client = DiscordClientModule(cfg)

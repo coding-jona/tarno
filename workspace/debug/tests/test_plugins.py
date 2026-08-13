@@ -23,8 +23,8 @@ class PluginManagerTests(unittest.TestCase):
             yaml.safe_dump(manifest), encoding="utf-8"
         )
         (plugin_dir / "plugin.py").write_text(
-            "from tarno.ai.tool_registry import ToolDefinition\n"
-            "from tarno.plugins.plugin import TarnoPlugin\n"
+            "from tarno_backend.ai.tool_registry import ToolDefinition\n"
+            "from tarno_backend.plugins.plugin import TarnoPlugin\n"
             "class DummyPlugin:\n"
             "    name = 'dummy'\n"
             "    version = '1.0.0'\n"
@@ -90,7 +90,7 @@ class PluginManagerTests(unittest.TestCase):
             }
             (pdir / "plugin.yaml").write_text(yaml.safe_dump(manifest), encoding="utf-8")
             (pdir / "plugin.py").write_text(
-                "from tarno.ai.tool_registry import ToolDefinition\n"
+                "from tarno_backend.ai.tool_registry import ToolDefinition\n"
                 "class DepPlugin:\n"
                 "    name = 'dep'\n"
                 "    def load(self, context): pass\n"

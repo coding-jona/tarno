@@ -32,17 +32,23 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Lint with ruff
         run: |
-          pip install ruff
           ruff check src/tarno_backend workspace/debug/tests || true
 
       - name: Run unit tests
         env:
           PYTHONPATH: src
-        run: python -m unittest discover -s workspace/debug/tests
+        # pytest instead of `python -m unittest discover`: some test files
+        # (test_language_swap.py, test_workspace_resolver.py) are written
+        # as bare pytest-style functions/fixtures, not unittest.TestCase
+        # subclasses - unittest's discovery only collects TestCase classes,
+        # so those files silently never ran under discover. pytest collects
+        # both styles. requirements-dev.txt (installed above) already
+        # includes pytest, so this needs no extra install step.
+        run: pytest workspace/debug/tests
 
       - name: Compile package
         run: python -m py_compile src/tarno_backend/**/*.py

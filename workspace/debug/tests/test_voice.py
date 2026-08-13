@@ -457,6 +457,22 @@ class ListInputDevicesTests(unittest.TestCase):
 class SpeechSynthesizerTests(unittest.TestCase):
     """Tests for SpeechSynthesizer sound playback."""
 
+    def setUp(self) -> None:
+        # _make_config()'s voice is an edge-tts name, not a Piper repo id -
+        # PiperEngine now correctly falls back to its default German voice
+        # instead of crashing (see piper.py), which means SpeechSynthesizer
+        # construction would otherwise make a real HuggingFace network call
+        # on every test in this class. Keep these tests network-free and
+        # fast by making the Piper engine fail to construct deterministically
+        # (SpeechSynthesizer already tolerates one engine failing and falls
+        # through to edge-tts - see _init_engines()'s try/except per engine).
+        patcher = patch(
+            "tarno_backend.voice.tts_engines.piper.hf_hub_download",
+            side_effect=OSError("no network access in unit tests"),
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _make_config(self) -> AudioConfig:
         return AudioConfig(
             language="de",

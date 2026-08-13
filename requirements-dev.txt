@@ -11,6 +11,6 @@ pytest-cov==6.0.0
 pytest-mock==3.14.0
 ruff==0.9.4
 
-# Only needed when editing tarno/grpc/tarno.proto and regenerating the
-# generated tarno_pb2.py / tarno_pb2_grpc.py stubs.
+# Only needed when editing tarno_backend/grpc/tarno.proto and regenerating
+# the generated tarno_pb2.py / tarno_pb2_grpc.py stubs.
 grpcio-tools==1.83.0
