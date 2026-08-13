@@ -11,7 +11,7 @@ import unittest
 
 from tarno_backend.core.events import EventBus, MeshScenarioChangedEvent
 from tarno_backend.integrations.mesh.broker import EmbeddedMqttBroker
-from tarno_backend.integrations.mesh.heartbeat import ESP32, WIKO, ZTE, HeartbeatMonitor
+from tarno_backend.integrations.mesh.heartbeat import ESP32, HUB, SECONDARY, HeartbeatMonitor
 from tarno_backend.integrations.mesh.mqtt_bridge import MqttBridge
 from tarno_backend.integrations.mesh.observer import MeshObserver
 from tarno_backend.integrations.mesh.payload import MeshEvent
@@ -55,7 +55,7 @@ class RouterScenarioTests(unittest.TestCase):
         router = MeshRouter(
             heartbeat=heartbeat,
             embedded_broker=broker,
-            wiko_bridge=bridge,
+            hub_bridge=bridge,
             on_transition=transitions.append,
         )
         return router, heartbeat, transitions
@@ -70,7 +70,7 @@ class RouterScenarioTests(unittest.TestCase):
 
     def test_full_mesh_when_wiko_online(self):
         router, heartbeat, transitions = self._make_router()
-        heartbeat.mark_seen(WIKO)
+        heartbeat.mark_seen(HUB)
         router.tick()
         self.assertEqual(router.scenario, FULL_MESH)
         self.assertEqual(len(transitions), 1)
@@ -79,20 +79,20 @@ class RouterScenarioTests(unittest.TestCase):
 
     def test_pc_fallback_when_wiko_offline_but_zte_online(self):
         router, heartbeat, transitions = self._make_router()
-        heartbeat.mark_seen(ZTE)
+        heartbeat.mark_seen(SECONDARY)
         router.tick()
         self.assertEqual(router.scenario, PC_FALLBACK)
         self.assertEqual(transitions[-1].current, PC_FALLBACK)
 
     def test_full_mesh_takes_priority_over_zte(self):
         router, heartbeat, _transitions = self._make_router()
-        heartbeat.mark_seen(WIKO)
-        heartbeat.mark_seen(ZTE)
+        heartbeat.mark_seen(HUB)
+        heartbeat.mark_seen(SECONDARY)
         router.tick()
         self.assertEqual(router.scenario, FULL_MESH)
 
     def test_esp32_alone_does_not_trigger_pc_fallback(self):
-        # Per spec: PC_FALLBACK requires a phone (ZTE); ESP32-only stays SOLO_PC.
+        # Per spec: PC_FALLBACK requires a phone (SECONDARY); ESP32-only stays SOLO_PC.
         router, heartbeat, transitions = self._make_router()
         heartbeat.mark_seen(ESP32)
         router.tick()
@@ -101,7 +101,7 @@ class RouterScenarioTests(unittest.TestCase):
 
     def test_no_duplicate_transition_on_repeated_tick(self):
         router, heartbeat, transitions = self._make_router()
-        heartbeat.mark_seen(WIKO)
+        heartbeat.mark_seen(HUB)
         router.tick()
         router.tick()
         router.tick()
@@ -110,17 +110,17 @@ class RouterScenarioTests(unittest.TestCase):
     def test_record_event_marks_correct_node(self):
         router, heartbeat, _transitions = self._make_router()
         router.record_event(MeshEvent(sender_node="ZTE_BLADE_V70", event_type="X"))
-        self.assertTrue(heartbeat.is_online(ZTE))
-        self.assertFalse(heartbeat.is_online(WIKO))
+        self.assertTrue(heartbeat.is_online(SECONDARY))
+        self.assertFalse(heartbeat.is_online(HUB))
 
 
 class HeartbeatMonitorTests(unittest.TestCase):
     def test_times_out_after_3x_interval(self):
         monitor = HeartbeatMonitor(heartbeat_interval_seconds=0.02)
-        monitor.mark_seen(WIKO)
-        self.assertTrue(monitor.is_online(WIKO))
+        monitor.mark_seen(HUB)
+        self.assertTrue(monitor.is_online(HUB))
         time.sleep(0.08)  # > 3x 0.02s timeout
-        self.assertFalse(monitor.is_online(WIKO))
+        self.assertFalse(monitor.is_online(HUB))
 
     def test_unknown_node_is_offline(self):
         monitor = HeartbeatMonitor()
@@ -140,7 +140,16 @@ class MeshObserverTests(unittest.TestCase):
         draft = observer.check()
         self.assertIsNotNone(draft)
         self.assertEqual(draft.source, "mesh")
-        self.assertIn("Hub-Rolle", draft.message)
+        # persona.py's comment() picks randomly between multiple phrasings
+        # per event type (see its module docstring) - "Hub-Rolle" only
+        # appears in the HUB_FULL_MESH variants, not HUB_FALLBACK_PC (the
+        # scenario actually triggered here). Assert against both possible
+        # HUB_FALLBACK_PC phrasings instead of one specific, wrong string.
+        self.assertTrue(
+            "Hub-Handy nicht erreichbar" in draft.message
+            or "Hub-Node offline" in draft.message,
+            f"unexpected mesh fallback message: {draft.message!r}",
+        )
 
     def test_draft_consumed_only_once(self):
         bus = EventBus()

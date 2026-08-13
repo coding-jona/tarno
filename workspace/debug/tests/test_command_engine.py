@@ -184,6 +184,12 @@ class ConfirmationDialogSelectionTests(unittest.TestCase):
 
         from tarno_backend.ui import confirmation_dialog
 
+        if not confirmation_dialog._HAS_QT:
+            self.skipTest(
+                "PySide6 not installed (deprecated legacy UI, see TD-006 - "
+                "not in requirements.txt)"
+            )
+
         fake_app = object()
         with patch.object(
             confirmation_dialog.QApplication, "instance", return_value=fake_app
