@@ -47,6 +47,9 @@ def show_console_confirmation(
     return False, False
 
 
+_HAS_QT = False
+QApplication = None
+
 try:
     from PySide6.QtCore import QObject, Qt, QMetaObject, Q_ARG, Slot
     from PySide6.QtWidgets import (
@@ -181,7 +184,7 @@ def create_default_confirmation(
     parent: "QWidget | None" = None,
 ) -> Callable[..., ConfirmationResult]:
     """Return the best available confirmation function."""
-    if prefer_qt and _HAS_QT and QApplication.instance() is not None:
+    if prefer_qt and _HAS_QT and QApplication is not None and QApplication.instance() is not None:
         presenter = QtConfirmationPresenter(parent)
         return lambda permission, target, risk, duration: presenter.show_sync(
             permission, target, risk, duration
