@@ -5,7 +5,7 @@
     Schritte:
       1. Python-Tests
       2. Secret-Scan (verhindert versehentlich eingebettete API-Keys im Build)
-      3. dotnet build TARNO.UI
+      3. dotnet publish TARNO.UI
       4. PyInstaller fuer Python-Backend
       5. Kopiert Frontend-Assets
       6. NSIS-Installer
@@ -116,6 +116,12 @@ function Step-PyInstaller {
     Write-Host "PyInstaller OK." -ForegroundColor Green
 }
 
+function Validate-DirNotEmpty([string]$path) {
+    if (-not (Test-Path $path)) { return $false }
+    $items = Get-ChildItem -Path $path -Force -Recurse -ErrorAction SilentlyContinue
+    return ($items.Count -gt 0)
+}
+
 function Step-AssembleFiles {
     Write-Host "`n[5/6] Installer-Dateien zusammenstellen ..." -ForegroundColor Cyan
     if (Test-Path $installerDist) {
@@ -139,20 +145,46 @@ function Step-AssembleFiles {
     Copy-Item -Path (Join-Path $pyDir '*') -Destination $installerDist -Recurse -Force
 
     # WinUI 3 Frontend - dotnet publish (see Step-DotNetBuild) puts the
-    # self-contained, relocatable output in a RID-specific "publish" subfolder,
-    # not directly under the TFM folder like `dotnet build` does.
-    $uiOutput = Join-Path $root (Join-Path 'src' (Join-Path 'TARNO.UI' (Join-Path 'bin' (Join-Path 'x64' (Join-Path $Configuration (Join-Path 'net8.0-windows10.0.19041.0' (Join-Path 'win-x64' 'publish')))))))
+    # self-contained, relocatable output in a RID-specific "publish" subfolder.
+    # Use the standard publish location for a RID-targeted publish.
+    $uiOutput = Join-Path $root "src\TARNO.UI\bin\x64\$Configuration\net8.0-windows10.0.19041.0\win-x64\publish"
+    if (-not (Test-Path $uiOutput)) {
+        # Fallbacks used by some dotnet versions / CI layouts
+        $uiOutputFallback = Join-Path $root "src\TARNO.UI\bin\$Configuration\net8.0-windows10.0.19041.0\publish"
+        if (Test-Path $uiOutputFallback) { $uiOutput = $uiOutputFallback }
+    }
+
     if (-not (Test-Path $uiOutput)) {
         throw "WinUI 3 build output not found at $uiOutput"
     }
+
+    Write-Host "Nutze UI Publish-Output: $uiOutput" -ForegroundColor DarkGray
     $uiDest = Join-Path $installerDist 'UI'
     New-Item -ItemType Directory -Path $uiDest -Force | Out-Null
     Copy-Item -Path "$uiOutput\*" -Destination $uiDest -Recurse -Force
 
+    # Validation: ensure essential UI files are present after copy
+    $required = @(
+        (Join-Path $uiDest 'TARNO.UI.exe'),
+        (Join-Path $uiDest 'TARNO.UI.deps.json'),
+        (Join-Path $uiDest 'runtimeconfig.json')
+    )
+    $missing = @()
+    foreach ($r in $required) { if (-not (Test-Path $r)) { $missing += $r } }
+
+    if ($missing.Count -gt 0) {
+        Remove-Item -Recurse -Force $installerDist -ErrorAction SilentlyContinue
+        throw "Fehlende UI-Dateien nach Kopie: $($missing -join '; ') — Abbruch. Vergewissere dich, dass 'dotnet publish' erfolgreich lief und der Publish-Ordner vollständig ist."
+    }
+
+    # Warnung, falls keine .pri (XAML resource) Dateien gefunden wurden — nicht zwingend, aber oft ein Indikator
+    $priFiles = Get-ChildItem -Path $uiDest -Filter *.pri -Recurse -ErrorAction SilentlyContinue
+    if ($priFiles.Count -eq 0) {
+        Write-Host "Warnung: Keine .pri XAML-Ressourcen im UI-Publish gefunden. Wenn die App XAML-Ressourcen nutzt, pruefe das Publish." -ForegroundColor Yellow
+    }
+
     # Runtime installers bundled for offline install on fresh machines.
-    # WebView2 is required for the provider API-key onboarding dialog
-    # (ProviderLoginDialog). The NSIS installer downloads the Microsoft
-    # Evergreen Bootstrapper at install time; internet is required.
+    # WebView2 is required for the provider API-key onboarding dialog (ProviderLoginDialog).
     $runtimesDir = Join-Path $installerDist 'runtimes'
     New-Item -ItemType Directory -Path $runtimesDir -Force | Out-Null
     $dotnetUrl = 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/8.0.15/windowsdesktop-runtime-8.0.15-win-x64.exe'

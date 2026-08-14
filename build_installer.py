@@ -144,6 +144,23 @@ def main():
         logger.error("X PyInstaller-Build fehlgeschlagen. Details siehe build.log.")
         sys.exit(1)
 
+    # Pruefung: Stelle sicher, dass PyInstaller Output vorhanden ist
+    if not DIST_DIR.exists():
+        logger.error("X Dist-Ordner wurde nicht erstellt. PyInstaller hat scheinbar nichts publiziert.")
+        sys.exit(1)
+
+    # Suche nach dem erzeugten Backend-Ordner oder EXE
+    possible_backend_dir = DIST_DIR / APP_NAME
+    possible_backend_exe = DIST_DIR / (APP_NAME + ".exe")
+    if not possible_backend_dir.exists() and not possible_backend_exe.exists():
+        # versuche generischen Inhalt
+        items = list(DIST_DIR.iterdir())
+        if len(items) == 0:
+            logger.error("X PyInstaller hat keine Artefakte in 'dist' erzeugt.")
+            sys.exit(1)
+        else:
+            logger.info(f"Info: Gefundene Dist-Inhalte: {[p.name for p in items]}")
+
     # Inno Setup (optional)
     iscc_exe = next((p for p in ISCC_PATHS if p.exists()), None)
     iss_file = BASE_DIR / "setup.iss"
