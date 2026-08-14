@@ -21,6 +21,7 @@ import base64
 import json
 import logging
 import os
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -146,8 +147,6 @@ class MistralVisionProvider:
         """
         if not self.available:
             return None
-
-        import time
 
         jpeg_bytes = downscale_and_encode_jpeg(frame, max_edge, jpeg_quality)
         b64 = base64.b64encode(jpeg_bytes).decode("ascii")
