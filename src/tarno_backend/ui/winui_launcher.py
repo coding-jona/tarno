@@ -48,17 +48,22 @@ def _default_exe_path() -> Path:
 
         return installed_exe
 
-    # Dev-Fallback für die lokale Entwicklung
-    return (
-        _project_root()
-        / "src"
-        / "TARNO.UI"
-        / "bin"
-        / "x64"
-        / "Debug"
+    # Dev-Fallback für die lokale Entwicklung. Seit TARNO.UI.csproj
+    # RuntimeIdentifiers (win-x64;win-x86;win-arm64) deklariert, legt selbst
+    # ein einfaches `dotnet build` (nicht nur `publish`) die Ausgabe eine
+    # Ebene tiefer unter einem RID-Unterordner ab - live gefunden: der alte,
+    # feste Pfad ohne "win-x64" existierte nach einem frischen Build nie,
+    # sodass _default_exe_path() hier immer auf einen nicht existierenden
+    # Pfad zeigte. Bevorzugt die RID-Variante, faellt aber auf den alten
+    # Pfad zurueck (z.B. fuer aeltere/andere Build-Konfigurationen).
+    bin_dir = (
+        _project_root() / "src" / "TARNO.UI" / "bin" / "x64" / "Debug"
         / "net8.0-windows10.0.19041.0"
-        / "TARNO.UI.exe"
     )
+    rid_exe = bin_dir / "win-x64" / "TARNO.UI.exe"
+    if rid_exe.exists():
+        return rid_exe
+    return bin_dir / "TARNO.UI.exe"
 
 
 def _is_port_open(host: str, port: int) -> bool:
