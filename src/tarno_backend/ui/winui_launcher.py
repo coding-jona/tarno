@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import atexit
 import logging
+import os
 import signal
 import socket
 import subprocess
@@ -95,30 +96,45 @@ class WinUILauncher:
         return _default_exe_path()
 
     def _start_backend(self) -> subprocess.Popen[Any]:
-        """Start the Python gRPC backend subprocess."""
+        """Start the Python gRPC backend subprocess.
+
+        Re-invokes this very interpreter/executable with --backend instead of
+        pointing at a separate start_tarno_winui_backend.py file - that file
+        never actually existed in the repo (this was a live "app just exits,
+        nothing happens" bug), and would have been the wrong approach for a
+        PyInstaller build anyway: sys.executable there IS the frozen
+        "Tarno Mesh.exe" (not a general-purpose Python interpreter), so it
+        can only be re-launched with recognized CLI flags, not an arbitrary
+        .py path. --backend already exists in __main__.py for exactly this
+        purpose (see the "used by the packaged tarno.exe" comment there) and
+        works identically in source and frozen runs - it just needs a
+        different invocation: a frozen exe already *is* the entry point, but
+        a source-run sys.executable is a plain python.exe that still needs
+        "-m tarno_backend" to reach __main__.py in the first place.
+        """
+        env = None
         if getattr(sys, "frozen", False):
-            base_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
-            backend_script = base_dir / "start_tarno_winui_backend.py"
-            if not backend_script.exists():
-                backend_script = Path(sys.executable).parent / "start_tarno_winui_backend.py"
             working_dir = Path(sys.executable).parent
+            cmd = [sys.executable]
         else:
             working_dir = _project_root()
-            backend_script = working_dir / "start_tarno_winui_backend.py"
+            cmd = [sys.executable, "-m", "tarno_backend"]
+            # A source-run subprocess needs the same "src on PYTHONPATH"
+            # setup every other source entry point in this project requires
+            # (see CLAUDE.md) - inherited from this process's own env so a
+            # dev already running via PYTHONPATH=src keeps working, plus the
+            # project's src/ dir prepended in case it isn't set yet.
+            env = os.environ.copy()
+            src_dir = str(working_dir / "src")
+            existing = env.get("PYTHONPATH", "")
+            env["PYTHONPATH"] = src_dir if not existing else f"{src_dir}{os.pathsep}{existing}"
 
-        if not backend_script.exists():
-            raise FileNotFoundError(f"Backend-Skript nicht gefunden: {backend_script}")
-
-        cmd = [
-            sys.executable,
-            str(backend_script),
-            "--port",
-            str(self._config.ui.winui.backend_port),
-        ]
+        cmd += ["--backend", "--port", str(self._config.ui.winui.backend_port)]
         log.info("Starte WinUI-Backend: %s", " ".join(cmd))
         proc = subprocess.Popen(
             cmd,
             cwd=str(working_dir),
+            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,

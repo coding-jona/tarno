@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import sys
 import time
 import urllib.error
 import urllib.request
@@ -23,7 +22,7 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
-_OPENWAKEWORD_ROOT = Path(__file__).resolve().parent.parent.parent / "openWakeWord-0.6.0"
+_OPENWAKEWORD_MODELS_DIR = Path.home() / ".tarno" / "models" / "openwakeword"
 
 # Bundled model filenames inside openwakeword/resources/models.
 # Fallback to hey_jarvis if the user selects an unsupported model name.
@@ -283,13 +282,10 @@ class WakeWordDetector:
             raise
 
     def _init_openwakeword(self, config: WakeWordConfig) -> None:
-        if str(_OPENWAKEWORD_ROOT) not in sys.path:
-            sys.path.insert(0, str(_OPENWAKEWORD_ROOT))
-
         try:
             from openwakeword.model import Model as OWWModel
 
-            models_dir = _OPENWAKEWORD_ROOT / "openwakeword" / "resources" / "models"
+            models_dir = _OPENWAKEWORD_MODELS_DIR
             ext = "onnx" if config.inference_framework == "onnx" else "tflite"
             melspec_path = models_dir / f"melspectrogram.{ext}"
             embedding_path = models_dir / f"embedding_model.{ext}"
@@ -302,6 +298,26 @@ class WakeWordDetector:
                 )
                 model_filename = "hey_jarvis_v0.1.onnx"
             wakeword_path = models_dir / model_filename
+
+            # KERNFIX: die Modell-Dateien (.onnx/.tflite, mehrere MB) sind nie
+            # Teil des openwakeword-PyPI-Pakets - dieses vendored bisher einen
+            # lokalen Pfad, der weder im Quellbaum noch im gepackten Build je
+            # existierte, sodass dieses Backend immer sofort mit
+            # FileNotFoundError fehlschlug. Genau wie die Vosk-Modelle
+            # (_download_vosk_model) werden sie jetzt bei Bedarf einmalig
+            # nach ~/.tarno/models/openwakeword heruntergeladen, ueber die
+            # offizielle Download-Funktion des Pakets selbst (kennt die
+            # jeweils aktuellen Release-URLs, muessen hier nicht dupliziert
+            # werden).
+            if not (wakeword_path.exists() and melspec_path.exists() and embedding_path.exists()):
+                from openwakeword.utils import download_models as _download_oww_models
+
+                models_dir.mkdir(parents=True, exist_ok=True)
+                log.info("Lade openWakeWord-Modell '%s' herunter...", model_filename)
+                _download_oww_models(
+                    model_names=[os.path.splitext(model_filename)[0]],
+                    target_directory=str(models_dir),
+                )
 
             if not wakeword_path.exists():
                 raise FileNotFoundError(f"Wake-Word-Modell nicht gefunden: {wakeword_path}")

@@ -1,4 +1,11 @@
 [Setup]
+; Eindeutige, feste Kennung der Anwendung fuer Inno Setup - ohne AppId
+; verwendet Inno Setup implizit AppName als Registry-/Upgrade-Schluessel;
+; das verhindert saubere Upgrade-Erkennung sobald sich AppName mal aendert
+; und ist ohnehin nicht Best Practice. Einmal generiert, MUSS diese GUID in
+; allen zukuenftigen Versionen unveraendert bleiben, sonst behandelt der
+; Windows-Installer ein Upgrade als komplett neue, parallele Installation.
+AppId={{09655D48-F9BF-4D34-AF9B-AAE21A36BF4A}
 AppName=Tarno Mesh
 AppVersion=1.2.0
 
@@ -31,8 +38,19 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-; Relativer Pfad zum Build-Ordner von PyInstaller
+; Relativer Pfad zum Build-Ordner von PyInstaller (Python-Backend)
 Source: "dist\Tarno Mesh\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+; KERNFIX: Der Installer band bisher NUR das PyInstaller-Backend ein - die
+; WinUI-3-Frontend-EXE (TARNO.UI.exe, per "dotnet publish" erzeugt) wurde
+; nie mitgepackt. winui_launcher.py._default_exe_path() sucht
+; "TARNO.UI.exe" im selben Ordner wie "Tarno Mesh.exe"; ohne diese Zeile
+; findet sie die installierte App nie, meldet "WinUI-Exe nicht gefunden"
+; und beendet sich sofort wieder - genau das live beobachtete
+; "startet, dann direkt wieder weg"-Verhalten nach der Installation.
+; Pfad muss zu "dotnet publish ... -r win-x64 --self-contained true"
+; passen (siehe build.ps1).
+Source: "src\TARNO.UI\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\Tarno Mesh"; Filename: "{app}\Tarno Mesh.exe"
