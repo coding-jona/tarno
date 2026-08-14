@@ -55,7 +55,7 @@ class RouterScenarioTests(unittest.TestCase):
         router = MeshRouter(
             heartbeat=heartbeat,
             embedded_broker=broker,
-            wiko_bridge=bridge,
+            hub_bridge=bridge,
             on_transition=transitions.append,
         )
         return router, heartbeat, transitions
