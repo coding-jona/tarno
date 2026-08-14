@@ -1,0 +1,4 @@
+# sample config for tarno_shell
+source:
+  path: samples/sample_input.csv
+batch_size: 100
