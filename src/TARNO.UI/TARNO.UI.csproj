@@ -40,8 +40,9 @@
     <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
 
+  <!-- Greift direkt auf die manuell platzierte Datei im Protos-Ordner zu -->
   <ItemGroup>
-    <Protobuf Include="..\..\tarno\grpc\tarno.proto" GrpcServices="Client" ProtoRoot="..\..\tarno\grpc" Link="Protos\tarno.proto" />
+    <Protobuf Include="Protos\tarno.proto" GrpcServices="Client" />
   </ItemGroup>
 
   <Target Name="_ProtobufBeforeXamlPreCompile" BeforeTargets="XamlPreCompile" DependsOnTargets="_Protobuf_Compile_BeforeCsCompile" />

@@ -14,16 +14,22 @@ directory-depth change, no hop-counting anywhere else in the codebase.
 """
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 
 def find_repo_root(start: Path | None = None) -> Path:
     """Walk up from `start` (default: this file's location) to the repo root.
 
-    The repo root is identified as the first ancestor directory that
-    contains both a `.git` entry and a `src` directory - true for both a
-    normal git checkout and (with a stub `.git` file) a git worktree.
+    In a PyInstaller frozen bundle, returns the directory containing the executable.
+    Otherwise, the repo root is identified as the first ancestor directory that
+    contains both a `.git` entry and a `src` directory.
     """
+    # 1. Wenn die App als PyInstaller-Bundle läuft:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).parent
+
+    # 2. Entwicklungsumgebung (normaler Python-Lauf):
     current = (start or Path(__file__)).resolve()
     for candidate in (current, *current.parents):
         if (candidate / ".git").exists() and (candidate / "src").is_dir():
@@ -35,7 +41,7 @@ def find_repo_root(start: Path | None = None) -> Path:
 
 
 REPO_ROOT = find_repo_root()
-SRC_DIR = REPO_ROOT / "src"
+SRC_DIR = REPO_ROOT if getattr(sys, "frozen", False) else REPO_ROOT / "src"
 CONFIG_DIR = REPO_ROOT / "config"
 WORKSPACE_DIR = REPO_ROOT / "workspace"
 DEBUG_DIR = WORKSPACE_DIR / "debug"

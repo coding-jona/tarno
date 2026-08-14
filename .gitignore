@@ -17,6 +17,7 @@ dist/
 artifacts/
 installer/runtimes/
 *.spec.bak
+Output/
 
 # --- Installer artifacts ---
 TARNO_Installer*.exe
@@ -80,3 +81,11 @@ test_reports/
 
 # --- Deprecated/legacy trees kept out of the clean source snapshot ---
 _deprecated_legacy_installers/
+
+# --- Claude Cache ---
+.claude/
+
+# --- System & Extra Envs ---
+desktop.ini
+.env/
+.env.local

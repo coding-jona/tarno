@@ -24,17 +24,30 @@ log = logging.getLogger(__name__)
 
 
 def _project_root() -> Path:
-    """Return the repository root from this module's location.
-
-    Deliberately NOT tarno_backend.utils.paths.find_repo_root(): this module
-    is also the production launch path inside the PyInstaller bundle, which
-    has no .git/ or src/ marker to search for.
-    """
+    """Return the repository root or the PyInstaller executable directory."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).parent
     return Path(__file__).resolve().parent.parent.parent.parent
 
 
 def _default_exe_path() -> Path:
     """Return the default path to the built WinUI .exe."""
+    if getattr(sys, "frozen", False):
+        base_dir = Path(sys.executable).parent
+
+        # 1. Direkt im Hauptordner des Installers
+        installed_exe = base_dir / "TARNO.UI.exe"
+        if installed_exe.exists():
+            return installed_exe
+
+        # 2. Im _internal Unterordner (PyInstaller onedir Modus)
+        internal_exe = base_dir / "_internal" / "TARNO.UI.exe"
+        if internal_exe.exists():
+            return internal_exe
+
+        return installed_exe
+
+    # Dev-Fallback für die lokale Entwicklung
     return (
         _project_root()
         / "src"
@@ -83,8 +96,16 @@ class WinUILauncher:
 
     def _start_backend(self) -> subprocess.Popen[Any]:
         """Start the Python gRPC backend subprocess."""
-        root = _project_root()
-        backend_script = root / "start_tarno_winui_backend.py"
+        if getattr(sys, "frozen", False):
+            base_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+            backend_script = base_dir / "start_tarno_winui_backend.py"
+            if not backend_script.exists():
+                backend_script = Path(sys.executable).parent / "start_tarno_winui_backend.py"
+            working_dir = Path(sys.executable).parent
+        else:
+            working_dir = _project_root()
+            backend_script = working_dir / "start_tarno_winui_backend.py"
+
         if not backend_script.exists():
             raise FileNotFoundError(f"Backend-Skript nicht gefunden: {backend_script}")
 
@@ -97,7 +118,7 @@ class WinUILauncher:
         log.info("Starte WinUI-Backend: %s", " ".join(cmd))
         proc = subprocess.Popen(
             cmd,
-            cwd=str(root),
+            cwd=str(working_dir),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,

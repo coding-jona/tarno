@@ -8,12 +8,13 @@ import re
 import tempfile
 import threading
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pygame
 import pyaudio
+import pygame
 
 from tarno_backend.voice.speech_naturalizer import SpeechNaturalizer
 from tarno_backend.voice.tts_engines import BaseTTSEngine, get_tts_engine
@@ -28,9 +29,6 @@ log = logging.getLogger(__name__)
 # Default online voice used only by the edge-tts fallback.
 _EDGE_VOICE = "de-DE-ConradNeural"
 
-# See tarno/voice/audio_stream.py's identical constant/heuristic for the
-# microphone side - same caveat: SDL2 exposes no reliable "is this built-in"
-# flag, this is a best-effort name-pattern match only.
 _BUILTIN_NAME_HINTS = ("array", "internal", "built-in", "eingebaut", "laptop", "intern")
 
 
@@ -43,13 +41,11 @@ def list_output_devices() -> list[dict]:
     """Enumerate playback devices for the Settings speaker picker, via
     pygame's SDL2 binding. Does not require an initialized mixer."""
     try:
-        from pygame import _sdl2 as sdl2  # noqa: PLC0415 (optional subpackage, imported lazily)
+        from pygame import _sdl2 as sdl2  # noqa: PLC0415
     except Exception:
         log.warning("pygame._sdl2 nicht verfügbar - Lautsprecher-Liste leer")
         return []
     try:
-        # SDL's audio subsystem must be initialized before device queries
-        # work - safe/idempotent if pygame.mixer.init() already ran elsewhere.
         if not pygame.get_init():
             pygame.init()
         names = sdl2.audio.get_audio_device_names(False)  # False = playback devices
@@ -57,7 +53,7 @@ def list_output_devices() -> list[dict]:
             {
                 "index": i,
                 "name": name,
-                "is_default": False,  # SDL2 has no explicit "system default" marker in this enumeration
+                "is_default": False,
                 "is_builtin": _is_builtin_device_name(name),
             }
             for i, name in enumerate(names)
@@ -66,28 +62,28 @@ def list_output_devices() -> list[dict]:
         log.exception("Lautsprecher-Geräteliste konnte nicht abgefragt werden")
         return []
 
-# Fenstergroesse fuer die Amplituden-Huellkurve, die den Orb waehrend des
-# Sprechens antreibt. 12ms loest einzelne Konsonanten-Attacks (Wortanfaenge)
-# auf - mit den vorherigen 90ms verschmolzen Attacks komplett im Fenstermittel,
-# der Orb wirkte wie ein traeger "spricht gerade"-Indikator statt einem
-# Lautstaerke-Visualizer.
+
 _ENVELOPE_WINDOW_MS = 12
 
 
 def _compute_speech_envelope(audio_path: str) -> tuple[list[float], float]:
-    """Real amplitude envelope of an already-synthesized audio file, used to
-    drive the Orb's whole-body resonance in genuine sync with what TARNO is
-    actually saying (not a procedural/rhythmic loop). Decodes via pygame's
-    own Sound loader (no new dependency - pygame already handles the mp3
-    cache files here) and computes RMS per fixed-size window, normalized
-    against the loudest window in the clip."""
+    """Real amplitude envelope of an already-synthesized audio file."""
     try:
         sound = pygame.mixer.Sound(audio_path)
         duration = float(sound.get_length())
         raw = sound.get_raw()
         init = pygame.mixer.get_init()
         freq, size, channels = init if init else (44100, -16, 2)
-        dtype = np.int16 if abs(size) == 16 else np.int8
+
+        # Robuste Typen-Bestimmung für Pygame-Audiobuffer
+        abs_size = abs(size)
+        if abs_size == 32:
+            dtype = np.float32
+        elif abs_size == 16:
+            dtype = np.int16
+        else:
+            dtype = np.int8
+
         samples = np.frombuffer(raw, dtype=dtype).astype(np.float64)
         if channels > 1:
             samples = samples.reshape(-1, channels).mean(axis=1)
@@ -98,7 +94,7 @@ def _compute_speech_envelope(audio_path: str) -> tuple[list[float], float]:
     window_samples = max(1, int(freq * _ENVELOPE_WINDOW_MS / 1000))
     levels: list[float] = []
     for start in range(0, len(samples), window_samples):
-        chunk = samples[start:start + window_samples]
+        chunk = samples[start : start + window_samples]
         if chunk.size == 0:
             continue
         levels.append(float(np.sqrt(np.mean(np.square(chunk)))))
@@ -110,49 +106,34 @@ def _compute_speech_envelope(audio_path: str) -> tuple[list[float], float]:
 
 
 def _sanitize_for_speech(text: str) -> str:
-    """Strip markdown/formatting punctuation that an LLM uses to *mark up*
-    text but that should never be read aloud verbatim — bold/italic stars,
-    headers, code fences, links, tables, dotted acronyms, etc. The rule of
-    thumb: anything that's there to change how text *looks* gets removed;
-    anything that's part of the actual words stays."""
-
-    # Fenced/inline code — drop code blocks entirely, unwrap inline code.
+    """Strip markdown/formatting punctuation."""
     text = re.sub(r"```[\s\S]*?```", "", text)
     text = re.sub(r"`([^`]+)`", r"\1", text)
 
-    # Collapse dotted acronyms/spelled-out words (2+ single letters separated
-    # by dots) into a plain run of letters: "J.A.R.V.I.S." -> "TARNO".
     text = re.sub(
         r"\b(?:[A-Za-zÄÖÜäöü]\.){2,}",
         lambda m: m.group(0).replace(".", ""),
         text,
     )
 
-    # Emphasis: ***bold italic***, **bold**, *italic*, ___/__/_ variants, ~~strike~~.
     text = re.sub(r"\*{1,3}([^*]+?)\*{1,3}", r"\1", text)
     text = re.sub(r"_{1,3}([^_]+?)_{1,3}", r"\1", text)
     text = re.sub(r"~~([^~]+)~~", r"\1", text)
 
-    # Headers, blockquotes, horizontal rules, list bullets/numbers.
     text = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
     text = re.sub(r"^>\s?", "", text, flags=re.MULTILINE)
     text = re.sub(r"^\s*([-*_]\s*){3,}$", "", text, flags=re.MULTILINE)
     text = re.sub(r"^\s*[-*+]\s+", "", text, flags=re.MULTILINE)
     text = re.sub(r"^\s*\d+[.)]\s+", "", text, flags=re.MULTILINE)
 
-    # Links/images: [text](url), ![alt](url) -> just the text.
     text = re.sub(r"!?\[([^\]]*)\]\([^)]+\)", r"\1", text)
 
-    # Table pipes and separator rows.
     text = re.sub(r"^\|?[\s:|-]+\|$", "", text, flags=re.MULTILINE)
     text = text.replace("|", " ")
 
-    # Collapse repeated/mixed punctuation ("!!!", "??", "?!?!", "...") the
-    # model sometimes uses for emphasis instead of tone.
     text = re.sub(r"[!?]{2,}", lambda m: m.group(0)[0], text)
     text = re.sub(r"\.{4,}", "...", text)
 
-    # Leftover stray emphasis/heading characters and excess whitespace.
     text = re.sub(r"[*_~#]", "", text)
     text = re.sub(r"[ \t]{2,}", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
@@ -161,17 +142,13 @@ def _sanitize_for_speech(text: str) -> str:
 
 
 class SpeechSynthesizer:
-    """Converts text to speech and plays it through the speakers.
-
-    Uses a chain of local TTS engines (NeuTTS, Piper, edge-tts) and supports
-    real-time streaming as well as sentence/file fallback.
-    """
+    """Converts text to speech and plays it through the speakers."""
 
     def __init__(
         self,
         config: AudioConfig,
-        on_tts_started: "Callable[[str, list[float], float], None] | None" = None,
-        on_tts_finished: "Callable[[], None] | None" = None,
+        on_tts_started: Callable[[str, list[float], float], None] | None = None,
+        on_tts_finished: Callable[[], None] | None = None,
     ) -> None:
         self._config = config
         self._language = config.language
@@ -179,19 +156,11 @@ class SpeechSynthesizer:
         self._rate = f"{int((self._speed - 1.0) * 100):+d}%"
         self._cache_dir = Path(config.tts_cache_dir).expanduser()
         self._cache_dir.mkdir(parents=True, exist_ok=True)
-        # KERNFIX (Live-Test, siehe workspace/debug/tools/debug_proactive_live.py): speak()
-        # haelt self._lock fuer den gesamten Aufruf und ruft im Datei-
-        # Fallback-Pfad _speak_file() auf, das denselben Lock ERNEUT
-        # acquired ("with self._lock:") - mit einem einfachen threading.Lock
-        # ist das ein garantierter Selbst-Deadlock, reproduzierbar sobald der
-        # Streaming-Pfad nicht greift (tts_streaming=False oder alle Engines
-        # scheitern beim Streaming). RLock erlaubt reentrantes Acquire durch
-        # denselben Thread und behebt das ohne die bestehende Kritische-
-        # Sektion-Semantik an anderen with-self._lock-Stellen zu aendern.
+        
         self._lock = threading.RLock()
         self._on_tts_started = on_tts_started
         self._on_tts_finished = on_tts_finished
-        # None = SDL/OS default output device. Set via set_output_device().
+        
         self._output_device: str | None = None
         self._output_device_index: int | None = None
         self._mixer_ready = False
@@ -238,6 +207,7 @@ class SpeechSynthesizer:
             except Exception:
                 log.warning("TTS-Engine '%s' konnte nicht sauber geschlossen werden", engine.name, exc_info=True)
         self._engines.clear()
+        
         for name in names:
             try:
                 engine = get_tts_engine(name, tts_config)
@@ -365,7 +335,6 @@ class SpeechSynthesizer:
             return False
 
         if self._on_tts_started is not None:
-            # Streaming has no final envelope yet; pass empty envelope.
             self._on_tts_started(text, [], 0.0)
 
         stream.wait_until_done()
@@ -430,20 +399,25 @@ class SpeechSynthesizer:
         """Map an output device name to a PortAudio index."""
         if name is None or str(name).lower() in ("default", "standard", "", "none"):
             return None
-        pa = pyaudio.PyAudio()
+        
         try:
-            target = str(name).lower()
-            for i in range(pa.get_device_count()):
-                info = pa.get_device_info_by_index(i)
-                if info.get("maxOutputChannels", 0) <= 0:
-                    continue
-                dev_name = str(info.get("name", "")).lower()
-                if target in dev_name or dev_name in target:
-                    return i
-            log.warning("Ausgabegerät '%s' nicht gefunden - verwende Standard", name)
+            pa = pyaudio.PyAudio()
+            try:
+                target = str(name).lower()
+                for i in range(pa.get_device_count()):
+                    info = pa.get_device_info_by_index(i)
+                    if info.get("maxOutputChannels", 0) <= 0:
+                        continue
+                    dev_name = str(info.get("name", "")).lower()
+                    if target in dev_name or dev_name in target:
+                        return i
+                log.warning("Ausgabegerät '%s' nicht gefunden - verwende Standard", name)
+                return None
+            finally:
+                pa.terminate()
+        except Exception:
+            log.exception("PortAudio-Geräteabfrage fehlgeschlagen")
             return None
-        finally:
-            pa.terminate()
 
     def _stop_current_stream(self) -> None:
         if self._current_stream is not None:
@@ -462,11 +436,6 @@ class SpeechSynthesizer:
                 pygame.mixer.stop()
 
     def play_sound(self) -> None:
-        """Play a short confirmation sound on a pygame mixer channel.
-
-        This is intentionally non-blocking: the caller should start listening
-        immediately so the user can continue speaking without waiting.
-        """
         if self._confirmation_sound is None:
             log.warning("Kein Bestätigungston verfügbar")
             return
@@ -488,12 +457,17 @@ class SpeechSynthesizer:
         with self._lock:
             try:
                 self._stop_current_stream()
+                
+                # ZUERST PyAudio auflösen, BEVOR Pygame zerstört wird
+                new_index = self._resolve_output_device(normalized)
+
                 if pygame.mixer.get_init() is not None:
                     pygame.mixer.quit()
                 pygame.mixer.init(devicename=normalized)
+                
                 self._mixer_ready = True
                 self._output_device = normalized
-                self._output_device_index = self._resolve_output_device(normalized)
+                self._output_device_index = new_index
 
                 try:
                     self._confirmation_sound = pygame.mixer.Sound(
@@ -501,6 +475,7 @@ class SpeechSynthesizer:
                     )
                 except Exception:
                     log.warning("Bestätigungston nach Geräte-Wechsel nicht neu geladen", exc_info=True)
+                
                 log.info("Audio-Ausgabegerät gewechselt zu: %s", normalized or "Standard")
                 return True
             except Exception:
@@ -511,7 +486,5 @@ class SpeechSynthesizer:
     @staticmethod
     def _resolve_asset_path(name: str) -> Path:
         """Return a resource path that works in source and PyInstaller builds."""
-        # In PyInstaller one-dir builds the module lives under _internal/tarno/voice,
-        # so two parents up is _internal/tarno — exactly where the asset is bundled.
         root = Path(__file__).resolve().parent.parent
         return root / "assets" / name
