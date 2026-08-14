@@ -89,3 +89,7 @@ _deprecated_legacy_installers/
 desktop.ini
 .env/
 .env.local
+
+# Build artifacts
+*.exe
+Output/
