@@ -18,10 +18,9 @@ log = logging.getLogger(__name__)
 
 _PIPER_MODELS_DIR = Path.home() / ".tarno" / "models" / "piper"
 
-# Default German voice: re-hosted Thorsten medium model (CC0).
+# Standard-Repo auf HF (gültiges Piper ONNX Repository)
 _DEFAULT_REPO = "Trelis/piper-de-de-thorsten-medium"
 _DEFAULT_MODEL = "model.onnx"
-_DEFAULT_CONFIG = "model.onnx.json"
 
 
 class PiperEngine(BaseTTSEngine):
@@ -60,16 +59,13 @@ class PiperEngine(BaseTTSEngine):
         return self._voice_obj is not None
 
     def close(self) -> None:
-        # Drops the reference to the loaded PiperVoice (and its underlying
-        # onnxruntime session) immediately, instead of waiting for this
-        # PiperEngine instance itself to be garbage-collected - relevant on
-        # every language switch, since a new PiperEngine is constructed with
-        # a different voice each time.
         self._voice_obj = None
 
     def _resolve_model_files(self) -> tuple[Path, Path]:
         """Return (model.onnx, config.json) paths, downloading if needed."""
         voice = self._voice
+
+        # 1. Lokale Datei direkt laden
         candidate = Path(voice).expanduser()
         if candidate.exists():
             model_path = candidate
@@ -78,37 +74,65 @@ class PiperEngine(BaseTTSEngine):
                 config_path = candidate.with_suffix(".json")
             return model_path, config_path
 
-        # Treat as HuggingFace repo id.
+        # 2. Guardrail: Vermeidet HTTP 401 bei HF durch unpassende IDs (z.B. Edge-TTS 'de-DE-ConradNeural')
+        if "Neural" in voice or "/" not in voice:
+            log.warning(
+                "Ungültige Piper Voice-ID oder Fremdmodell '%s' erkannt. Falle zurück auf '%s'.",
+                voice,
+                _DEFAULT_REPO,
+            )
+            voice = _DEFAULT_REPO
+
+        # 3. Pfad- und Repo-Parsing für HuggingFace
         repo_id = voice
         model_filename = _DEFAULT_MODEL
-        config_filename = _DEFAULT_CONFIG
-        if "/" in repo_id and any(repo_id.endswith(ext) for ext in (".onnx", ".pt")):
-            # User gave a full repo/model path like rhasspy/piper-voices/...
+
+        # Falls ein tieferer Pfad übergeben wurde (z.B. rhasspy/piper-voices/de/.../model.onnx)
+        if any(repo_id.endswith(ext) for ext in (".onnx", ".pt")):
             parts = repo_id.split("/")
             repo_id = "/".join(parts[:2])
             model_filename = "/".join(parts[2:])
-            config_filename = f"{model_filename}.json"
+
+        # Config-Varianten auflösen
+        if model_filename.endswith(".onnx"):
+            base_name = model_filename[:-5]
+            primary_config = f"{base_name}.json"        # z. B. model.json
+            fallback_config = f"{model_filename}.json"  # z. B. model.onnx.json
+        else:
+            primary_config = f"{model_filename}.json"
+            fallback_config = f"{model_filename}.onnx.json"
 
         _PIPER_MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
-        log.info("Lade Piper-Modell '%s' herunter...", repo_id)
+        log.info("Lade Piper-Modell '%s' (%s) herunter...", repo_id, model_filename)
         try:
             local_model = Path(
                 hf_hub_download(
                     repo_id=repo_id,
                     filename=model_filename,
                     local_dir=str(_PIPER_MODELS_DIR),
-                    local_dir_use_symlinks=False,
                 )
             )
-            local_config = Path(
-                hf_hub_download(
-                    repo_id=repo_id,
-                    filename=config_filename,
-                    local_dir=str(_PIPER_MODELS_DIR),
-                    local_dir_use_symlinks=False,
+
+            # Versuche primäre Config, sonst Fallback
+            try:
+                local_config = Path(
+                    hf_hub_download(
+                        repo_id=repo_id,
+                        filename=primary_config,
+                        local_dir=str(_PIPER_MODELS_DIR),
+                    )
                 )
-            )
+            except Exception:
+                log.debug("Primary config '%s' fehlgeschlagen, versuche Fallback '%s'", primary_config, fallback_config)
+                local_config = Path(
+                    hf_hub_download(
+                        repo_id=repo_id,
+                        filename=fallback_config,
+                        local_dir=str(_PIPER_MODELS_DIR),
+                    )
+                )
+
         except Exception:
             log.exception("Piper-Modell-Download fehlgeschlagen: %s", repo_id)
             raise
