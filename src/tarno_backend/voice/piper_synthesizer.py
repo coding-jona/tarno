@@ -48,17 +48,30 @@ class PiperSynthesizer:
             log.exception("pygame mixer konnte nicht initialisiert werden")
 
     def _ensure_model(self) -> Path:
-        """Download or locate the Piper model."""
+        """Download or locate the Piper model using huggingface_hub."""
+        from huggingface_hub import hf_hub_download
+
+        model_dir = Path.home() / ".tarno" / "models" / "piper"
+        model_dir.mkdir(parents=True, exist_ok=True)
+
         try:
-            from piper.download import get_voices
-            voices = get_voices("de_DE-thorsten-medium")
-            voice = voices[0]
-            model_path = voice.model_path
-            if model_path.exists():
-                return model_path
-            # Download if missing
-            voice.download()
-            return voice.model_path
+            # Lade die .onnx Modell-Datei
+            model_path = Path(
+                hf_hub_download(
+                    repo_id="speaches-ai/piper-de_DE-thorsten-medium",
+                    filename="model.onnx",
+                    local_dir=str(model_dir),
+                    local_dir_use_symlinks=False,
+                )
+            )
+            # Lade die zugehörige .json Konfigurations-Datei
+            hf_hub_download(
+                repo_id="speaches-ai/piper-de_DE-thorsten-medium",
+                filename="model.onnx.json",
+                local_dir=str(model_dir),
+                local_dir_use_symlinks=False,
+            )
+            return model_path
         except Exception:
             log.exception("Piper Modell konnte nicht beschafft werden")
             raise
