@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 HUB = "HUB"
 ESP32 = "ESP32"
 SECONDARY = "SECONDARY"
+WIKO = "WIKO"
 
 
 class HeartbeatMonitor:
