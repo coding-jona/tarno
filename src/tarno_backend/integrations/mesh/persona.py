@@ -18,8 +18,8 @@ import random
 
 _RESPONSES: dict[str, list[str]] = {
     "HUB_FALLBACK_PC": [
-        "Hub-Handy nicht erreichbar. Ich muss das Broker-System jetzt auch noch selbst hosten. Ausgezeichnet.",
-        "Hub-Node offline. Ich uebernehme das Logging auf der PC-CPU. Verlass dich ruhig komplett auf mich.",
+        "Hub-Handy nicht erreichbar. Ich uebernehme jetzt auch noch die Hub-Rolle und hoste das Broker-System selbst. Ausgezeichnet.",
+        "Hub-Node offline. Die Hub-Rolle geht an mich, ich uebernehme das Logging auf der PC-CPU. Verlass dich ruhig komplett auf mich.",
     ],
     "HUB_FULL_MESH": [
         "Das Hub-Handy ist wieder da und uebernimmt die Hub-Rolle. Ich darf mich wieder zuruecklehnen.",

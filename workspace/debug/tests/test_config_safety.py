@@ -5,6 +5,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import yaml
 
@@ -152,7 +153,13 @@ class ConfigRoundtripTests(unittest.TestCase):
             original = TarnoConfig(language="de", theme="dark", log_level="DEBUG")
             original.save(path)
 
-            loaded = TarnoConfig.load(path)
+            # TarnoConfig.load() always merges a real ~/.tarno/config override
+            # on top of the given path (by design, so a user's own settings
+            # win) - without this patch the test picks up whatever the
+            # machine running it happens to have there instead of testing
+            # roundtrip isolation.
+            with patch("tarno_backend.core.config.Path.home", return_value=Path(tmp) / "home"):
+                loaded = TarnoConfig.load(path)
             self.assertEqual(loaded.language, "de")
             self.assertEqual(loaded.theme, "dark")
             self.assertEqual(loaded.log_level, "DEBUG")
