@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from tarno_backend.integrations.mesh.broker import EmbeddedMqttBroker
-from tarno_backend.integrations.mesh.heartbeat import ESP32, HUB, SECONDARY, HeartbeatMonitor
+from tarno_backend.integrations.mesh.heartbeat import ESP32, HeartbeatMonitor
 from tarno_backend.integrations.mesh.mqtt_bridge import MqttBridge
 from tarno_backend.integrations.mesh.payload import MeshEvent
 
@@ -84,19 +84,24 @@ class MeshRouter:
 
     def _classify_sender(self, sender_node: str) -> str | None:
         upper = sender_node.upper()
+        # Track presence under the configured match string itself (not a
+        # fixed canonical label) so mark_seen()/is_online() agree with
+        # whatever hub_node_match/secondary_node_match this instance was
+        # configured with - a user with a different phone brand than the
+        # default WIKO/ZTE still gets consistent tracking.
         if self._hub_node_match in upper:
-            return HUB
+            return self._hub_node_match
         if "ESP32" in upper:
             return ESP32
         if self._secondary_node_match in upper:
-            return SECONDARY
+            return self._secondary_node_match
         return None
 
     def tick(self) -> None:
         """Re-evaluate which scenario applies and act on a change. Call this
         periodically (driven by client.py's heartbeat-interval timer)."""
-        hub_online = self._heartbeat.is_online(HUB)
-        secondary_online = self._heartbeat.is_online(SECONDARY)
+        hub_online = self._heartbeat.is_online(self._hub_node_match)
+        secondary_online = self._heartbeat.is_online(self._secondary_node_match)
 
         if hub_online:
             new_scenario = FULL_MESH
@@ -114,7 +119,7 @@ class MeshRouter:
         self._apply_scenario(previous, new_scenario)
 
     def _apply_scenario(self, previous: str, current: str) -> None:
-        reason = f"hub_online={self._heartbeat.is_online(HUB)}, secondary_online={self._heartbeat.is_online(SECONDARY)}"
+        reason = f"hub_online={self._heartbeat.is_online(self._hub_node_match)}, secondary_online={self._heartbeat.is_online(self._secondary_node_match)}"
         log.info("Mesh-Szenario-Wechsel: %s -> %s (%s)", previous, current, reason)
 
         if current == PC_FALLBACK and previous != PC_FALLBACK:

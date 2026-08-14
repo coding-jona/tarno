@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from tarno_backend.ai.conversation import ConversationManager
 from tarno_backend.ai.prompts import build_system_prompt
@@ -18,7 +21,14 @@ class TTSPromptConfigTests(unittest.TestCase):
         self.assertEqual(cfg.tts_prompt.voice_hint, "thorsten")
 
     def test_default_yaml_loads_tts_prompt(self) -> None:
-        cfg = TarnoConfig.load()
+        # TarnoConfig.load() always merges a real ~/.tarno/config override on
+        # top of default.yaml (by design, so a user's own settings win) -
+        # without this patch the test picks up whatever language/filler
+        # words the machine running it happens to have configured there
+        # instead of testing the shipped default.yaml.
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch("tarno_backend.core.config.Path.home", return_value=Path(tmp) / "home"):
+                cfg = TarnoConfig.load()
         self.assertIsInstance(cfg.audio.tts_prompt, TTSPromptConfig)
         self.assertTrue(cfg.audio.tts_prompt.enabled)
         self.assertIn("äh", cfg.audio.tts_prompt.filler_words)

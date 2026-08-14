@@ -34,7 +34,7 @@ class PluginManagerTests(unittest.TestCase):
             "        return [ToolDefinition(\n"
             f"            name='{name}_tool',\n"
             "            description='test',\n"
-            "            input_schema={{'type': 'object', 'properties': {{}}}},\n"
+            "            input_schema={'type': 'object', 'properties': {}},\n"
             "            handler=lambda: 'ok'\n"
             "        )]\n"
             "plugin = DummyPlugin()\n",
