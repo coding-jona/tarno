@@ -1,5 +1,6 @@
 """Entry point for `python -m tarno`."""
 
+import logging
 import os
 import sys
 from pathlib import Path
