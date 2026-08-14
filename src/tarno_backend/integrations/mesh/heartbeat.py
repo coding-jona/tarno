@@ -20,6 +20,7 @@ HUB = "HUB"
 ESP32 = "ESP32"
 SECONDARY = "SECONDARY"
 WIKO = "WIKO"
+ZTE = "ZTE"
 
 
 class HeartbeatMonitor:
