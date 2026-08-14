@@ -27,11 +27,22 @@ def _make_bare_engine() -> TarnoEngine:
 class SetProviderTests(unittest.TestCase):
     def test_switch_to_ollama_succeeds_without_api_key(self) -> None:
         """Ollama needs no API key (not in _PROVIDER_SECRET_NAMES) - must
-        succeed and actually swap the live provider object."""
+        succeed and actually swap the live provider object.
+
+        create_provider is mocked out (same pattern as the other tests in
+        this file) because OllamaProvider.__init__ makes a real HTTP call to
+        verify a locally running Ollama server exists - without this, the
+        test only passed on a dev machine that happened to have Ollama
+        running, and failed hard (with a real network error, not a logic
+        bug) everywhere else, including CI."""
         engine = _make_bare_engine()
+        fake_new_provider = MagicMock()
+        fake_new_provider.name = "ollama"
 
-        success, message = engine.set_provider("ollama")
+        with patch("tarno_backend.ai.factory.create_provider", return_value=fake_new_provider) as mock_create:
+            success, message = engine.set_provider("ollama")
 
+        mock_create.assert_called_once()
         self.assertTrue(success)
         self.assertEqual(engine.provider.name, "ollama")
 
