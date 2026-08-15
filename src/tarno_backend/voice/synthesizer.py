@@ -33,6 +33,9 @@ _BUILTIN_NAME_HINTS = ("array", "internal", "built-in", "eingebaut", "laptop", "
 
 
 def _is_builtin_device_name(name: str) -> bool:
+    """Heuristic: does this playback device name look like a laptop's
+    built-in speaker rather than an external one (used to sort/flag it in
+    the Settings speaker picker)?"""
     lowered = name.lower()
     return any(hint in lowered for hint in _BUILTIN_NAME_HINTS)
 
@@ -156,11 +159,11 @@ class SpeechSynthesizer:
         self._rate = f"{int((self._speed - 1.0) * 100):+d}%"
         self._cache_dir = Path(config.tts_cache_dir).expanduser()
         self._cache_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self._lock = threading.RLock()
         self._on_tts_started = on_tts_started
         self._on_tts_finished = on_tts_finished
-        
+
         self._output_device: str | None = None
         self._output_device_index: int | None = None
         self._mixer_ready = False
@@ -173,6 +176,10 @@ class SpeechSynthesizer:
         self._init_engines()
 
     def _init_pygame(self) -> None:
+        """Initialize the pygame mixer (file-based playback path) and load
+        the confirmation chime. Logs and continues on failure - a broken
+        mixer only disables file-based/confirmation playback, streaming TTS
+        (TTSOutputStream) doesn't depend on it."""
         try:
             pygame.mixer.init(devicename=self._output_device)
             self._mixer_ready = True
@@ -188,6 +195,11 @@ class SpeechSynthesizer:
             log.exception("pygame mixer konnte nicht initialisiert werden")
 
     def _init_engines(self) -> None:
+        """(Re)build the ordered engine fallback chain: the configured
+        engine first, then piper and edge-tts as backstops (skipping
+        whichever of those is already the configured choice). Closes any
+        previously loaded engines first so this is safe to call again after
+        a config change (see _ensure_engines)."""
         tts_config = {
             "language": self._config.language,
             "voice": self._config.voice,
@@ -207,7 +219,7 @@ class SpeechSynthesizer:
             except Exception:
                 log.warning("TTS-Engine '%s' konnte nicht sauber geschlossen werden", engine.name, exc_info=True)
         self._engines.clear()
-        
+
         for name in names:
             try:
                 engine = get_tts_engine(name, tts_config)
@@ -238,6 +250,10 @@ class SpeechSynthesizer:
         return self._cache_dir / f"{key}.wav"
 
     def speak(self, text: str) -> None:
+        """Synthesize and play `text`. Tries streaming engines first (if
+        tts_streaming is on), then falls back to file-based playback across
+        the whole engine chain until one succeeds. Fully synchronous -
+        blocks the caller until playback (or every fallback) finishes."""
         if not text:
             return
 
@@ -399,7 +415,7 @@ class SpeechSynthesizer:
         """Map an output device name to a PortAudio index."""
         if name is None or str(name).lower() in ("default", "standard", "", "none"):
             return None
-        
+
         try:
             pa = pyaudio.PyAudio()
             try:
@@ -429,6 +445,7 @@ class SpeechSynthesizer:
             self._current_stream = None
 
     def stop(self) -> None:
+        """Immediately stop any in-progress playback (streaming or file-based)."""
         with self._lock:
             self._stop_current_stream()
             if self._mixer_ready and pygame.mixer.get_init() is not None:
@@ -436,6 +453,7 @@ class SpeechSynthesizer:
                 pygame.mixer.stop()
 
     def play_sound(self) -> None:
+        """Play the short confirmation chime (e.g. on wake-word detection)."""
         if self._confirmation_sound is None:
             log.warning("Kein Bestätigungston verfügbar")
             return
@@ -457,14 +475,14 @@ class SpeechSynthesizer:
         with self._lock:
             try:
                 self._stop_current_stream()
-                
+
                 # ZUERST PyAudio auflösen, BEVOR Pygame zerstört wird
                 new_index = self._resolve_output_device(normalized)
 
                 if pygame.mixer.get_init() is not None:
                     pygame.mixer.quit()
                 pygame.mixer.init(devicename=normalized)
-                
+
                 self._mixer_ready = True
                 self._output_device = normalized
                 self._output_device_index = new_index
@@ -475,7 +493,7 @@ class SpeechSynthesizer:
                     )
                 except Exception:
                     log.warning("Bestätigungston nach Geräte-Wechsel nicht neu geladen", exc_info=True)
-                
+
                 log.info("Audio-Ausgabegerät gewechselt zu: %s", normalized or "Standard")
                 return True
             except Exception:

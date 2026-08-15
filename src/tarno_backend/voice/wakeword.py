@@ -126,6 +126,9 @@ class WakeWordDetector:
     """Always-on wake word detection."""
 
     def __init__(self, config: WakeWordConfig, agc_config: "AGCConfig | None" = None) -> None:
+        """Try to initialize the requested backend first, then fall back
+        through the others (vosk -> openwakeword -> porcupine order) until
+        one actually loads. Raises only if every backend fails."""
         self._threshold = config.threshold
         self._patience = max(1, config.patience)
         self._debounce_time = config.debounce_time
@@ -172,6 +175,9 @@ class WakeWordDetector:
         raise RuntimeError("Kein Wake-Word-Backend verfügbar")
 
     def _init_vosk(self, config: WakeWordConfig) -> None:
+        """Load the German (and, alongside it, a fixed small English) Vosk
+        model, downloading either one on first use. Raises on any failure -
+        the caller's fallback chain decides what happens next."""
         try:
             import vosk
 
@@ -218,6 +224,8 @@ class WakeWordDetector:
             raise
 
     def _make_vosk_recognizer(self, model, sample_rate: int):
+        """Build a grammar-constrained recognizer that can only ever output
+        one of our wake_phrases or "[unk]" - see _match_vosk_recognizer."""
         import vosk
 
         grammar = json.dumps(self._wake_phrases + ["[unk]"])
@@ -252,6 +260,9 @@ class WakeWordDetector:
         log.info("Vosk-Modell gewechselt: %s aktiv", model_size)
 
     def _init_porcupine(self, config: WakeWordConfig) -> None:
+        """Load a Picovoice Porcupine model. Requires an access key (env
+        var or config); raises immediately if none is set, since there's
+        no local fallback for that."""
         try:
             import pvporcupine
 
@@ -282,6 +293,9 @@ class WakeWordDetector:
             raise
 
     def _init_openwakeword(self, config: WakeWordConfig) -> None:
+        """Load an openWakeWord model, downloading its (never PyPI-bundled)
+        weight files on first use. See the KERNFIX comment below for why
+        that download step exists at all."""
         try:
             from openwakeword.model import Model as OWWModel
 
@@ -339,6 +353,9 @@ class WakeWordDetector:
             raise
 
     def process_frame(self, audio_chunk: np.ndarray) -> bool:
+        """Feed one audio chunk to the active backend. Returns True exactly
+        once per real wake-word detection (debounced/patience-gated inside
+        each backend's _process_* method)."""
         if self._backend == "vosk":
             return self._process_vosk(audio_chunk)
         if self._backend == "porcupine":
@@ -346,6 +363,8 @@ class WakeWordDetector:
         return self._process_openwakeword(audio_chunk)
 
     def _match_vosk_recognizer(self, rec, audio_bytes: bytes) -> str | None:
+        """Feed audio to one grammar-constrained recognizer and return the
+        matched wake phrase, or None if it heard "[unk]"/nothing."""
         wake_phrases = self._wake_phrases
         if rec.AcceptWaveform(audio_bytes):
             result = json.loads(rec.Result())
@@ -371,6 +390,8 @@ class WakeWordDetector:
                 log.debug("Vosk frei erkannt (%s, unbeschränktes Vokabular): '%s'", label, text)
 
     def _process_vosk(self, audio_chunk: np.ndarray) -> bool:
+        """Vosk backend: run both language recognizers, debounce, and
+        report a detection at most once per debounce window."""
         if self._agc_enabled:
             audio_chunk = self._agc.apply(audio_chunk)
         audio_bytes = audio_chunk.tobytes()
@@ -408,6 +429,9 @@ class WakeWordDetector:
         return True
 
     def _process_porcupine(self, audio_chunk: np.ndarray) -> bool:
+        """Porcupine backend: buffer audio into fixed-size frames (Porcupine
+        needs exact frame_length chunks), run detection, apply
+        patience/debounce."""
         if self._agc_enabled:
             audio_chunk = self._agc.apply(audio_chunk)
         self._buffer.extend(audio_chunk.tolist())
@@ -437,6 +461,8 @@ class WakeWordDetector:
         return True
 
     def _process_openwakeword(self, audio_chunk: np.ndarray) -> bool:
+        """openWakeWord backend: score the chunk, require `patience`
+        consecutive above-threshold frames, then debounce."""
         if self._agc_enabled:
             audio_chunk = self._agc.apply(audio_chunk)
         prediction = self._model.predict(audio_chunk)
@@ -468,6 +494,9 @@ class WakeWordDetector:
         return True
 
     def reset(self) -> None:
+        """Clear all detection state (patience counter, AGC, recognizer
+        buffers) - call after a query completes so the next wake-word
+        listen starts fresh."""
         log.debug("Wake-Word-Detector zurückgesetzt (backend=%s)", self._backend)
         self._consecutive = 0
         self._agc.reset()

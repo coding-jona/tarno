@@ -33,6 +33,9 @@ class AutomaticGainControl:
         self._gain = 1.0
 
     def apply(self, audio_chunk: np.ndarray) -> np.ndarray:
+        """Apply the current gain to one chunk, adapting the gain toward
+        target_rms for next time. Silent (near-zero RMS) chunks pass through
+        unchanged rather than getting amplified into noise."""
         rms = float(np.sqrt(np.mean(audio_chunk.astype(np.float64) ** 2)))
         if rms < 1e-6:
             return audio_chunk
@@ -53,4 +56,5 @@ class AutomaticGainControl:
         return clipped.astype(np.int16)
 
     def reset(self) -> None:
+        """Drop back to unity gain (e.g. when starting a fresh listen)."""
         self._gain = 1.0

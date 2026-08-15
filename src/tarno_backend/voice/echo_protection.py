@@ -30,10 +30,13 @@ class EchoProtection:
         self._reference_energy: float = 0.0
 
     def on_tts_started(self) -> None:
+        """Call when TTS playback begins - suppresses wake-word processing
+        until on_tts_finished() plus the cooldown window."""
         self._tts_active = True
         log.debug("EchoProtection: TTS gestartet")
 
     def on_tts_finished(self) -> None:
+        """Call when TTS playback ends - starts the post-playback cooldown."""
         self._tts_active = False
         self._cooldown_until = time.monotonic() + (self._config.cooldown_ms / 1000.0)
         log.debug("EchoProtection: TTS beendet, Cooldown %d ms", self._config.cooldown_ms)

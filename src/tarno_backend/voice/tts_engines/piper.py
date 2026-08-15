@@ -140,6 +140,7 @@ class PiperEngine(BaseTTSEngine):
         return local_model, local_config
 
     def _load_voice(self) -> Any:
+        """Load the resolved .onnx/.json pair into a PiperVoice instance."""
         try:
             from piper import PiperVoice
 

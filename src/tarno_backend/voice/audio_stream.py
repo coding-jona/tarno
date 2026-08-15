@@ -35,6 +35,7 @@ _BUILTIN_NAME_HINTS = ("array", "internal", "built-in", "eingebaut", "laptop", "
 
 
 def _is_builtin_device_name(name: str) -> bool:
+    """Heuristic: does this device name look like a laptop's built-in mic?"""
     lowered = name.lower()
     return any(hint in lowered for hint in _BUILTIN_NAME_HINTS)
 
@@ -196,10 +197,13 @@ class AudioStream:
 
     @property
     def is_active(self) -> bool:
+        """True only while actually capturing (started and not paused)."""
         with self._lock:
             return self._started and not self._paused
 
     def start(self) -> None:
+        """Create the PyAudio instance and open the stream. A no-op if
+        already started - call stop() first to fully restart from scratch."""
         with self._lock:
             if self._started:
                 return
@@ -404,6 +408,9 @@ class AudioStream:
         return False
 
     def stop(self) -> None:
+        """Full teardown: close the stream and terminate PyAudio. Use this
+        (not pause()) on real shutdown or before a full restart() - pause()
+        is the lightweight, fast-resume variant for normal turn-taking."""
         with self._lock:
             self._started = False
             self._paused = False
