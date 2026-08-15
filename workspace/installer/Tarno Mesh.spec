@@ -1,8 +1,9 @@
 # -*- mode: python ; coding: utf-8 -*-
 from pathlib import Path
 
-# SPECPATH wird von PyInstaller bereitgestellt und zeigt auf den Ordner der .spec-Datei
-PROJECT_ROOT = Path(SPECPATH).resolve()
+# SPECPATH wird von PyInstaller bereitgestellt und zeigt auf den Ordner der
+# .spec-Datei (workspace/installer/, also zwei Ebenen unterm Repo-Root).
+PROJECT_ROOT = Path(SPECPATH).resolve().parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 ICON_PATH = SRC_DIR / "TARNO.UI" / "Assets" / "app.ico"
 

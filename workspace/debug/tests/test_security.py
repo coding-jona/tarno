@@ -116,6 +116,10 @@ class ApiKeyLeakPreventionTests(unittest.TestCase):
         data = json.loads(persona.read_text(encoding="utf-8"))
         self.assertNotIn("key", data.get("ovos-solver-openai-plugin", {}))
 
+    @unittest.skipUnless(
+        __import__("importlib").util.find_spec("ovos_core") is not None,
+        "ovos_core nicht installiert (optionaler OVOS-Stack, siehe ADR-002 / requirements-ovos.txt)",
+    )
     def test_install_persona_removes_key_field(self):
         from tarno_backend.core.ovos_engine import TarnoOvosEngine
 

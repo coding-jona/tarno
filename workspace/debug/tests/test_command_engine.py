@@ -178,6 +178,10 @@ class ConfirmationDialogSelectionTests(unittest.TestCase):
         dialog = create_default_confirmation(prefer_qt=True)
         self.assertEqual(dialog.__name__, "show_console_confirmation")
 
+    @unittest.skipUnless(
+        __import__("importlib").util.find_spec("PySide6") is not None,
+        "PySide6 nicht installiert (optionale --legacy-ui Abhängigkeit, siehe TD-006/TD-017)",
+    )
     def test_gui_mode_uses_qt_presenter(self):
         """With a QApplication the Qt presenter must be selected."""
         from unittest.mock import patch

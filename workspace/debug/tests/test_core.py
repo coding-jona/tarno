@@ -216,6 +216,10 @@ class ConversationManagerTests(unittest.TestCase):
             self.assertIsInstance(meta["id"], str)
 
 
+@unittest.skipUnless(
+    __import__("importlib").util.find_spec("ovos_core") is not None,
+    "ovos_core nicht installiert (optionaler OVOS-Stack, siehe ADR-002 / requirements-ovos.txt)",
+)
 class ConfigRecoveryTests(unittest.TestCase):
     """Regression tests for OVOS config recovery."""
 

@@ -334,7 +334,15 @@ class MistralConfig:
 class WinUIConfig:
     exe_path: str = ""
     backend_port: int = 50051
-    backend_wait_seconds: int = 10
+    # Live gemessen (kalter Start, echtes Laden von Embeddings-/TTS-/Wake-
+    # Word-Modellen statt gemockt wie in Tests): der Backend-Subprozess
+    # braucht ca. 17s bis der gRPC-Port erreichbar ist - mit dem alten
+    # Default von 10s killte WinUILauncher._wait_for_backend() den Prozess
+    # dadurch praktisch bei JEDEM Start, bevor er fertig war (kein Retry
+    # danach - der ganze Start schlug einfach fehl). Grosszuegig genug
+    # bemessen fuer einen langsameren/kalten Rechner (z.B. erster Start
+    # nach openWakeWord-Modell-Download) statt am realen Minimum zu kleben.
+    backend_wait_seconds: int = 60
 
 
 @dataclass
