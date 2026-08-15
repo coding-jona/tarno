@@ -61,6 +61,8 @@ class EmbeddedMqttBroker:
         return True
 
     def stop(self) -> None:
+        """Shut down the broker and its event-loop thread. A no-op if the
+        broker was never successfully started (e.g. amqtt missing)."""
         if not self._running or self._loop is None:
             return
         self._running = False

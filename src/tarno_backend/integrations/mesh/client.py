@@ -33,6 +33,11 @@ _OBSERVER_ATTACH_MAX_WAIT = 5.0
 
 
 class MeshClient:
+    """Owns the mesh subsystem's lifecycle: UDP listener, embedded broker,
+    hub MQTT bridge, heartbeat tracking, router and (if an engine is given)
+    the proactive-commentary observer. plugin.py creates exactly one of
+    these and calls start()/stop() from on_load()/on_unload()."""
+
     def __init__(self, config: MeshConfig, engine: Any | None) -> None:
         self._config = config
         self._engine = engine
@@ -56,7 +61,17 @@ class MeshClient:
         self._attach_thread: threading.Thread | None = None
         self._running = False
 
+    @property
+    def scenario(self) -> str:
+        """Current router scenario (FULL_MESH / PC_FALLBACK / SOLO_PC) -
+        exposed for diagnostics (see plugin.py's mesh_status tool)."""
+        return self._router.scenario
+
     def start(self) -> None:
+        """Start the UDP listener and the router-tick thread, try connecting
+        to the hub phone's MQTT broker if one is configured, and (if running
+        inside the full engine) kick off attaching the proactive observer.
+        A no-op if already running."""
         if self._running:
             return
         self._running = True
@@ -85,6 +100,8 @@ class MeshClient:
         log.info("Mesh-Client gestartet (UDP-Port %d, MQTT-Port %d)", self._config.udp_port, self._config.mqtt_port)
 
     def stop(self) -> None:
+        """Stop every component started by start(). Safe to call even if
+        start() was never called."""
         if not self._running:
             return
         self._running = False
@@ -120,6 +137,8 @@ class MeshClient:
         )
 
     def _tick_loop(self) -> None:
+        """Background-thread body: call router.tick() once per heartbeat
+        interval until stop() signals _tick_stop."""
         interval = self._heartbeat.interval_seconds
         while self._running and not self._tick_stop.is_set():
             self._router.tick()

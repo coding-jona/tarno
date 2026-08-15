@@ -73,6 +73,7 @@ class MeshRouter:
 
     @property
     def scenario(self) -> str:
+        """Currently active scenario (FULL_MESH / PC_FALLBACK / SOLO_PC)."""
         with self._lock:
             return self._scenario
 
@@ -83,6 +84,9 @@ class MeshRouter:
             self._heartbeat.mark_seen(node)
 
     def _classify_sender(self, sender_node: str) -> str | None:
+        """Map a raw sender_node string (e.g. "ZTE_BLADE_V70") to the
+        presence-tracking key it counts as, or None if it matches neither
+        the configured hub, secondary, nor an ESP32 scanner."""
         upper = sender_node.upper()
         # Track presence under the configured match string itself (not a
         # fixed canonical label) so mark_seen()/is_online() agree with
@@ -119,6 +123,8 @@ class MeshRouter:
         self._apply_scenario(previous, new_scenario)
 
     def _apply_scenario(self, previous: str, current: str) -> None:
+        """Side effects of a real scenario change: start/stop the embedded
+        broker as needed and notify the on_transition callback."""
         reason = f"hub_online={self._heartbeat.is_online(self._hub_node_match)}, secondary_online={self._heartbeat.is_online(self._secondary_node_match)}"
         log.info("Mesh-Szenario-Wechsel: %s -> %s (%s)", previous, current, reason)
 

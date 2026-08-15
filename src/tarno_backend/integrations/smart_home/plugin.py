@@ -34,7 +34,7 @@ class SmartHomePlugin(BasePlugin):
                 token=ha.get("token", ""),
             )
             self._client.add_backend(backend)
-        self.audit("loaded", {"backends": len(self._client._backends)})
+        self.audit("loaded", {"backends": self._client.backend_count})
 
     def get_tools(self) -> list[ToolDefinition]:
         return [
@@ -76,4 +76,5 @@ class SmartHomePlugin(BasePlugin):
 
 
 def create_plugin(_manifest: dict[str, Any]) -> SmartHomePlugin:
+    """Entry point PluginManager calls to instantiate this plugin."""
     return SmartHomePlugin()

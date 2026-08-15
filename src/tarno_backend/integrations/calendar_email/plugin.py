@@ -76,4 +76,5 @@ class CalendarEmailPlugin(BasePlugin):
 
 
 def create_plugin(_manifest: dict[str, Any]) -> CalendarEmailPlugin:
+    """Entry point PluginManager calls to instantiate this plugin."""
     return CalendarEmailPlugin()

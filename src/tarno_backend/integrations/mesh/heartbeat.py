@@ -16,9 +16,11 @@ import time
 
 log = logging.getLogger(__name__)
 
-HUB = "HUB"
 ESP32 = "ESP32"
-SECONDARY = "SECONDARY"
+# WIKO/ZTE are the tests' + default-config's node identifiers - MeshRouter
+# tracks presence under whatever hub_node_match/secondary_node_match string
+# it's configured with (see router.py), not a fixed pair of role constants,
+# so no "HUB"/"SECONDARY" constants are needed here.
 WIKO = "WIKO"
 ZTE = "ZTE"
 
@@ -33,10 +35,13 @@ class HeartbeatMonitor:
         self._lock = threading.Lock()
 
     def mark_seen(self, node: str) -> None:
+        """Record that `node` was just heard from (heartbeat or any packet)."""
         with self._lock:
             self._last_seen[node] = time.monotonic()
 
     def is_online(self, node: str) -> bool:
+        """True if `node` was seen within the last 3 heartbeat intervals.
+        False for a node that's never been seen at all."""
         with self._lock:
             last = self._last_seen.get(node)
         if last is None:
@@ -44,6 +49,7 @@ class HeartbeatMonitor:
         return (time.monotonic() - last) < self._timeout
 
     def seconds_since_seen(self, node: str) -> float | None:
+        """Seconds since `node` was last seen, or None if never seen."""
         with self._lock:
             last = self._last_seen.get(node)
         if last is None:

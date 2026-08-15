@@ -41,6 +41,10 @@ class UdpBroadcastListener:
         return self._running
 
     def start(self) -> None:
+        """Bind the broadcast socket and spawn the receive thread. A no-op
+        if already running; logs (rather than raises) if the port can't be
+        bound, matching this integration's "disabled/degraded is fine,
+        never crash the app" contract."""
         if self._running:
             return
         try:
@@ -61,6 +65,8 @@ class UdpBroadcastListener:
         log.info("Mesh-UDP-Listener gestartet auf Port %d", self._port)
 
     def stop(self) -> None:
+        """Signal the receive thread to exit, wait briefly for it, then
+        close the socket. Safe to call even if start() was never called."""
         self._running = False
         self._stop_event.set()
         if self._thread and self._thread.is_alive():
@@ -74,6 +80,10 @@ class UdpBroadcastListener:
         log.info("Mesh-UDP-Listener gestoppt")
 
     def _run(self) -> None:
+        """Receive-loop body, run on the background thread started by
+        start(). Exits cleanly on stop() or a real socket error; a receive
+        timeout is expected/normal (it's just how we periodically re-check
+        _running without blocking forever)."""
         assert self._socket is not None
         while self._running and not self._stop_event.is_set():
             try:

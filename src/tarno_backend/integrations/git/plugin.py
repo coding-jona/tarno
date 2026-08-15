@@ -32,6 +32,7 @@ class GitPlugin(BasePlugin):
         ]
 
     def _status(self, repo_path: str = ".") -> ActionResult:
+        """Tool handler for `git_status`: format GitClient.status() as text."""
         client = GitClient(Path(repo_path).expanduser())
         if not client.is_repo():
             return self.failure(f"{repo_path} ist kein Git-Repository", error_code="NotARepo")
@@ -49,4 +50,5 @@ class GitPlugin(BasePlugin):
 
 
 def create_plugin(_manifest: dict[str, Any]) -> GitPlugin:
+    """Entry point PluginManager calls to instantiate this plugin."""
     return GitPlugin()

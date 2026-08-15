@@ -75,4 +75,5 @@ class DiscordPlugin(BasePlugin):
 
 
 def create_plugin(_manifest: dict[str, Any]) -> DiscordPlugin:
+    """Entry point PluginManager calls to instantiate this plugin."""
     return DiscordPlugin()

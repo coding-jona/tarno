@@ -80,6 +80,9 @@ class HomeAssistantBackend(SmartHomeBackend):
         return devices
 
     def set_state(self, device_id: str, key: str, value: Any) -> bool:
+        # `key` is part of the shared SmartHomeBackend interface but unused
+        # here: this demo implementation only supports the basic on/off
+        # service call, not arbitrary attribute writes (e.g. brightness).
         import requests
         domain = device_id.split(".")[0]
         service = "turn_on" if value else "turn_off"
@@ -104,6 +107,10 @@ class SmartHomeClient:
 
     def add_backend(self, backend: SmartHomeBackend) -> None:
         self._backends.append(backend)
+
+    @property
+    def backend_count(self) -> int:
+        return len(self._backends)
 
     def discover(self) -> list[SmartDevice]:
         devices: list[SmartDevice] = []

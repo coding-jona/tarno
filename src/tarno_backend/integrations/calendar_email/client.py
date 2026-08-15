@@ -27,6 +27,12 @@ class CalendarClient:
         self._calendar_file = Path(calendar_file).expanduser() if calendar_file else None
 
     def list_events(self, days: int = 1) -> list[CalendarEvent]:
+        """Return upcoming events for the next `days` days.
+
+        Re-parses the human-readable text that calendar_service already
+        formats for speech, rather than the raw .ics, so this stays a thin
+        wrapper instead of a second ICS parser.
+        """
         from tarno_backend.core.calendar_service import get_calendar_events
 
         if not self._calendar_file or not self._calendar_file.exists():

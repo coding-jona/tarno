@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from typing import Any
 
 log = logging.getLogger(__name__)
 
@@ -27,14 +28,20 @@ class DiscordClientModule:
         self._ptt_active = False
 
     def set_mute(self, muted: bool) -> str:
+        """Simulate Discord's mute toggle. There's no direct "mute" hotkey
+        being simulated here - muting just means releasing PTT, so the mic
+        stops transmitting the same way it would if the user let go of the
+        key themselves."""
         if not self._config.enabled:
             return "Discord-Integration ist deaktiviert."
-        # Muting via PTT simulation: release PTT when muted.
         if muted and self._ptt_active:
             self.push_to_talk(False)
         return f"Discord Mikrofon {'stumm' if muted else 'aktiv'} (simuliert)."
 
     def push_to_talk(self, active: bool) -> str:
+        """Press (active=True) or release (active=False) the configured PTT
+        key via a simulated keypress - Discord itself is never talked to
+        directly, this only presses the same key a human would."""
         if not self._config.enabled:
             return "Discord-Integration ist deaktiviert."
         if not self._config.ptt_key:
@@ -59,6 +66,10 @@ class DiscordClientModule:
 
     @staticmethod
     def _resolve_key(key_module: Any, name: str) -> Any:
+        """Map a configured key name to a pynput Key. Named special keys
+        (e.g. "ctrl", "f13") look up pynput.keyboard.Key by that name;
+        anything else is only valid as a single literal character (pynput
+        accepts a plain str for those), so multi-char garbage is rejected."""
         try:
             return getattr(key_module, name)
         except AttributeError:

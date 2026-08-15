@@ -66,6 +66,8 @@ class MqttBridge:
         return True
 
     def disconnect(self) -> None:
+        """Stop paho's background network thread and close the connection.
+        Safe to call even if connect() was never called or already failed."""
         if self._client is not None:
             self._client.loop_stop()
             self._client.disconnect()
@@ -73,6 +75,8 @@ class MqttBridge:
         self._connected = False
 
     def publish(self, topic: str, payload: str) -> None:
+        """Fire-and-forget publish (qos=0) - silently no-ops if not
+        connected, logs (never raises) on any client-side failure."""
         if self._client is None:
             return
         try:

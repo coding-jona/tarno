@@ -118,6 +118,10 @@ class CloudMeshObserver:
         self._initialized = False
 
     def check(self) -> ProactiveDraft | None:
+        """Poll the Tarno-Server once (throttled to _poll_interval_seconds)
+        and return a draft for the first real online/offline or
+        battery-critical transition found, if any. Returns None on a
+        throttled/failed/no-op poll."""
         now = time.monotonic()
         if self._last_poll_monotonic is not None and now - self._last_poll_monotonic < self._poll_interval_seconds:
             return None
@@ -128,6 +132,12 @@ class CloudMeshObserver:
             log.debug("CloudMeshObserver: Poll uebersprungen (%s)", error)
             return None
 
+        # Only the first transition found becomes the spoken draft (one
+        # comment per tick, matching every other observer) - both checks
+        # below always run for every device regardless (they update
+        # per-device state as a side effect), so a message found early
+        # doesn't leave later devices' online/battery state stale for the
+        # next poll.
         message: str | None = None
         for device in devices:
             device_id = device.get("id")
@@ -135,33 +145,53 @@ class CloudMeshObserver:
                 continue
             name = device.get("name", "Geraet")
 
-            online = _is_online(device)
-            previous_online = self._known_online.get(device_id)
-            self._known_online[device_id] = online
-            if self._initialized and previous_online is not None and previous_online != online and message is None:
-                event_type = "DEVICE_ONLINE" if online else "DEVICE_OFFLINE"
-                message = persona.comment(event_type, name=name)
-
-            level = self._battery_level(device)
-            if level is not None:
-                was_critical = self._battery_critical.get(device_id, False)
-                now_critical = level < self._BATTERY_CRITICAL_PERCENT
-                now_recovered = level >= self._BATTERY_RECOVERED_PERCENT
-                if now_critical:
-                    self._battery_critical[device_id] = True
-                elif now_recovered:
-                    self._battery_critical[device_id] = False
-
-                if self._initialized and not was_critical and now_critical and message is None:
-                    message = persona.comment("BATTERY_CRITICAL", name=name, level=level)
+            online_message = self._check_online_transition(device_id, name, device)
+            battery_message = self._check_battery_transition(device_id, name, device)
+            if message is None:
+                message = online_message or battery_message
 
         self._initialized = True
         if message is None:
             return None
         return ProactiveDraft(source=self.name, message=message, score=self._score)
 
+    def _check_online_transition(self, device_id: str, name: str, device: dict) -> str | None:
+        """Update known-online state for one device and return a spoken
+        comment if it just flipped online/offline. Silent on the very first
+        poll (self._initialized False) so a fresh app start doesn't
+        misreport already-known devices as newly online."""
+        online = _is_online(device)
+        previous_online = self._known_online.get(device_id)
+        self._known_online[device_id] = online
+        if not self._initialized or previous_online is None or previous_online == online:
+            return None
+        event_type = "DEVICE_ONLINE" if online else "DEVICE_OFFLINE"
+        return persona.comment(event_type, name=name)
+
+    def _check_battery_transition(self, device_id: str, name: str, device: dict) -> str | None:
+        """Update battery-critical hysteresis state for one device and
+        return a spoken comment on a fresh drop below the critical
+        threshold. See _BATTERY_CRITICAL_PERCENT/_BATTERY_RECOVERED_PERCENT
+        for the hysteresis band."""
+        level = self._battery_level(device)
+        if level is None:
+            return None
+
+        was_critical = self._battery_critical.get(device_id, False)
+        now_critical = level < self._BATTERY_CRITICAL_PERCENT
+        now_recovered = level >= self._BATTERY_RECOVERED_PERCENT
+        if now_critical:
+            self._battery_critical[device_id] = True
+        elif now_recovered:
+            self._battery_critical[device_id] = False
+
+        if self._initialized and not was_critical and now_critical:
+            return persona.comment("BATTERY_CRITICAL", name=name, level=level)
+        return None
+
     @staticmethod
     def _battery_level(device: dict) -> int | None:
+        """Extract the last-reported battery percentage, if any."""
         payloads = device.get("last_payloads") or {}
         battery = payloads.get("battery_network_status")
         if not battery:

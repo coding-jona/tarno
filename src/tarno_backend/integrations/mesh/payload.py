@@ -40,6 +40,7 @@ class MeshEvent:
     payload: dict[str, Any] = field(default_factory=dict)
 
     def to_json(self) -> str:
+        """Serialize back to the wire format described in this module's docstring."""
         return json.dumps(
             {
                 "sender_node": self.sender_node,

@@ -26,6 +26,11 @@ class GitClient:
         self._repo = Path(repo_path).expanduser().resolve()
 
     def _run(self, *args: str, check: bool = False) -> tuple[int, str, str]:
+        """Run `git <args>` in the target repo and return (exit_code, stdout, stderr).
+
+        Never raises for a missing git binary - callers (status(), is_repo())
+        treat a non-zero exit code as "unavailable" rather than crashing.
+        """
         try:
             proc = subprocess.run(
                 ["git", *args],
@@ -41,6 +46,8 @@ class GitClient:
             return 127, "", "git not found"
 
     def status(self) -> GitStatus:
+        """Summarize the repo's current branch, ahead/behind count vs.
+        origin, and modified/untracked files."""
         _, branch_out, _ = self._run("rev-parse", "--abbrev-ref", "HEAD")
         branch = branch_out.strip() or "unknown"
 
@@ -49,6 +56,8 @@ class GitClient:
         )
         ahead = behind = 0
         if ahead_behind:
+            # `git rev-list --left-right --count A...B` prints "<only-in-A>\t<only-in-B>" -
+            # here A=origin/<branch> (left, i.e. "behind") and B=HEAD (right, i.e. "ahead").
             parts = ahead_behind.strip().split("\t")
             if len(parts) == 2:
                 try:
@@ -63,6 +72,8 @@ class GitClient:
         for line in status_out.splitlines():
             if len(line) < 3:
                 continue
+            # `git status --porcelain` lines are "XY <path>" - X=index state,
+            # Y=worktree state. "??" marks a file git doesn't track at all yet.
             status_code = line[:2]
             filename = line[3:]
             if status_code[1] == "?":
@@ -79,4 +90,5 @@ class GitClient:
         )
 
     def is_repo(self) -> bool:
+        """True if the target path is inside a Git working tree."""
         return self._run("rev-parse", "--is-inside-work-tree")[0] == 0

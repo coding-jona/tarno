@@ -35,10 +35,15 @@ _KNOWN_APP_NAMES: dict[str, str] = {
 
 
 def _friendly_app_name(package_name: str) -> str:
+    """Map an Android package name to a spoken-friendly app name, or return
+    it unchanged if unknown."""
     return _KNOWN_APP_NAMES.get(package_name, package_name)
 
 
 def _format_relative(iso_timestamp: str) -> str:
+    """Turn an ISO-8601 sync timestamp into a short relative phrase
+    ("vor 12s" / "vor 3min" / ...), falling back to an absolute date once
+    it's more than two days old."""
     try:
         synced_at = datetime.datetime.fromisoformat(iso_timestamp)
     except ValueError:
@@ -57,6 +62,9 @@ def _format_relative(iso_timestamp: str) -> str:
 
 
 def _describe_device(device: dict[str, Any]) -> str:
+    """Build one spoken-friendly summary line for a single cloud-tracked
+    device from whatever payload types it has last reported (battery,
+    location, foreground app) - missing payload types are simply skipped."""
     name = device.get("name", "?")
     kind = device.get("kind", "?")
     payloads: dict[str, Any] = device.get("last_payloads") or {}
@@ -107,6 +115,9 @@ class MeshPlugin(BasePlugin):
         self._mesh_config: MeshConfig = MeshConfig()
 
     def on_load(self) -> None:
+        """Start the local UDP/MQTT mesh client if mesh.enabled is set.
+        The cloud device-tracking tool (mesh_device_status) works
+        regardless of this flag - see the comment below."""
         config = self._context.get("config") if self._context else None
         self._mesh_config = getattr(config, "mesh", MeshConfig())
 
@@ -157,12 +168,17 @@ class MeshPlugin(BasePlugin):
         ]
 
     def _status(self) -> ActionResult:
+        """Tool handler for `mesh_status`: report the local UDP/MQTT
+        router's current hub scenario."""
         if self._client is None:
             return self.success("Mesh ist deaktiviert (mesh.enabled = false).")
-        scenario = self._client._router.scenario  # noqa: SLF001 - internal diagnostic read
+        scenario = self._client.scenario
         return self.success(f"Aktuelles Mesh-Szenario: {scenario}")
 
     def _device_status(self) -> ActionResult:
+        """Tool handler for `mesh_device_status`: summarize the cloud-synced
+        tracking data (battery, location, foreground app) for every device
+        registered on the account."""
         devices, error = cloud_client.fetch_devices(self._mesh_config.cloud_server_url)
         if devices is None:
             return self.failure(error or "Cloud-Geraetestatus nicht abrufbar.")
@@ -173,4 +189,5 @@ class MeshPlugin(BasePlugin):
 
 
 def create_plugin(_manifest: dict[str, Any]) -> MeshPlugin:
+    """Entry point PluginManager calls to instantiate this plugin."""
     return MeshPlugin()

@@ -74,4 +74,5 @@ class MinecraftPlugin(BasePlugin):
 
 
 def create_plugin(_manifest: dict[str, Any]) -> MinecraftPlugin:
+    """Entry point PluginManager calls to instantiate this plugin."""
     return MinecraftPlugin()

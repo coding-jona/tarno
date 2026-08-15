@@ -29,6 +29,10 @@ class MinecraftVoiceModule:
         self._socket: socket.socket | None = None
 
     def connect(self) -> bool:
+        """Open the TCP socket to the companion mod. Returns False (never
+        raises) if the mod isn't running or the integration is disabled -
+        callers treat that as "voice chat control unavailable", not an
+        error."""
         if not self._config.enabled:
             return False
         try:
@@ -48,6 +52,7 @@ class MinecraftVoiceModule:
             return False
 
     def disconnect(self) -> None:
+        """Close the socket, if open. Safe to call repeatedly."""
         if self._socket is not None:
             try:
                 self._socket.close()
@@ -56,14 +61,18 @@ class MinecraftVoiceModule:
             self._socket = None
 
     def push_to_talk(self, active: bool) -> bool:
+        """Tell the mod to press/release its in-game PTT key."""
         action = "ptt_on" if active else "ptt_off"
         return self._send({"action": action})
 
     def set_microphone_enabled(self, enabled: bool) -> bool:
+        """Tell the mod to enable/disable microphone capture entirely."""
         action = "mic_on" if enabled else "mic_off"
         return self._send({"action": action})
 
     def _send(self, payload: dict[str, Any]) -> bool:
+        """Encode payload as one line of JSON and send it, connecting
+        lazily on first use."""
         if self._socket is None and not self.connect():
             return False
         if self._socket is None:
