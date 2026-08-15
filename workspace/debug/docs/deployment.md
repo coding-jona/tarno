@@ -17,8 +17,8 @@ cd openWakeWord-0.6.0
 python -m venv .venv
 .\.venv\Scripts\activate
 
-# Dependencies
-pip install -r requirements.txt
+# Dependencies (liegt unter workspace/installer/)
+pip install -r workspace/installer/requirements.txt
 
 # Konfiguration anlegen
 python -c "from tarno.core.config import TarnoConfig; TarnoConfig.load().save()"

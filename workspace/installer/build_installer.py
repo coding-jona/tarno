@@ -9,7 +9,12 @@ from pathlib import Path
 # --- Konfiguration & Pfade ---
 APP_NAME = "Tarno Mesh"
 APP_VERSION = "1.2.0"
+# Dieses Skript liegt unter workspace/installer/, also zwei Ebenen unterm
+# Repo-Root. BASE_DIR bleibt der eigene (Installer-)Ordner - dist/build/log
+# landen dort, selbstenthalten. PROJECT_ROOT zeigt auf den echten Repo-Root
+# fuer alles, was tatsaechlich dort liegt (.venv, src/, models/).
 BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent.parent
 DIST_DIR = BASE_DIR / "dist"
 BUILD_DIR = BASE_DIR / "build"
 LOG_FILE = BASE_DIR / "build.log"
@@ -33,9 +38,9 @@ logger = logging.getLogger("TarnoBuilder")
 def get_venv_python():
     """Ermittelt automatisch das Python-Executable aus der .venv oder nutzt das System-Python."""
     if platform.system() == "Windows":
-        venv_python = BASE_DIR / ".venv" / "Scripts" / "python.exe"
+        venv_python = PROJECT_ROOT / ".venv" / "Scripts" / "python.exe"
     else:
-        venv_python = BASE_DIR / ".venv" / "bin" / "python"
+        venv_python = PROJECT_ROOT / ".venv" / "bin" / "python"
 
     return venv_python if venv_python.exists() else Path(sys.executable)
 
@@ -87,9 +92,9 @@ def ensure_pyinstaller(venv_python):
 def find_entry_point():
     """Sucht automatisch nach der Hauptdatei im Projekt."""
     candidates = [
-        BASE_DIR / "src" / "tarno_backend" / "__main__.py",
-        BASE_DIR / "src" / "tarno_backend" / "app.py",
-        BASE_DIR / "main.py"
+        PROJECT_ROOT / "src" / "tarno_backend" / "__main__.py",
+        PROJECT_ROOT / "src" / "tarno_backend" / "app.py",
+        PROJECT_ROOT / "main.py"
     ]
     for path in candidates:
         if path.exists():
@@ -158,7 +163,7 @@ def main():
         "--onedir",
         # avoid --windowed on non-Windows platforms
         "--name", APP_NAME,
-        "--paths", str(BASE_DIR / "src"),  # Löst Import-Probleme im src-Layout
+        "--paths", str(PROJECT_ROOT / "src"),  # Löst Import-Probleme im src-Layout
         str(entry_point)
     ]
 
@@ -167,7 +172,7 @@ def main():
         pyinstaller_cmd.insert(3, "--windowed")
 
     # Optionaler Models-Ordner
-    models_dir = BASE_DIR / "models"
+    models_dir = PROJECT_ROOT / "models"
     if models_dir.exists():
         pyinstaller_cmd.extend(["--add-data", f"{models_dir}{os.pathsep}models"])
         logger.info("Ordner 'models' wird ins Paket eingebunden.")
@@ -211,7 +216,7 @@ def main():
             src_py = possible_backend_dir if possible_backend_dir.exists() else (possible_backend_exe.parent if possible_backend_exe.exists() else DIST_DIR)
             shutil.copytree(src_py, staging / 'tarno', dirs_exist_ok=True)
             # Attempt to include UI publish if it exists
-            ui_publish = BASE_DIR.parent / 'src' / 'TARNO.UI' / 'bin' / 'x64' / 'Release' / 'net8.0-windows10.0.19041.0' / 'win-x64' / 'publish'
+            ui_publish = PROJECT_ROOT / 'src' / 'TARNO.UI' / 'bin' / 'x64' / 'Release' / 'net8.0-windows10.0.19041.0' / 'win-x64' / 'publish'
             if ui_publish.exists():
                 shutil.copytree(ui_publish, staging / 'UI', dirs_exist_ok=True)
             # create zip

@@ -9,7 +9,7 @@ same shape: `client.py` (the actual API/protocol wrapper) + `plugin.py`
   (feeds `tarno_backend/core/proactive_briefing.py`).
 - **`discord/`**: controls the local Discord client's microphone
   (push-to-talk); the PTT feature needs the optional `pynput` dependency
-  (see root `requirements.txt` comments) and degrades gracefully without it.
+  (see `workspace/installer/requirements.txt` comments) and degrades gracefully without it.
 - **`git/`**: local git developer-tool helpers.
 - **`minecraft/`**: talks to the Minecraft "Simple Voice Chat" companion mod.
 - **`smart_home/`**: vendor-agnostic smart-home device abstraction.

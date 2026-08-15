@@ -68,13 +68,13 @@ source .venv/bin/activate
 
 
 
-3\. \*\*Install Python Dependencies:\*\*
+3\. \*\*Install Python Dependencies:\*\* (`requirements.txt` lives under `workspace/installer/`, two levels below the repo root)
 
 ```bash
 
 pip install --upgrade pip setuptools wheel
 
-pip install -r requirements.txt
+pip install -r workspace/installer/requirements.txt
 
 
 
@@ -226,6 +226,8 @@ PyInstaller is supported on FreeBSD to bundle standalone executables:
 
 
 
+Run this from `workspace/installer/` (where this file and `Tarno Mesh.spec` live):
+
 ```bash
 
 pip install pyinstaller
@@ -238,7 +240,7 @@ pyinstaller --noconfirm "Tarno Mesh.spec"
 
 
 
-\*Note: Inno Setup (`setup.iss`) is Windows-specific for generating `.exe` installers. On FreeBSD, distribute the PyInstaller `dist/Tarno Mesh/` output directly or package it via FreeBSD Ports / tarball.\*
+\*Note: Inno Setup (`setup.iss`) is Windows-specific for generating `.exe` installers. On FreeBSD, distribute the PyInstaller `workspace/installer/dist/Tarno Mesh/` output directly or package it via FreeBSD Ports / tarball.\*
 
 
 

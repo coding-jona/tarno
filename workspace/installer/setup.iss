@@ -16,8 +16,9 @@ VersionInfoCopyright=Copyright (C) 2026 Tarno AI (coding-jona, Dr-Deep)
 VersionInfoDescription=Tarno Mesh Application
 VersionInfoVersion=1.2.0
 
-; Relative Pfade zum Repo-Root
-SetupIconFile=src\TARNO.UI\Assets\app.ico
+; Diese Datei liegt unter workspace\installer\, also zwei Ebenen unterm
+; Repo-Root - Pfade zu Repo-weiten Quellen (src\...) brauchen deshalb ..\..\.
+SetupIconFile=..\..\src\TARNO.UI\Assets\app.ico
 OutputDir=Output
 OutputBaseFilename=Tarno_Mesh_Setup_v1.2.0
 
@@ -49,8 +50,9 @@ Source: "dist\Tarno Mesh\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdi
 ; und beendet sich sofort wieder - genau das live beobachtete
 ; "startet, dann direkt wieder weg"-Verhalten nach der Installation.
 ; Pfad muss zu "dotnet publish ... -r win-x64 --self-contained true"
-; passen (siehe build.ps1).
-Source: "src\TARNO.UI\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; passen (siehe build.ps1). ..\..\ da diese Datei unter workspace\installer\
+; liegt, src\ aber am Repo-Root.
+Source: "..\..\src\TARNO.UI\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\Tarno Mesh"; Filename: "{app}\Tarno Mesh.exe"

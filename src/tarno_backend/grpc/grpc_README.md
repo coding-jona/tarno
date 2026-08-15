@@ -19,7 +19,7 @@ point between the two halves of TARNO.
   source of truth for the wire protocol.
 - **`tarno_pb2.py`** / **`tarno_pb2_grpc.py`**: generated from `tarno.proto`.
   **Do not edit by hand** — regenerate via `grpcio-tools` (see
-  `requirements-dev.txt`) whenever `tarno.proto` changes.
+  `workspace/installer/requirements-dev.txt`) whenever `tarno.proto` changes.
 
 ## Cross-references
 
