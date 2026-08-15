@@ -601,6 +601,16 @@ class SpeechSynthesizerTests(unittest.TestCase):
         config = self._make_config()
         synth = SpeechSynthesizer(config)
         synth._on_tts_finished = finished
+        # SpeechNaturalizer.enhance() randomly injects fillers/backchannels
+        # (random.random()-gated) - left live, this test flaked
+        # intermittently: whenever it actually mutated "hallo", the cache
+        # path _speak_file() computes internally (hash includes the enhanced
+        # text) no longer matched the path this test pre-populated below,
+        # so speak() returned early (missing cache file) before ever
+        # reaching the pygame playback loop this test means to exercise.
+        # Pin it to identity so the text - and therefore the cache path -
+        # stays deterministic.
+        synth._naturalizer.enhance = lambda text: text
 
         engine = MagicMock()
         engine.name = "test"
