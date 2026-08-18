@@ -38,6 +38,14 @@ jobs:
           pip install -r workspace/installer/requirements-dev.txt
           pip install pyinstaller
 
+      - name: Remove enum34 (obsolete backport, blocks PyInstaller)
+        # A transitive dependency in requirements.txt pulls in enum34, which
+        # PyInstaller refuses to run with (it shadows the stdlib enum module
+        # on Python 3). workspace/installer/build_installer.py already works
+        # around this locally (cleanup_obsolete_packages()) - mirrored here
+        # since the CI venv is built fresh from requirements.txt each run.
+        run: pip uninstall -y enum34
+
       - name: Run backend tests
         env:
           PYTHONPATH: src
