@@ -1,4 +1,4 @@
-﻿"""Conversation history management â€” provider-agnostic."""
+"""Conversation history management — provider-agnostic."""
 
 from __future__ import annotations
 
@@ -247,6 +247,7 @@ class ConversationManager:
         return deduped
 
     def add_user_message(self, text: str, image_data_url: str | None = None) -> None:
+        """Append a user turn, optionally with an attached image."""
         if image_data_url:
             # Content-Block-Liste statt String (Phase A: Bild-Upload) - folgt
             # demselben Muster wie add_assistant_response/add_assistant_tool_use.
@@ -359,6 +360,8 @@ class ConversationManager:
         self._save()
 
     def get_messages(self) -> list[dict[str, Any]]:
+        """Return the current history as a plain list, re-sanitizing first
+        so a caller never sees a broken tool-use/tool-result pairing."""
         self._sanitize()
         return list(self._history)
 
@@ -417,5 +420,6 @@ class ConversationManager:
         return None
 
     def clear(self) -> None:
+        """Wipe the entire conversation history and persist the empty state."""
         self._history.clear()
         self._save()

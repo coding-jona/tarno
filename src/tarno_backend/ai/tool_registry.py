@@ -98,6 +98,7 @@ class ToolRegistry:
         self._tools: dict[str, ToolDefinition] = {}
 
     def register(self, tool: ToolDefinition) -> None:
+        """Add or replace a tool by name."""
         self._tools[tool.name] = tool
         log.debug("Tool registriert: %s", tool.name)
 
@@ -108,9 +109,12 @@ class ToolRegistry:
         return existed
 
     def get(self, name: str) -> ToolDefinition | None:
+        """Look up a registered tool, or None if not found."""
         return self._tools.get(name)
 
     def get_tool_schemas(self) -> list[dict[str, Any]]:
+        """Return every tool's (name, description, input_schema) - the
+        shape the LLM providers' `tools` request parameter expects."""
         return [
             {
                 "name": t.name,
@@ -121,6 +125,10 @@ class ToolRegistry:
         ]
 
     def execute(self, tool_name: str, tool_input: dict[str, Any]) -> ActionResult:
+        """Validate tool_input against the tool's schema, then call its
+        handler with only the schema-declared arguments. Never raises -
+        an unknown tool, bad arguments, or a handler exception all come
+        back as a failed ActionResult instead."""
         tool = self._tools.get(tool_name)
         if tool is None:
             log.warning("Unbekanntes Tool: %s", tool_name)
